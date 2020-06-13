@@ -628,8 +628,9 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             val filters = hashMapOf("tag" to tagValue)
 
             val insideBlog = parentFragment is EntryListFragmentFull
+            val insideEntry = parentFragment is CommentListFragment
             val tagInOurBlog = parentFragment is EntryListFragment && parentFragment.profile == Auth.profile
-            if (insideBlog || tagInOurBlog) {
+            if (insideBlog || insideEntry || tagInOurBlog) {
                 // we're browsing one person's blog, show only their entries
                 filters["profile_id"] = this@EntryViewHolder.profile.id
             }

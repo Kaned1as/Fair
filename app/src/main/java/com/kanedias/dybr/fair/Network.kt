@@ -599,7 +599,7 @@ object Network {
         builder.addQueryParameter("page[number]", pageNum.toString())
                 .addQueryParameter("page[size]", PAGE_SIZE.toString())
                 .addQueryParameter("page[starter]", starter.toString())
-                .addQueryParameter("include", "profiles,community,reactions") // TODO: replace blog with community
+                .addQueryParameter("include", "profiles,community,reactions")
                 .addQueryParameter("sort", "-created-at")
 
         for ((type, value) in filters) {
