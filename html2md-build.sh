@@ -4,7 +4,7 @@ set -e
 cd $(dirname $0)
 
 readonly JNI_LIBS="$PWD/app/src/main/jniLibs"
-readonly NDK_PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+readonly NDK_PATH="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
 export PATH="$PATH:$NDK_PATH"
 
 rm -rf $JNI_LIBS
