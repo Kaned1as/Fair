@@ -117,7 +117,7 @@ abstract class UserContentViewHolder<T: Authored>(iv: View, val parentFragment: 
 
         // open create new comment fragment and insert nickname
         val commentAdd = CreateNewCommentFragment().apply {
-            this.entry = commentList.entry!!
+            this.entry = commentList.entry
             arguments = Bundle().apply { putSerializable(CreateNewCommentFragment.AUTHOR_LINK, entity) }
         }
         activity.showFullscreenFragment(commentAdd)
@@ -136,7 +136,7 @@ abstract class UserContentViewHolder<T: Authored>(iv: View, val parentFragment: 
                     val commentList = activity.getTopFragment(CommentListFragment::class) ?: return true
 
                     val commentAdd = CreateNewCommentFragment().apply {
-                        this.entry = commentList.entry!!
+                        this.entry = commentList.entry
                         arguments = Bundle().apply {
                             putSerializable(CreateNewCommentFragment.AUTHOR_LINK, entity)
                             putSerializable(CreateNewCommentFragment.REPLY_TEXT, text.toString())

@@ -36,7 +36,7 @@ open class BookmarkListFragmentFull: EntryListFragment() {
         // setup toolbar
         toolbar.title = getString(R.string.my_bookmarks)
         toolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
-        toolbar.setNavigationOnClickListener { fragmentManager?.popBackStack() }
+        toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
     }
 
     override fun setupTheming() {

@@ -18,16 +18,13 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.ftinc.scoop.Scoop
-import com.google.android.material.card.MaterialCardView
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.misc.getTopFragment
-import com.kanedias.dybr.fair.misc.resolveAttr
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
 import kotlinx.coroutines.*
 import moe.banana.jsonapi2.ArrayDocument
-import moe.banana.jsonapi2.Resource
 
 /**
  * Fragment which displays selected entry and its comments below.

@@ -14,7 +14,6 @@ import butterknife.*
 import com.afollestad.materialdialogs.MaterialDialog
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
-import com.kanedias.dybr.fair.dto.Auth
 import com.kanedias.dybr.fair.dto.RegisterRequest
 import com.kanedias.dybr.fair.themes.showThemed
 import com.kanedias.dybr.fair.ui.Sidebar

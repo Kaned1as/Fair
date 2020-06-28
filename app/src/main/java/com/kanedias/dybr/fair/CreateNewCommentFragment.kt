@@ -158,14 +158,14 @@ class CreateNewCommentFragment : Fragment() {
     fun cancel() {
         if (editMode || contentInput.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
-            requireFragmentManager().popBackStack()
+            parentFragmentManager.popBackStack()
             return
         }
 
         // persist draft
         DbProvider.helper.draftDao.create(OfflineDraft(key = "comment,entry=${entry.id}", base = contentInput))
         Toast.makeText(requireContext(), R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
-        requireFragmentManager().popBackStack()
+        parentFragmentManager.popBackStack()
     }
 
     /**
@@ -175,7 +175,7 @@ class CreateNewCommentFragment : Fragment() {
      */
     @OnLongClick(R.id.comment_cancel)
     fun forceCancel(): Boolean {
-        requireFragmentManager().popBackStack()
+        parentFragmentManager.popBackStack()
         return true
     }
 
@@ -186,7 +186,7 @@ class CreateNewCommentFragment : Fragment() {
     fun submit() {
         // hide keyboard
         val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view!!.windowToken, 0)
+        imm.hideSoftInputFromWindow(requireView().windowToken, 0)
 
         val comment = CreateCommentRequest().apply { content = markdownToHtml(contentInput.text.toString()) }
 
@@ -201,7 +201,7 @@ class CreateNewCommentFragment : Fragment() {
             try {
                 // if we have current comment list, refresh it
                 val frgPredicate = { it: Fragment -> it is UserContentListFragment }
-                val curFrg = requireFragmentManager().fragments.reversed().find(frgPredicate) as UserContentListFragment?
+                val curFrg = parentFragmentManager.fragments.reversed().find(frgPredicate) as UserContentListFragment?
 
                 if (editMode) {
                     // alter existing comment
@@ -217,7 +217,7 @@ class CreateNewCommentFragment : Fragment() {
                     Toast.makeText(activity, R.string.comment_created, Toast.LENGTH_SHORT).show()
                     curFrg?.loadMore()
                 }
-                fragmentManager?.popBackStack()
+                parentFragmentManager.popBackStack()
             } catch (ex: Exception) {
                 // don't close the fragment, just report errors
                 if (isActive) {

@@ -84,7 +84,7 @@ class AddProfileFragment: Fragment() {
      * Handle successful account addition. Navigate back to [MainActivity] and update sidebar account list.
      */
     private fun handleSuccess() {
-        requireFragmentManager().popBackStack()
+        parentFragmentManager.popBackStack()
         activity.refresh()
     }
 }

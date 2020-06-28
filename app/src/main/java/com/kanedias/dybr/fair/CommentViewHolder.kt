@@ -26,7 +26,7 @@ import kotlinx.coroutines.*
  *
  * @param parentFragment fragment that this view holder belongs to. Needed for styling and
  *                       proper async job lifecycle
- * @param entry entry that this comment is posted to
+ * @param iv inflated view
  * @see CommentListFragment.commentRibbon
  * @author Kanedias
  */
