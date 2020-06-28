@@ -71,13 +71,6 @@ class Account {
     var accessToken: String? = null
 
     /**
-     * Profile id to load when application starts again
-     * (server-side)
-     */
-    @DatabaseField(canBeNull = true)
-    var lastProfileId: String? = null
-
-    /**
      * Whether this is current account for the app
      */
     @DatabaseField(canBeNull = false)

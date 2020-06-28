@@ -261,7 +261,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
 
                 // start re-login sequence
                 drawer.closeDrawers()
-                activity.reLogin(acc)
+                activity.performLogin(acc)
             }
 
             // setup account row - handle click on delete button
@@ -289,7 +289,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
             DbProvider.helper.accDao.update(Auth.user)
 
             drawer.closeDrawers()
-            activity.reLogin(Auth.guest)
+            activity.performLogin(Auth.guest)
         }
         accountsArea.addView(guestRow)
 
@@ -417,7 +417,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         // if we deleted current account, set it to guest
         if (Auth.user.email == acc.email) {
             drawer.closeDrawers()
-            activity.reLogin(Auth.guest)
+            activity.performLogin(Auth.guest)
         }
 
         // all accounts are present in the DB, inner id is set either on query

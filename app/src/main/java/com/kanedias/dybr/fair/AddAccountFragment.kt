@@ -129,16 +129,13 @@ class AddAccountFragment : Fragment() {
 
             try {
                 withContext(Dispatchers.IO) { Network.login(acc) }
-
                 Toast.makeText(requireContext(), R.string.login_successful, Toast.LENGTH_SHORT).show()
-                if (Auth.user.lastProfileId.isNullOrBlank() || Auth.user.lastProfileId == "0") {
-                    // user doesn't have active profile, select one
-                    activity.startProfileSelector() // shows profile selection dialog
-                }
 
                 //we logged in successfully, return to main activity
                 DbProvider.helper.accDao.create(acc)
-                handleSuccess()
+
+                activity.performLogin(acc)
+                parentFragmentManager.popBackStack()
             } catch (ex: Exception) {
                 val errorMap = mapOf(
                         "email_not_confirmed" to getString(R.string.email_not_activated_yet),
@@ -197,29 +194,17 @@ class AddAccountFragment : Fragment() {
                         .show()
 
                 // return to main activity
-                Auth.updateCurrentUser(acc)
-                handleSuccess()
+                activity.refresh()
+                parentFragmentManager.popBackStack()
             } catch (ex: Exception) {
                 val errorMap = mapOf(
                         "email_registered" to getString(R.string.email_already_registered),
-                        "email_not_confirmed" to getString(R.string.email_not_activated_yet),
-                        "email_not_found" to getString(R.string.email_not_found),
-                        "email_invalid" to getString(R.string.email_is_invalid),
-                        "password_invalid" to getString(R.string.incorrect_password)
+                        "email_invalid" to getString(R.string.email_is_invalid)
                 )
-
                 Network.reportErrors(ctx = requireContext(), ex = ex, detailMapping = errorMap)
             }
 
             progressDialog.dismiss()
         }
-    }
-
-    /**
-     * Handle successful account addition. Navigate back to [MainActivity] and update sidebar account list.
-     */
-    private fun handleSuccess() {
-        requireFragmentManager().popBackStack()
-        activity.refresh()
     }
 }

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.preference.PreferenceManager
+import com.auth0.android.jwt.JWT
 import com.kanedias.dybr.fair.database.entities.Account
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -29,7 +30,6 @@ import java.net.HttpURLConnection.*
 import okhttp3.RequestBody
 import okhttp3.internal.http.HttpMethod
 import org.json.JSONObject
-import java.lang.IllegalStateException
 import kotlin.random.Random
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.kotlinProperty
@@ -271,15 +271,37 @@ object Network {
      * "Authorization" header.
      *
      * @param acc account to authenticate with
+     * @param profileId specific profile id that was requested at login
      * @return true if auth was successful, false otherwise
      * @throws IOException on connection fail
      */
-    fun login(acc: Account) {
+    fun login(acc: Account, profileId: String? = null) {
         val loginRequest = LoginRequest().apply {
             action = "login"
             email = acc.email
             password = acc.password
         }
+
+        if (acc.accessToken != null) {
+            // we already have access token for this account
+            val jwt = JWT(acc.accessToken!!)
+            val currentProfile = jwt.audience?.firstOrNull()
+            val profileChangeNeeded = profileId != null && profileId != currentProfile
+            if (jwt.expiresAt!! > Date() && !profileChangeNeeded) {
+                // already logged in, skip network exchange completely
+                Auth.updateCurrentUser(acc)
+                return
+            }
+
+            // JWT expired, set known profile if we have it
+            loginRequest.profile = currentProfile
+        }
+
+        if (profileId != null) {
+            // force login profile to specific id
+            loginRequest.profile = profileId
+        }
+
         val body = RequestBody.create(MIME_JSON_API, toWrappedJson(loginRequest))
         val req = Request.Builder().post(body).url(SESSIONS_ENDPOINT).build()
         val resp = httpClient.newCall(req).execute()
@@ -294,27 +316,21 @@ object Network {
 
         // login successful
         // memorize the access token and use it in next requests
-        Auth.updateCurrentUser(acc)
         acc.accessToken = response.accessToken
+        Auth.updateCurrentUser(acc)
 
-        // looks like we're logging in for the first time, retrieve user info for later
-        if (acc.lastProfileId == null) {
-            // get user info
-            val reqUser = Request.Builder().url(USERS_ENDPOINT).build()
-            val respUser = httpClient.newCall(reqUser).execute() // returns array with only one element
-            val user = fromWrappedJson(respUser.body()!!.source(), User::class.java) ?: return
+        // save user info
+        val reqUser = Request.Builder().url(USERS_ENDPOINT).build()
+        val respUser = httpClient.newCall(reqUser).execute() // returns array with only one element
+        val user = fromWrappedJson(respUser.body()!!.source(), User::class.java) ?: return
 
-            // memorize account info
-            acc.apply {
-                serverId = user.id
-                createdAt = user.createdAt
-                updatedAt = user.updatedAt
-                isAdult = user.isAdult
-            }
+        // memorize account info
+        acc.apply {
+            serverId = user.id
+            createdAt = user.createdAt
+            updatedAt = user.updatedAt
+            isAdult = user.isAdult
         }
-
-        // last profile exists, try to load it
-        populateProfile()
     }
 
     private fun <T: ResourceIdentifier> toWrappedJson(obj: T): String {
@@ -359,21 +375,6 @@ object Network {
     }
 
     /**
-     * Pull profile of current user. Account should have selected last profile and relevant access token by this point.
-     * Don't invoke this for accounts that are logging in for the first time, use [loadUserProfiles] instead.
-     * After the completion [Auth.profile] will be populated.
-     *
-     * @throws IOException on connection fail
-     */
-    private fun populateProfile() {
-        if (Auth.user.lastProfileId == null)
-            return // no profile selected, nothing to populate
-
-        val profile = loadProfile(Auth.user.lastProfileId!!)
-        Auth.updateCurrentProfile(profile) // all steps aren't required here, use this just to have all in one place
-    }
-
-    /**
      * Load all profiles for current account. The account must be already set in [Auth.user].
      * Guests can't request any profiles.
      * @return list of profiles that are bound to currently logged in user
@@ -387,27 +388,6 @@ object Network {
         // there's an edge-case when user is deleted on server but we still have Auth.user.serverId set
         val user = fromWrappedJson(resp.body()!!.source(), User::class.java) ?: return emptyList()
         return user.profiles.get(user.document)
-    }
-
-    /**
-     * Mark profile active for current user
-     * @param prof profile to make active
-     */
-    fun makeProfileActive(prof: OwnProfile) {
-        if (Auth.user === Auth.guest)
-            throw IllegalStateException("Guest users don't have profiles!")
-
-        val user = RegisterRequest().apply {
-            id = Auth.user.serverId
-            activeProfile = prof.id
-        }
-
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(user))
-        val req = Request.Builder().url("$USERS_ENDPOINT/${Auth.user.serverId}").patch(reqBody).build()
-        val resp = httpClient.newCall(req).execute()
-        if (!resp.isSuccessful) {
-            throw extractErrors(resp, "Can't activate profile")
-        }
     }
 
     /**

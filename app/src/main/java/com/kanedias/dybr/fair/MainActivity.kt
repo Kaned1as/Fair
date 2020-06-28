@@ -44,7 +44,6 @@ import com.kanedias.dybr.fair.ui.Sidebar
 import com.kanedias.dybr.fair.misc.getTopFragment
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
 import kotlinx.coroutines.*
-import java.util.*
 import kotlin.collections.HashMap
 
 /**
@@ -137,7 +136,7 @@ class MainActivity : AppCompatActivity() {
         // Setup profile themes
         setupTheming()
         // load user profile and initialize tabs
-        reLogin(Auth.user)
+        performLogin(Auth.user)
     }
 
     private fun setupUI() {
@@ -362,7 +361,7 @@ class MainActivity : AppCompatActivity() {
      *
      * @param acc account to be logged in with
      */
-    fun reLogin(acc: Account) {
+    fun performLogin(acc: Account) {
         // skip re-login if we're logging in as guest
         if (acc === Auth.guest) {
             Auth.updateCurrentUser(Auth.guest)
@@ -370,35 +369,39 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // skip re-login if it's the same profile, our token is still valid and we have profile loaded
-        if (acc == Auth.user && Auth.user.accessToken != null && Auth.profile != null) {
-            val currentToken = JWT(Auth.user.accessToken!!)
-            if (currentToken.expiresAt!! > Date()) {
-                refresh()
-                return
-            }
-        }
+        val progressDialog = MaterialDialog(this@MainActivity)
+                .cancelable(false)
+                .title(R.string.please_wait)
+                .message(R.string.logging_in)
 
         lifecycleScope.launch {
-            val progressDialog = MaterialDialog(this@MainActivity)
-                    .cancelable(false)
-                    .title(R.string.please_wait)
-                    .message(R.string.logging_in)
             progressDialog.showThemed(styleLevel)
+
             try {
                 // login with this account and reset profile/blog links
                 withContext(Dispatchers.IO) { Network.login(acc) }
 
-                if (Auth.user.lastProfileId == null) {
+                // at this point we know we definitely have token available
+                val token = JWT(acc.accessToken!!)
+                if (token.audience.isNullOrEmpty() || token.audience?.first() == "0") {
                     // first time we're loading this account, select profile
                     startProfileSelector()
                 } else {
-                    // we already have loaded profile
-                    // all went well, report if we should
+                    // we already have profile, load it
+                    val profile = withContext(Dispatchers.IO) { Network.loadProfile(token.audience!!.first()) }
+                    Auth.updateCurrentProfile(profile)
                     Toast.makeText(this@MainActivity, R.string.login_successful, Toast.LENGTH_SHORT).show()
                 }
             } catch (ex: Exception) {
-                Network.reportErrors(this@MainActivity, ex)
+                val detailMap = mapOf(
+                        "email_registered" to getString(R.string.email_already_registered),
+                        "email_not_confirmed" to getString(R.string.email_not_activated_yet),
+                        "email_not_found" to getString(R.string.email_not_found),
+                        "email_invalid" to getString(R.string.email_is_invalid),
+                        "password_invalid" to getString(R.string.incorrect_password)
+                )
+
+                Network.reportErrors(this@MainActivity, ex, detailMapping = detailMap)
                 becomeGuest()
             }
 
@@ -567,6 +570,7 @@ class MainActivity : AppCompatActivity() {
 
         if (profiles.size == 1 && !showIfOne) {
             // we have only one profile, use it
+            withContext(Dispatchers.IO) { Network.login(Auth.user, profiles[0].id) }
             Auth.updateCurrentProfile(profiles[0])
             refresh()
             return
@@ -599,7 +603,7 @@ class MainActivity : AppCompatActivity() {
         // need to retrieve selected profile fully, i.e. with favorites and stuff
         lifecycleScope.launch {
             try {
-                withContext(Dispatchers.IO) { Network.makeProfileActive(prof) }
+                withContext(Dispatchers.IO) { Network.login(Auth.user, prof.id) }
                 val fullProf = withContext(Dispatchers.IO) { Network.loadProfile(prof.id) }
                 Auth.updateCurrentProfile(fullProf)
                 refresh()
@@ -630,32 +634,29 @@ class MainActivity : AppCompatActivity() {
      * @param prof profile to remove
      */
     private fun deleteProfile(prof: OwnProfile) {
+        val progressDialog = MaterialDialog(this@MainActivity)
+                .cancelable(false)
+                .title(R.string.please_wait)
+                .message(R.string.checking_in_progress)
+
         lifecycleScope.launch {
-            try {
-                withContext(Dispatchers.IO) { Network.removeProfile(prof) }
-                Toast.makeText(this@MainActivity, R.string.profile_deleted, Toast.LENGTH_SHORT).show()
-            } catch (ex: Exception) {
-                Network.reportErrors(this@MainActivity, ex)
-            }
+            progressDialog.showThemed(styleLevel)
+            Network.perform(
+                networkAction = { Network.removeProfile(prof) },
+                uiAction = {
+                    Toast.makeText(this@MainActivity, R.string.profile_deleted, Toast.LENGTH_SHORT).show()
+                }
+            )
+            progressDialog.dismiss()
 
             if (Auth.profile == prof) {
-                Auth.user.lastProfileId = null
+                Auth.user.accessToken = null
                 DbProvider.helper.accDao.update(Auth.user)
 
                 // we deleted current profile, need to become guest
-                becomeOrphan()
+                becomeGuest()
             }
         }
-    }
-
-    /**
-     * Become a user with no profile
-     * What to do if current profile was deleted
-     */
-    private fun becomeOrphan() {
-        Auth.updateCurrentProfile(null)
-        drawer.openDrawer(GravityCompat.START)
-        refresh()
     }
 
     /**
@@ -800,8 +801,8 @@ class MainActivity : AppCompatActivity() {
                             .message(R.string.confirm_profile_deletion)
                             .negativeButton(android.R.string.no)
                             .positiveButton(R.string.confirm, click = {
-                                removeItem(pos)
                                 deleteProfile(prof)
+                                removeItem(pos)
                             }).showThemed(styleLevel)
                 }
 

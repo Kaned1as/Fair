@@ -32,6 +32,12 @@ class LoginRequest : Resource() {
         lateinit var password: String
 
         /**
+         * Profile id to login with
+         */
+        @Json(name = "profile")
+        var profile: String? = null
+
+        /**
          * Needed only in confirmation request
          */
         @Json(name = "confirmation-token")

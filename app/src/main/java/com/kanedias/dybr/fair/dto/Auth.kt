@@ -38,12 +38,13 @@ object Auth {
     fun updateCurrentUser(acc: Account) {
         this.user = acc
         this.profile = null
+
+        if (acc !== this.guest) {
+            DbProvider.helper.accDao.update(Auth.user)
+        }
     }
 
     fun updateCurrentProfile(prof: OwnProfile?) {
-        this.user.lastProfileId = prof?.id
         this.profile = prof
-
-        DbProvider.helper.accDao.update(Auth.user)
     }
 }
