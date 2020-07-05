@@ -3,18 +3,24 @@ package com.kanedias.dybr.fair
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.text.SpannableStringBuilder
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.preference.PreferenceManager
 import com.auth0.android.jwt.JWT
+import com.kanedias.SpanCache
 import com.kanedias.dybr.fair.database.entities.Account
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.kanedias.dybr.fair.dto.*
+import com.kanedias.dybr.fair.markdown.handleMarkdown
+import com.kanedias.dybr.fair.markdown.mdRendererFrom
+import com.kanedias.dybr.fair.markdown.postProcessSpans
 import com.kanedias.dybr.fair.misc.HttpApiException
 import com.kanedias.dybr.fair.misc.HttpException
+import com.kanedias.html2md.Html2Markdown
 import com.squareup.moshi.Json
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -596,7 +602,10 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), Entry::class.java)
+        val entryDoc = fromWrappedListJson(resp.body()!!.source(), Entry::class.java)
+        entryDoc.map { it.content }.forEach { preloadMarkdown(it) }
+
+        return entryDoc
     }
 
     /**
@@ -633,7 +642,20 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), Comment::class.java)
+        val commentDoc = fromWrappedListJson(resp.body()!!.source(), Comment::class.java)
+        commentDoc.map { it.content }.forEach { preloadMarkdown(it) }
+        return commentDoc
+    }
+
+    /**
+     * Put markdown content into local cache
+     */
+    private fun preloadMarkdown(html: String) {
+        val mdContent = Html2Markdown().parseExtended(html)
+        val spanned = mdRendererFrom(appCtx).toMarkdown(mdContent) as SpannableStringBuilder
+        postProcessSpans(spanned, appCtx)
+
+        SpanCache.putId(html.hashCode(), spanned)
     }
 
     /**

@@ -37,6 +37,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.ftinc.scoop.binding.AbstractBinding
+import com.kanedias.SpanCache
 import com.kanedias.dybr.fair.BuildConfig
 import com.kanedias.dybr.fair.Network
 import com.kanedias.dybr.fair.R
@@ -44,27 +45,18 @@ import com.kanedias.html2md.Html2Markdown
 import com.stfalcon.imageviewer.StfalconImageViewer
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
-import io.noties.markwon.MarkwonVisitor
 import io.noties.markwon.RenderProps
-import io.noties.markwon.core.spans.EmphasisSpan
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.html.HtmlPlugin
 import io.noties.markwon.html.HtmlTag
-import io.noties.markwon.html.MarkwonHtmlRenderer
-import io.noties.markwon.html.TagHandler
 import io.noties.markwon.html.tag.SimpleTagHandler
 import io.noties.markwon.image.AsyncDrawableScheduler
 import io.noties.markwon.image.AsyncDrawableSpan
 import io.noties.markwon.image.glide.GlideImagesPlugin
 import io.noties.markwon.utils.NoCopySpannableFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
-import org.commonmark.node.Emphasis
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import java.io.File
@@ -82,20 +74,10 @@ import java.util.*
  */
 fun mdRendererFrom(ctx: Context): Markwon {
     return Markwon.builder(ctx)
-            .usePlugin(HtmlPlugin.create())
-            .usePlugin(StrikethroughPlugin.create())
-            .build()
-}
-
-/**
- * Get commonly-used markdown setup for text views
- */
-fun mdRendererFrom(txt: TextView): Markwon {
-    return Markwon.builder(txt.context)
             .usePlugin(HtmlPlugin.create().addHandler(OfftopSpanHandler()))
-            .usePlugin(GlideImagesPlugin.create(GlideGifSupportStore(txt)))
+            .usePlugin(GlideImagesPlugin.create(GlideGifSupportStore(ctx)))
             .usePlugin(StrikethroughPlugin.create())
-            .usePlugin(TablePlugin.create(txt.context))
+            .usePlugin(TablePlugin.create(ctx))
             .build()
 }
 
@@ -132,35 +114,31 @@ class OfftopSpanHandler : SimpleTagHandler() {
  * @param html input markdown to show
  */
 infix fun TextView.handleMarkdown(html: String) {
-    val label = this
-    label.setSpannableFactory(NoCopySpannableFactory())
+    setSpannableFactory(NoCopySpannableFactory())
 
-    GlobalScope.launch(Dispatchers.Main) {
-        // this is computation-intensive task, better do it smoothly
-        val span = withContext(Dispatchers.IO) {
-            val mdContent = Html2Markdown().parseExtended(html)
-            val spanned = mdRendererFrom(label).toMarkdown(mdContent) as SpannableStringBuilder
-            postProcessSpans(spanned, label)
+    val converter = {
+        val mdContent = Html2Markdown().parseExtended(html)
+        val spanned = mdRendererFrom(context).toMarkdown(mdContent) as SpannableStringBuilder
+        postProcessSpans(spanned, context)
 
-            spanned
+        spanned
+    }
+
+    text = SpanCache.forMessageId(html.hashCode(), converter)
+
+    // FIXME: see https://github.com/noties/Markwon/issues/120
+    addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
+        override fun onViewDetachedFromWindow(v: View) {
+
         }
 
-        label.text = span
+        override fun onViewAttachedToWindow(v: View) {
+            AsyncDrawableScheduler.schedule(v as TextView)
+        }
 
-        // FIXME: see https://github.com/noties/Markwon/issues/120
-        label.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
-            override fun onViewDetachedFromWindow(v: View?) {
+    })
 
-            }
-
-            override fun onViewAttachedToWindow(v: View?) {
-                AsyncDrawableScheduler.schedule(label)
-            }
-
-        })
-
-        AsyncDrawableScheduler.schedule(label)
-    }
+    AsyncDrawableScheduler.schedule(this)
 }
 
 const val MORE_START_PATTERN = "\\[MORE=(.+?)]"
@@ -183,15 +161,15 @@ val MORE_FULL_REGEX = Regex(".*($MORE_START_PATTERN(.*?)$MORE_END_PATTERN)", Reg
  * @param spanned editable spannable to change
  * @param view resulting text view to accept the modified spanned string
  */
-fun postProcessSpans(spanned: SpannableStringBuilder, view: TextView) {
-    val prefs = PreferenceManager.getDefaultSharedPreferences(view.context)
+fun postProcessSpans(spanned: SpannableStringBuilder, ctx: Context) {
+    val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
 
-    postProcessDrawables(spanned, view)
+    postProcessDrawables(spanned, ctx)
 
     if (!prefs.getBoolean("auto-load-images", true)) {
-        postProcessDrawablesLoad(spanned, view)
+        postProcessDrawablesLoad(spanned, ctx)
     }
-    postProcessMore(spanned, view)
+    postProcessMore(spanned, ctx)
 
 }
 
@@ -200,7 +178,7 @@ fun postProcessSpans(spanned: SpannableStringBuilder, view: TextView) {
  * @param spanned editable spannable to change
  * @param view resulting text view to accept the modified spanned string
  */
-fun postProcessDrawables(spanned: SpannableStringBuilder, view: TextView) {
+fun postProcessDrawables(spanned: SpannableStringBuilder, ctx: Context) {
     val imgSpans = spanned.getSpans(0, spanned.length, AsyncDrawableSpan::class.java)
     imgSpans.sortBy { spanned.getSpanStart(it) }
 
@@ -221,10 +199,10 @@ fun postProcessDrawables(spanned: SpannableStringBuilder, view: TextView) {
                     return
                 }
 
-                val overlay = ImageShowOverlay(view.context)
+                val overlay = ImageShowOverlay(ctx)
                 overlay.update(imgSpans[index])
 
-                StfalconImageViewer.Builder<AsyncDrawableSpan>(view.context, imgSpans) { view, span ->
+                StfalconImageViewer.Builder<AsyncDrawableSpan>(ctx, imgSpans) { view, span ->
                     val resolved = Network.resolve(span.drawable.destination) ?: return@Builder
                     Glide.with(view).load(resolved.toString()).into(view)
                 }
@@ -245,7 +223,7 @@ fun postProcessDrawables(spanned: SpannableStringBuilder, view: TextView) {
  * @param spanned text to be modified to cut out MORE tags and insert replacements instead of them
  * @param view resulting text view to accept the modified spanned string
  */
-fun postProcessMore(spanned: SpannableStringBuilder, view: TextView) {
+fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
     while (true) {
         // we need to process all MOREs in the text, start from inner ones, get back to outer in next loops
         val match = MORE_FULL_REGEX.find(spanned) ?: break
@@ -260,12 +238,13 @@ fun postProcessMore(spanned: SpannableStringBuilder, view: TextView) {
 
         // content of opening tag may be HTML
         val auxMd = Html2Markdown().parseExtended(moreText)
-        val auxSpanned = mdRendererFrom(view).toMarkdown(auxMd)
+        val auxSpanned = mdRendererFrom(ctx).toMarkdown(auxMd)
 
         spanned.replace(outerRange.first, outerRange.last + 1, auxSpanned) // replace it just with text
         val wrapper = object : ClickableSpan() {
 
             override fun onClick(widget: View) {
+                val textView = widget as TextView
                 // replace wrappers with real previous spans
 
                 val start = spanned.getSpanStart(this)
@@ -275,9 +254,8 @@ fun postProcessMore(spanned: SpannableStringBuilder, view: TextView) {
                 spanned.removeSpan(this)
                 spanned.replace(start, end, innerSpanned)
 
-                val textView = widget as TextView
                 textView.text = spanned
-                AsyncDrawableScheduler.schedule(view)
+                AsyncDrawableScheduler.schedule(textView)
             }
         }
         spanned.setSpan(wrapper, outerRange.first, outerRange.first + auxSpanned.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -293,7 +271,7 @@ fun postProcessMore(spanned: SpannableStringBuilder, view: TextView) {
  * @param spanned text to be modified. We cut out async drawables and put image placeholders instead of them there
  * @param view text view to accept resulting spanned string. On placeholder click show wrapped async drawables
  */
-private fun postProcessDrawablesLoad(spanned: SpannableStringBuilder, view: TextView) {
+private fun postProcessDrawablesLoad(spanned: SpannableStringBuilder, ctx: Context) {
     val spans = spanned.getSpans(0, spanned.length, AsyncDrawableSpan::class.java)
     for (span in spans) {
         // skip static images
@@ -304,10 +282,11 @@ private fun postProcessDrawablesLoad(spanned: SpannableStringBuilder, view: Text
         val start = spanned.getSpanStart(span)
         val end = spanned.getSpanEnd(span)
         val spansToWrap = spanned.getSpans(start, end, CharacterStyle::class.java)
-        val wrapperImg = ImageSpan(view.context, R.drawable.download_image)
+        val wrapperImg = ImageSpan(ctx, R.drawable.download_image)
         val wrapperClick = object: ClickableSpan() {
 
             override fun onClick(widget: View) {
+                val textView = widget as TextView
                 // replace wrappers with real previous spans
 
                 // text can be already moved around (due to MORE etc.), refresh start/end variables
@@ -318,8 +297,10 @@ private fun postProcessDrawablesLoad(spanned: SpannableStringBuilder, view: Text
                 spanned.removeSpan(this)
 
                 spansToWrap.forEach { spanned.setSpan(it, realStart, realEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) }
-                view.text = spanned
-                AsyncDrawableScheduler.schedule(view)
+
+
+                textView.text = spanned
+                AsyncDrawableScheduler.schedule(textView)
             }
 
         }
@@ -335,8 +316,8 @@ private fun postProcessDrawablesLoad(spanned: SpannableStringBuilder, view: Text
  * @see handleMarkdown
  */
 infix fun TextView.handleMarkdownRaw(markdown: String) {
-    val spanned = mdRendererFrom(this).toMarkdown(markdown) as SpannableStringBuilder
-    postProcessSpans(spanned, this)
+    val spanned = mdRendererFrom(context).toMarkdown(markdown) as SpannableStringBuilder
+    postProcessSpans(spanned, context)
 
     this.text = spanned
 }

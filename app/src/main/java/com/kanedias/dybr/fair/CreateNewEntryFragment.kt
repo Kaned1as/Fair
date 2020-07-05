@@ -31,7 +31,6 @@ import com.kanedias.dybr.fair.database.entities.OfflineDraft
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.markdown.handleMarkdownRaw
-import com.kanedias.dybr.fair.misc.styleLevel
 import com.kanedias.dybr.fair.markdown.markdownToHtml
 import com.kanedias.html2md.Html2Markdown
 import kotlinx.coroutines.*
@@ -542,7 +541,6 @@ class CreateNewEntryFragment : Fragment() {
                 it.compoundDrawablePadding = Utils.dpToPx(it.context, 4F).toInt()
                 it.text = item.toDescription(it.context)
 
-                val styleLevel = view.styleLevel ?: return@let
                 styleLevel.bind(TEXT, it, TextViewColorAdapter())
                 styleLevel.bind(TEXT_LINKS, it, TextViewDrawableAdapter())
             }

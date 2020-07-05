@@ -1,5 +1,6 @@
 package com.kanedias.dybr.fair.misc
 
+import android.content.Context
 import android.util.TypedValue
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -40,6 +41,26 @@ fun <T: Fragment> FragmentActivity.getTopFragment(type: KClass<T>): T? {
     return supportFragmentManager.fragments.reversed().find(clPredicate) as T?
 }
 
+fun styleLevelFromActivity(ctx: Context): StyleLevel? {
+        val activity = ctx as? MainActivity ?: return null
+        val fm = activity.supportFragmentManager
+
+        // try to find fragment with style on top of backstack
+        for (idx in fm.backStackEntryCount - 1 downTo 0) {
+            val entry = fm.getBackStackEntryAt(idx)
+            val opsField = FragmentTransaction::class.java.getDeclaredField("mOps").apply { isAccessible = true }
+            val ops = opsField.get(entry) as? List<*>
+
+            val lastOp = ops?.lastOrNull() ?: continue
+            val fragField = lastOp::class.java.getDeclaredField("mFragment").apply { isAccessible = true }
+            val fragment = fragField.get(lastOp) as? UserContentListFragment ?: continue
+
+            return fragment.styleLevel
+        }
+
+        return activity.styleLevel
+    }
+
 val View.styleLevel : StyleLevel?
     get() {
         val activity = this.context as? MainActivity ?: return null
@@ -63,19 +84,7 @@ val View.styleLevel : StyleLevel?
         }
 
         // second, try to find fragment with style on top of backstack
-        for (idx in fm.backStackEntryCount - 1 downTo 0) {
-            val entry = fm.getBackStackEntryAt(idx)
-            val opsField = FragmentTransaction::class.java.getDeclaredField("mOps").apply { isAccessible = true }
-            val ops = opsField.get(entry) as? List<*>
-
-            val lastOp = ops?.lastOrNull() ?: continue
-            val fragField = lastOp::class.java.getDeclaredField("mFragment").apply { isAccessible = true }
-            val fragment = fragField.get(lastOp) as? UserContentListFragment ?: continue
-
-            return fragment.styleLevel
-        }
-
-        return activity.styleLevel
+        return styleLevelFromActivity(activity)
     }
 
 /**
