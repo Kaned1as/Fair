@@ -199,10 +199,10 @@ fun postProcessDrawables(spanned: SpannableStringBuilder, ctx: Context) {
                     return
                 }
 
-                val overlay = ImageShowOverlay(ctx)
+                val overlay = ImageShowOverlay(widget.context)
                 overlay.update(imgSpans[index])
 
-                StfalconImageViewer.Builder<AsyncDrawableSpan>(ctx, imgSpans) { view, span ->
+                StfalconImageViewer.Builder<AsyncDrawableSpan>(widget.context, imgSpans) { view, span ->
                     val resolved = Network.resolve(span.drawable.destination) ?: return@Builder
                     Glide.with(view).load(resolved.toString()).into(view)
                 }
