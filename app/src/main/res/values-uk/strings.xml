@@ -73,7 +73,11 @@
     <string name="new_profile">Новий профіль</string>
     <string name="no_profiles_create_one">Не знайдено профилей для цього аккаунта, створити новий?</string>
     <string name="confirm_action">Підтвердити дію</string>
-    <string name="confirm_profile_deletion">Підтвердити видалення профиля. Увага: щоденник та усі записи, що належать до цього профилю, буде видалено!</string>
+    <string name="confirm_profile_deletion">
+        Підтвердити видалення профиля.
+        Увага: щоденник та усі записи, що належать до цього профилю, буде видалено!
+        Введіть назву (%s) для підтвердження
+    </string>
     <string name="confirm">Підтвердити</string>
     <string name="profile_deleted">Профіль видалено</string>
     <string name="switch_profile">Змінити профіль</string>

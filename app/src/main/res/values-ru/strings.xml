@@ -91,7 +91,11 @@
     <string name="new_profile">Новый профиль</string>
     <string name="no_profiles_create_one">Мы не нашли ни одного профиля для этого аккаунта. Создать профиль?</string>
     <string name="confirm_action">Подтвердить действие</string>
-    <string name="confirm_profile_deletion">Подтвердите удаление профиля. Внимание: дневник и все записи, сделанные от этого профиля, будут удалены!</string>
+    <string name="confirm_profile_deletion">
+        Подтвердите удаление профиля.
+        Внимание: дневник и все записи, сделанные от этого профиля, будут удалены!\n
+        Введите никнейм профиля (%s) для подтверждения.
+    </string>
     <string name="confirm">Подтвердить</string>
     <string name="profile_deleted">Профиль удалён</string>
     <string name="switch_profile">Сменить профиль</string>

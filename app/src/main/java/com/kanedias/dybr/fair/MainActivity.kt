@@ -29,10 +29,16 @@ import butterknife.BindView
 import butterknife.OnClick
 import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.getActionButton
+import com.afollestad.materialdialogs.callbacks.onShow
+import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.customListAdapter
 import com.auth0.android.jwt.JWT
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
+import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.database.entities.SearchGotoInfo
@@ -582,8 +588,8 @@ class MainActivity : AppCompatActivity() {
                 .title(R.string.switch_profile)
                 .customListAdapter(profAdapter)
                 .positiveButton(R.string.create_new, click = { addProfile() })
-                .show { profAdapter.toDismiss = this }
-
+                .apply { profAdapter.toDismiss = this }
+                .showThemed(styleLevel)
     }
 
     fun showProfilePreferences() {
@@ -789,6 +795,9 @@ class MainActivity : AppCompatActivity() {
 
             init {
                 ButterKnife.bind(this, v)
+
+                styleLevel.bind(TEXT, profileName, TextViewColorAdapter())
+                styleLevel.bind(TEXT_LINKS, profileRemove, ImageViewColorAdapter())
             }
 
             fun setup(pos: Int) {
@@ -798,12 +807,18 @@ class MainActivity : AppCompatActivity() {
                 profileRemove.setOnClickListener {
                     MaterialDialog(this@MainActivity)
                             .title(R.string.confirm_action)
-                            .message(R.string.confirm_profile_deletion)
+                            .message(text = getString(R.string.confirm_profile_deletion).format(prof.nickname))
                             .negativeButton(android.R.string.no)
                             .positiveButton(R.string.confirm, click = {
                                 deleteProfile(prof)
                                 removeItem(pos)
-                            }).showThemed(styleLevel)
+                            })
+                            .onShow { it.getActionButton(WhichButton.POSITIVE).isEnabled = false }
+                            .input(hint = prof.nickname, waitForPositiveButton = false, callback = { dialog, entered  ->
+                                val doubleConfirmed = entered.toString() == prof.nickname
+                                dialog.getActionButton(WhichButton.POSITIVE).isEnabled = doubleConfirmed
+                            })
+                            .showThemed(styleLevel)
                 }
 
                 itemView.setOnClickListener {
