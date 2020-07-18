@@ -32,6 +32,8 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.callbacks.onShow
+import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.afollestad.materialdialogs.checkbox.getCheckBoxPrompt
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.customListAdapter
 import com.auth0.android.jwt.JWT
@@ -639,7 +641,7 @@ class MainActivity : AppCompatActivity() {
      * Delete specified profile from server and report it
      * @param prof profile to remove
      */
-    private fun deleteProfile(prof: OwnProfile) {
+    private fun deleteProfile(prof: OwnProfile, keepComments: Boolean = false) {
         val progressDialog = MaterialDialog(this@MainActivity)
                 .cancelable(false)
                 .title(R.string.please_wait)
@@ -648,7 +650,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             progressDialog.showThemed(styleLevel)
             Network.perform(
-                networkAction = { Network.removeProfile(prof) },
+                networkAction = { Network.removeProfile(prof, keepComments) },
                 uiAction = {
                     Toast.makeText(this@MainActivity, R.string.profile_deleted, Toast.LENGTH_SHORT).show()
                 }
@@ -809,14 +811,16 @@ class MainActivity : AppCompatActivity() {
                             .title(R.string.confirm_action)
                             .message(text = getString(R.string.confirm_profile_deletion).format(prof.nickname))
                             .negativeButton(android.R.string.no)
-                            .positiveButton(R.string.confirm, click = {
-                                deleteProfile(prof)
-                                removeItem(pos)
-                            })
-                            .onShow { it.getActionButton(WhichButton.POSITIVE).isEnabled = false }
-                            .input(hint = prof.nickname, waitForPositiveButton = false, callback = { dialog, entered  ->
+                            .checkBoxPrompt(R.string.keep_comments_in_other_blogs, onToggle = {})
+                            .input(hint = prof.nickname, waitForPositiveButton = false, callback = { dialog, entered ->
                                 val doubleConfirmed = entered.toString() == prof.nickname
                                 dialog.getActionButton(WhichButton.POSITIVE).isEnabled = doubleConfirmed
+                            })
+                            .onShow { it.getActionButton(WhichButton.POSITIVE).isEnabled = false }
+                            .positiveButton(R.string.confirm, click = {
+                                val keepComments = it.getCheckBoxPrompt().isChecked
+                                deleteProfile(prof, keepComments)
+                                removeItem(pos)
                             })
                             .showThemed(styleLevel)
                 }

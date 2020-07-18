@@ -15,7 +15,6 @@ import com.kanedias.dybr.fair.database.entities.Account
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.kanedias.dybr.fair.dto.*
-import com.kanedias.dybr.fair.markdown.handleMarkdown
 import com.kanedias.dybr.fair.markdown.mdRendererFrom
 import com.kanedias.dybr.fair.markdown.postProcessSpans
 import com.kanedias.dybr.fair.misc.HttpApiException
@@ -461,8 +460,13 @@ object Network {
      * @warning doesn't work for now
      * @param prof Profile to delete. Only profile id is actually needed.
      */
-    fun removeProfile(prof: OwnProfile) {
-        val req = Request.Builder().delete().url("$PROFILES_ENDPOINT/${prof.id}").build()
+    fun removeProfile(prof: OwnProfile, keepComments: Boolean = false) {
+        val queryBuilder = HttpUrl.parse("$PROFILES_ENDPOINT/${prof.id}")!!.newBuilder()
+        if (keepComments) {
+            queryBuilder.addQueryParameter("comments", "keep")
+        }
+
+        val req = Request.Builder().delete().url(queryBuilder.build()).build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
             throw extractErrors(resp, "Can't remove profile ${prof.nickname}")

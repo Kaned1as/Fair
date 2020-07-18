@@ -315,4 +315,5 @@
     <string name="my_readers">My readers</string>
     <string name="my_banned">My banned</string>
     <string name="my_communities">My communities</string>
+    <string name="keep_comments_in_other_blogs">Keep comments in other blogs</string>
 </resources>

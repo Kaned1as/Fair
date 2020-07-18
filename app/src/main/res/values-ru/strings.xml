@@ -96,6 +96,7 @@
         Внимание: дневник и все записи, сделанные от этого профиля, будут удалены!\n
         Введите никнейм профиля (%s) для подтверждения.
     </string>
+    <string name="keep_comments_in_other_blogs">Сохранить комментарии в чужих дневниках</string>
     <string name="confirm">Подтвердить</string>
     <string name="profile_deleted">Профиль удалён</string>
     <string name="switch_profile">Сменить профиль</string>
