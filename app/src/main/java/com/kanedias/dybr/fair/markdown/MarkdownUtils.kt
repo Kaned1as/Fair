@@ -46,6 +46,7 @@ import com.stfalcon.imageviewer.StfalconImageViewer
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
 import io.noties.markwon.RenderProps
+import io.noties.markwon.core.spans.LinkSpan
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.html.HtmlPlugin
@@ -231,16 +232,19 @@ fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
 
         // get group content out of regex
         val outerRange = match.groups[1]!!.range // from start of [MORE] to the end of [/MORE]
-        val moreText = match.groups[2]!!.value // content inside opening tag [MORE=...]
+        val moreRange = match.groups[2]!!.range // content inside opening tag [MORE=...]
         val innerRange = match.groups[3]!!.range // range between opening and closing tag of MORE
-        val innerText = match.groups[3]!!.value // content between opening and closing tag of MORE
-        val innerSpanned = spanned.subSequence(innerRange.first, innerRange.first + innerText.length) // contains all spans there
 
-        // content of opening tag may be HTML
-        val auxMd = Html2Markdown().parseExtended(moreText)
-        val auxSpanned = mdRendererFrom(ctx).toMarkdown(auxMd)
+        // content inside opening tag [MORE=...] with all spans there
+        val moreSpanned = spanned.subSequence(moreRange.first, moreRange.last + 1) as SpannableStringBuilder
 
-        spanned.replace(outerRange.first, outerRange.last + 1, auxSpanned) // replace it just with text
+        // content between opening and closing tag with all spans there
+        val innerSpanned = spanned.subSequence(innerRange.first, innerRange.last + 1) as SpannableStringBuilder
+
+        // don't want any links where [MORE] expansion should be
+        moreSpanned.getSpans(0, moreSpanned.length, LinkSpan::class.java).forEach { moreSpanned.removeSpan(it) }
+
+        spanned.replace(outerRange.first, outerRange.last + 1, moreSpanned) // replace it just with text
         val wrapper = object : ClickableSpan() {
 
             override fun onClick(widget: View) {
@@ -250,7 +254,7 @@ fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
                 val start = spanned.getSpanStart(this)
                 val end = spanned.getSpanEnd(this)
 
-                auxSpanned.getSpans(0, auxSpanned.length, Any::class.java).forEach { spanned.removeSpan(it) }
+                moreSpanned.getSpans(0, moreSpanned.length, Any::class.java).forEach { spanned.removeSpan(it) }
                 spanned.removeSpan(this)
                 spanned.replace(start, end, innerSpanned)
 
@@ -258,7 +262,7 @@ fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
                 AsyncDrawableScheduler.schedule(textView)
             }
         }
-        spanned.setSpan(wrapper, outerRange.first, outerRange.first + auxSpanned.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spanned.setSpan(wrapper, outerRange.first, outerRange.first + moreSpanned.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 }
 
