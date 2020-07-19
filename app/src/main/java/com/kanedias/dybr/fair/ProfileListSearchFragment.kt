@@ -15,6 +15,9 @@ import butterknife.ButterKnife
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ftinc.scoop.Scoop
+import com.ftinc.scoop.adapters.DefaultColorAdapter
+import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
@@ -32,7 +35,7 @@ import java.util.*
 open class ProfileListSearchFragment : UserContentListFragment() {
 
     @BindView(R.id.profile_list_toolbar)
-    lateinit var toolbar: Toolbar
+    lateinit var toolbar: MaterialToolbar
 
     @BindView(R.id.profile_list_area)
     lateinit var ribbonRefresher: SwipeRefreshLayout
@@ -74,7 +77,7 @@ open class ProfileListSearchFragment : UserContentListFragment() {
     private fun setupUI() {
         toolbar.title = getString(R.string.search)
         toolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
-        toolbar.setNavigationOnClickListener { fragmentManager?.popBackStack() }
+        toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 
         ribbonRefresher.setOnRefreshListener { loadMore(reset = true) }
         profileRibbon.adapter = profileAdapter
@@ -85,11 +88,11 @@ open class ProfileListSearchFragment : UserContentListFragment() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(TOOLBAR, toolbar)
+        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
 
-        styleLevel.bind(BACKGROUND, profileRibbon)
+        styleLevel.bind(BACKGROUND, profileRibbon, DefaultColorAdapter())
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
         val backgrounds = mapOf<View, Int>(profileRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
@@ -139,9 +142,9 @@ open class ProfileListSearchFragment : UserContentListFragment() {
 
         fun setupTheming() {
             parentFragment.styleLevel.bind(TEXT_BLOCK, itemView, CardViewColorAdapter())
-            parentFragment.styleLevel.bind(TEXT, profileName)
+            parentFragment.styleLevel.bind(TEXT, profileName, TextViewColorAdapter())
             parentFragment.styleLevel.bind(TEXT, profileName, TextViewDrawableAdapter())
-            parentFragment.styleLevel.bind(TEXT, registrationDate)
+            parentFragment.styleLevel.bind(TEXT, registrationDate, TextViewColorAdapter())
         }
 
         private fun showProfile(profile: OwnProfile) {

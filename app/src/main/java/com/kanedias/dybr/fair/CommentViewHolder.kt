@@ -13,6 +13,9 @@ import butterknife.BindViews
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
+import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.google.android.material.textview.MaterialTextView
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
@@ -36,13 +39,13 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
     lateinit var avatarView: ImageView
 
     @BindView(R.id.comment_date)
-    lateinit var dateView: TextView
+    lateinit var dateView: MaterialTextView
 
     @BindView(R.id.comment_author)
-    lateinit var authorView: TextView
+    lateinit var authorView: MaterialTextView
 
     @BindView(R.id.comment_message)
-    lateinit var bodyView: TextView
+    lateinit var bodyView: MaterialTextView
 
     @BindViews(R.id.comment_edit, R.id.comment_delete)
     lateinit var buttons: List<@JvmSuppressWildcards ImageView>
@@ -63,11 +66,11 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
         val styleLevel = parentFragment.styleLevel
 
         styleLevel.bind(TEXT_BLOCK, itemView, CardViewColorAdapter())
-        styleLevel.bind(TEXT, authorView)
-        styleLevel.bind(TEXT, dateView)
-        styleLevel.bind(TEXT, bodyView)
+        styleLevel.bind(TEXT, authorView, TextViewColorAdapter())
+        styleLevel.bind(TEXT, dateView, TextViewColorAdapter())
+        styleLevel.bind(TEXT, bodyView, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, bodyView, TextViewLinksAdapter())
-        buttons.forEach { styleLevel.bind(TEXT_LINKS, it) }
+        buttons.forEach { styleLevel.bind(TEXT_LINKS, it, ImageViewColorAdapter()) }
     }
 
     @OnClick(R.id.comment_edit)

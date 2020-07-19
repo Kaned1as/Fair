@@ -30,6 +30,9 @@ import com.bumptech.glide.request.transition.DrawableCrossFadeTransition
 import com.bumptech.glide.request.transition.Transition
 import com.ftinc.scoop.adapters.ColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.kanedias.dybr.fair.Network
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -149,18 +152,18 @@ class CardViewColorAdapter : ColorAdapter<CardView> {
     }
 }
 
-class ToolbarTextAdapter : ColorAdapter<Toolbar> {
+class ToolbarTextAdapter : ColorAdapter<MaterialToolbar> {
 
-    override fun applyColor(view: Toolbar, @ColorInt color: Int) {
+    private var color = Color.TRANSPARENT
+
+    override fun applyColor(view: MaterialToolbar, @ColorInt color: Int) {
+        this.color = color
+
         view.setTitleTextColor(color)
     }
 
-    override fun getColor(view: Toolbar): Int {
-        val field = view::class.java.getDeclaredField("mTitleTextView")
-        field.isAccessible = true
-
-        val title = field.get(view) as TextView?
-        return title?.textColors?.defaultColor ?: Color.TRANSPARENT
+    override fun getColor(view: MaterialToolbar): Int {
+        return color
     }
 }
 
@@ -347,6 +350,42 @@ class EditTextLineAdapter: ColorAdapter<EditText> {
     }
 }
 
+class EditTextLayoutBoxStrokeAdapter: ColorAdapter<TextInputLayout> {
+
+    override fun applyColor(view: TextInputLayout, color: Int) {
+        view.setBoxStrokeColorStateList(ColorStateList(
+                arrayOf(
+                        intArrayOf(-android.R.attr.state_enabled),
+                        intArrayOf()
+                ),
+                intArrayOf(
+                        ColorUtils.setAlphaComponent(color, 64),
+                        color
+                )
+        ))
+
+        if (view.boxBackgroundMode == TextInputLayout.BOX_BACKGROUND_FILLED) {
+            view.boxBackgroundColor = ColorUtils.setAlphaComponent(color, 64)
+        }
+    }
+
+    override fun getColor(view: TextInputLayout): Int {
+        return view.boxStrokeColor
+    }
+}
+
+class EditTextLayoutHintAdapter: ColorAdapter<TextInputLayout> {
+
+    override fun applyColor(view: TextInputLayout, color: Int) {
+        view.hintTextColor = ColorStateList.valueOf(color)
+        view.defaultHintTextColor = ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, 127))
+    }
+
+    override fun getColor(view: TextInputLayout): Int {
+        return view.hintTextColor?.defaultColor ?: Color.TRANSPARENT
+    }
+}
+
 class EditTextHintAdapter: ColorAdapter<EditText> {
 
     override fun applyColor(view: EditText, color: Int) {
@@ -504,6 +543,23 @@ class SpinnerDropdownColorAdapter: ColorAdapter<AppCompatSpinner> {
         this.color = color
 
         DrawableCompat.setTint(view.background, color)
+    }
+
+    override fun getColor(view: AppCompatSpinner): Int {
+        return color
+    }
+
+}
+
+class SpinnerDropdownBackgroundColorAdapter: ColorAdapter<AppCompatSpinner> {
+
+    private var color = Color.TRANSPARENT
+
+    override fun applyColor(view: AppCompatSpinner, color: Int) {
+        this.color = color
+
+        val noAlpha = ColorUtils.setAlphaComponent(color, 255)
+        view.setPopupBackgroundDrawable(ColorDrawable(noAlpha))
     }
 
     override fun getColor(view: AppCompatSpinner): Int {

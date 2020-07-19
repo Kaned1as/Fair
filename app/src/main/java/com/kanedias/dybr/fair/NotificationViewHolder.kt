@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 import com.kanedias.dybr.fair.dto.Notification
@@ -125,7 +126,7 @@ class NotificationViewHolder(iv: View, val parentFragment: UserContentListFragme
         styleLevel.bind(TEXT, dateView, TextViewDisableAwareColorAdapter())
         styleLevel.bind(TEXT, bodyView, TextViewDisableAwareColorAdapter())
         styleLevel.bind(TEXT_LINKS, bodyView, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, readButton)
+        styleLevel.bind(TEXT_LINKS, readButton, ImageViewColorAdapter())
     }
 
     /**

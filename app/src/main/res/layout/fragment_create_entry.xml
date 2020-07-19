@@ -25,19 +25,23 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="6dp">
+                android:layout_height="wrap_content">
 
-                <EditText
-                    android:id="@+id/entry_title_text"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    android:id="@+id/entry_title_text_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapSentences"
-                    android:padding="4dp"
-                    android:hint="@string/entry_title"
-                    android:textAppearance="@android:style/TextAppearance.Large">
+                    android:hint="@string/entry_title">
 
-                </EditText>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/entry_title_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapSentences"
+                        android:textAppearance="@android:style/TextAppearance.Medium"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ViewSwitcher
                     android:id="@+id/entry_preview_switcher"

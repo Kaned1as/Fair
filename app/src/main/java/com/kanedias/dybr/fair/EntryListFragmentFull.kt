@@ -3,9 +3,10 @@ package com.kanedias.dybr.fair
 import android.view.View
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
-import androidx.appcompat.widget.Toolbar
 import butterknife.BindView
 import com.ftinc.scoop.Scoop
+import com.ftinc.scoop.adapters.DefaultColorAdapter
+import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.themes.*
 
@@ -24,7 +25,7 @@ open class EntryListFragmentFull: EntryListFragment() {
     lateinit var addEntryButton: FloatingActionButton
 
     @BindView(R.id.entry_list_toolbar)
-    lateinit var toolbar: Toolbar
+    lateinit var toolbar: MaterialToolbar
 
     override fun layoutToUse() = R.layout.fragment_entry_list_fullscreen
 
@@ -47,9 +48,9 @@ open class EntryListFragmentFull: EntryListFragment() {
         // this is a fullscreen fragment, add new style
         styleLevel = Scoop.getInstance().addStyleLevel()
 
-        styleLevel.bind(BACKGROUND, entryRibbon)
+        styleLevel.bind(BACKGROUND, entryRibbon, DefaultColorAdapter())
 
-        styleLevel.bind(TOOLBAR, toolbar)
+        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
 

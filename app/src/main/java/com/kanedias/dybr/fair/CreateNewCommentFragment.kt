@@ -112,7 +112,7 @@ class CreateNewCommentFragment : Fragment() {
         lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(TEXT_BLOCK, view, BackgroundNoAlphaAdapter())
-        styleLevel.bind(TEXT, preview)
+        styleLevel.bind(TEXT, preview, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, preview, TextViewLinksAdapter())
         styleLevel.bind(TEXT_LINKS, previewButton, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, submitButton, TextViewColorAdapter())
@@ -229,7 +229,6 @@ class CreateNewCommentFragment : Fragment() {
         }
     }
 
-    @OnClick(R.id.edit_save_offline_draft)
     fun saveDraft() {
         if (contentInput.text.isNullOrEmpty())
             return
@@ -247,8 +246,7 @@ class CreateNewCommentFragment : Fragment() {
      * After offline draft item is selected, this offline draft is deleted from the database and its contents
      * are applied to content of the editor.
      */
-    @OnClick(R.id.edit_load_offline_draft)
-    fun loadDraft(button: View? = null) {
+    private fun loadDraft() {
         val drafts = DbProvider.helper.draftDao.queryBuilder()
                 .apply {
                     where()
@@ -262,7 +260,7 @@ class CreateNewCommentFragment : Fragment() {
         if (drafts.isEmpty())
             return
 
-        if (button == null && !drafts[0].key.isNullOrBlank()) {
+        if (!drafts[0].key.isNullOrBlank()) {
             // was invoked on fragment creation and
             // probably user saved entry previously by clicking "cancel", load it
             popDraftUI(drafts[0])

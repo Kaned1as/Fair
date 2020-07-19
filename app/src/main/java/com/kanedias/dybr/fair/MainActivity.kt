@@ -12,13 +12,13 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -39,8 +39,10 @@ import com.afollestad.materialdialogs.list.customListAdapter
 import com.auth0.android.jwt.JWT
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
+import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.database.entities.SearchGotoInfo
@@ -197,7 +199,7 @@ class MainActivity : AppCompatActivity() {
         styleLevel.bindStatusBar(this, STATUS_BAR)
 
 
-        styleLevel.bind(TOOLBAR, toolbar)
+        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
 

@@ -26,6 +26,8 @@ import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.ftinc.scoop.util.Utils
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.OfflineDraft
 import com.kanedias.dybr.fair.dto.*
@@ -51,6 +53,9 @@ class CreateNewEntryFragment : Fragment() {
      */
     @BindView(R.id.entry_title_text)
     lateinit var titleInput: EditText
+
+    @BindView(R.id.entry_title_text_layout)
+    lateinit var titleInputLayout: TextInputLayout
 
     /**
      * Content of entry
@@ -189,13 +194,16 @@ class CreateNewEntryFragment : Fragment() {
         styleLevel.bind(TEXT_BLOCK, view, BackgroundNoAlphaAdapter())
         styleLevel.bind(TEXT, titleInput, EditTextAdapter())
         styleLevel.bind(TEXT_LINKS, titleInput, EditTextLineAdapter())
+        styleLevel.bind(TEXT, titleInputLayout, EditTextLayoutHintAdapter())
+        styleLevel.bind(TEXT_LINKS, titleInputLayout, EditTextLayoutBoxStrokeAdapter())
         styleLevel.bind(TEXT, tagsInput, EditTextAdapter())
         styleLevel.bind(TEXT_LINKS, tagsInput, EditTextLineAdapter())
-        styleLevel.bind(TEXT, preview)
+        styleLevel.bind(TEXT, preview, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, preview, TextViewLinksAdapter())
         styleLevel.bind(TEXT_LINKS, previewButton, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, submitButton, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, permissionSpinner, SpinnerDropdownColorAdapter())
+        styleLevel.bind(TEXT_BLOCK, permissionSpinner, SpinnerDropdownBackgroundColorAdapter())
         styleLevel.bind(TEXT, draftSwitch, TextViewColorAdapter())
         styleLevel.bind(TEXT, pinSwitch, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, draftSwitch, CheckBoxAdapter())
@@ -358,11 +366,11 @@ class CreateNewEntryFragment : Fragment() {
                         withContext(Dispatchers.IO) { Network.updateProfile(req) }
                     }
                 }
-                requireFragmentManager().popBackStack()
+                parentFragmentManager.popBackStack()
 
                 // if we have current tab set, refresh it
                 val frgPredicate = { it: Fragment -> it is UserContentListFragment && it.lifecycle.currentState == Lifecycle.State.RESUMED }
-                val currentFrg = requireFragmentManager().fragments.reversed().find(frgPredicate) as UserContentListFragment?
+                val currentFrg = parentFragmentManager.fragments.reversed().find(frgPredicate) as UserContentListFragment?
                 currentFrg?.loadMore(reset = true)
             } catch (ex: Exception) {
                 // don't close the fragment, just report errors
@@ -375,7 +383,6 @@ class CreateNewEntryFragment : Fragment() {
         }
     }
 
-    @OnClick(R.id.edit_save_offline_draft)
     fun saveDraft() {
         if (titleInput.text.isNullOrEmpty() && contentInput.text.isNullOrEmpty())
             return
@@ -394,8 +401,7 @@ class CreateNewEntryFragment : Fragment() {
      * After offline draft item is selected, this offline draft is deleted from the database and its contents
      * are applied to content of the editor.
      */
-    @OnClick(R.id.edit_load_offline_draft)
-    fun loadDraft(button: View? = null) {
+    private fun loadDraft() {
         val drafts = DbProvider.helper.draftDao.queryBuilder()
                 .apply {
                     where()
@@ -409,7 +415,7 @@ class CreateNewEntryFragment : Fragment() {
         if (drafts.isEmpty())
             return
 
-        if (button == null && !drafts[0].key.isNullOrBlank()) {
+        if (!drafts[0].key.isNullOrBlank()) {
             // probably user saved it by clicking "cancel", load it
             popDraftUI(drafts[0])
             return
@@ -509,6 +515,14 @@ class CreateNewEntryFragment : Fragment() {
         }
     }
 
+    inner class TagsAdapter : ArrayAdapter<String> {
+
+        constructor(context: Context, resource: Int, textViewResourceId: Int, objects: MutableList<String>)
+                : super(context, resource, textViewResourceId, objects)
+
+
+    }
+
     /**
      * Adapter for the spinner below the content editor.
      * Allows to select permission setting for current entry.
@@ -547,7 +561,5 @@ class CreateNewEntryFragment : Fragment() {
 
             return view
         }
-
-
     }
 }

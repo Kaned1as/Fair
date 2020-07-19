@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.ftinc.scoop.Scoop
+import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.setMaxFlingVelocity
@@ -107,7 +108,7 @@ open class EntryListFragment: UserContentListFragment() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(BACKGROUND, entryRibbon)
+        styleLevel.bind(BACKGROUND, entryRibbon, DefaultColorAdapter())
 
         styleLevel.bind(ACCENT, fastJumpButton, BackgroundTintColorAdapter())
         styleLevel.bind(ACCENT_TEXT, fastJumpButton, FabIconAdapter())

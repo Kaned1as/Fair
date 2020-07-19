@@ -30,6 +30,9 @@ import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.ftinc.scoop.adapters.DefaultColorAdapter
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
+import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.onClickSingleOnly
@@ -164,20 +167,22 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         val styleLevel = parentFragment.styleLevel
 
         styleLevel.bind(TEXT_BLOCK, itemView, CardViewColorAdapter())
-        styleLevel.bind(TEXT_HEADERS, titleView)
-        styleLevel.bind(TEXT, dateView)
-        styleLevel.bind(TEXT, authorView)
-        styleLevel.bind(TEXT, authorSubtextView)
-        styleLevel.bind(TEXT, communityView)
+        styleLevel.bind(TEXT_HEADERS, titleView, TextViewColorAdapter())
+        styleLevel.bind(TEXT, dateView, TextViewColorAdapter())
+        styleLevel.bind(TEXT, authorView, TextViewColorAdapter())
+        styleLevel.bind(TEXT, authorSubtextView, TextViewColorAdapter())
+        styleLevel.bind(TEXT, communityView, TextViewColorAdapter())
         styleLevel.bind(TEXT, communityView, TextViewDrawableAdapter())
-        styleLevel.bind(TEXT, communitySubtextView)
-        styleLevel.bind(TEXT, bodyView)
+        styleLevel.bind(TEXT, communitySubtextView, TextViewColorAdapter())
+        styleLevel.bind(TEXT, bodyView, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, bodyView, TextViewLinksAdapter())
         styleLevel.bind(TEXT_LINKS, tagsView, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, permissionIcon)
-        styleLevel.bind(TEXT_LINKS, pinIcon)
-        styleLevel.bind(DIVIDER, metaDivider)
-        (buttons + indicators + participants + comments).forEach { styleLevel.bind(TEXT_LINKS, it) }
+        styleLevel.bind(TEXT_LINKS, permissionIcon, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, pinIcon, ImageViewColorAdapter())
+        styleLevel.bind(DIVIDER, metaDivider, DefaultColorAdapter())
+
+        (buttons + indicators).forEach { styleLevel.bind(TEXT_LINKS, it, ImageViewColorAdapter()) }
+        listOf(participants, comments).forEach { styleLevel.bind(TEXT_LINKS, it, TextViewColorAdapter()) }
     }
 
     @OnClick(R.id.entry_edit)

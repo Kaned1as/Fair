@@ -6,6 +6,8 @@ import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import butterknife.BindView
 import com.ftinc.scoop.Scoop
+import com.ftinc.scoop.adapters.DefaultColorAdapter
+import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.themes.*
 import moe.banana.jsonapi2.ArrayDocument
@@ -26,7 +28,7 @@ open class BookmarkListFragmentFull: EntryListFragment() {
     lateinit var addEntryButton: FloatingActionButton
 
     @BindView(R.id.entry_list_toolbar)
-    lateinit var toolbar: Toolbar
+    lateinit var toolbar: MaterialToolbar
 
     override fun layoutToUse() = R.layout.fragment_entry_list_fullscreen
 
@@ -46,7 +48,7 @@ open class BookmarkListFragmentFull: EntryListFragment() {
 
         styleLevel.bind(BACKGROUND, entryRibbon)
 
-        styleLevel.bind(TOOLBAR, toolbar)
+        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
 

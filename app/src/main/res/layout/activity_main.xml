@@ -25,12 +25,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <androidx.appcompat.widget.Toolbar
+                <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/standard_toolbar_height"
                     android:minHeight="@dimen/standard_toolbar_height"
                     android:title="@string/app_name"
+                    app:popupTheme="@style/ThemeOverlay.MaterialComponents.Dark"
                     app:layout_scrollFlags="scroll|snap|enterAlways"/>
 
                 <com.google.android.material.tabs.TabLayout

@@ -23,7 +23,10 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
+import com.ftinc.scoop.adapters.DefaultColorAdapter
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.google.android.material.textfield.TextInputLayout
 import com.kanedias.dybr.fair.Network
 import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.misc.styleLevel
@@ -48,6 +51,9 @@ class EditorViews : Fragment() {
 
     @BindView(R.id.source_text)
     lateinit var contentInput: EditText
+
+    @BindView(R.id.source_text_layout)
+    lateinit var contentInputLayout: TextInputLayout
 
     @BindView(R.id.edit_insert_from_clipboard)
     lateinit var clipboardSwitch: CheckBox
@@ -84,14 +90,16 @@ class EditorViews : Fragment() {
         val styleLevel = view.styleLevel ?: return
 
         for (idx in 0 until buttonArea.childCount) {
-            styleLevel.bind(TEXT_LINKS, buttonArea.getChildAt(idx))
+            styleLevel.bind(TEXT_LINKS, buttonArea.getChildAt(idx), ImageViewColorAdapter())
         }
         styleLevel.bind(TEXT, clipboardSwitch, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, clipboardSwitch, CheckBoxAdapter())
-        styleLevel.bind(DIVIDER, topDivider)
+        styleLevel.bind(DIVIDER, topDivider, DefaultColorAdapter())
         styleLevel.bind(TEXT, contentInput, EditTextAdapter())
         styleLevel.bind(TEXT_LINKS, contentInput, EditTextLineAdapter())
-        styleLevel.bind(TEXT, mdLabel)
+        styleLevel.bind(TEXT_LINKS, contentInputLayout, EditTextLayoutBoxStrokeAdapter())
+        styleLevel.bind(TEXT, contentInputLayout, EditTextLayoutHintAdapter())
+        styleLevel.bind(TEXT, mdLabel, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, mdLabel, TextViewLinksAdapter())
     }
 

@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.dto.ActionList
 import com.kanedias.dybr.fair.dto.ActionListRequest
@@ -122,16 +123,16 @@ class ProfileFragment: DialogFragment() {
         styleLevel.bind(TEXT_HEADERS, dialogTitle, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, okButton, MaterialDialogButtonAdapter())
 
-        styleLevel.bind(TEXT, authorName)
-        styleLevel.bind(TEXT, authorSubtext)
-        styleLevel.bind(TEXT, registrationDate)
-        styleLevel.bind(TEXT, authorBlog)
+        styleLevel.bind(TEXT, authorName, TextViewColorAdapter())
+        styleLevel.bind(TEXT, authorSubtext, TextViewColorAdapter())
+        styleLevel.bind(TEXT, registrationDate, TextViewColorAdapter())
+        styleLevel.bind(TEXT, authorBlog, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, authorBlog, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, favoritesToggle)
-        styleLevel.bind(TEXT_LINKS, feedBanToggle)
-        styleLevel.bind(TEXT_LINKS, banToggle)
+        styleLevel.bind(TEXT_LINKS, favoritesToggle, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, feedBanToggle, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, banToggle, ImageViewColorAdapter())
 
-        labels.forEach { styleLevel.bind(TEXT, it) }
+        labels.forEach { styleLevel.bind(TEXT, it, TextViewColorAdapter()) }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

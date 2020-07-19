@@ -179,9 +179,7 @@
             android:layout_marginTop="8dp"
             android:padding="5dp"
             android:text="@string/placeholder_tags_huge"
-            android:textStyle="bold">
-
-        </TextView>
+            android:textStyle="bold"/>
 
         <LinearLayout
             android:id="@+id/entry_reactions"

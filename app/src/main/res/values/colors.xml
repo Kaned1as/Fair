@@ -169,6 +169,7 @@
     <color name="md_yellow_A400">#ffea00</color>
     <color name="orange">#ff5722</color>
     <color name="transparent">#00000000</color>
+    <color name="almost_transparent_black">#33000000</color>
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
 </resources>

@@ -18,6 +18,8 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.ftinc.scoop.Scoop
+import com.ftinc.scoop.adapters.DefaultColorAdapter
+import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
@@ -41,7 +43,7 @@ class CommentListFragment : UserContentListFragment() {
     }
 
     @BindView(R.id.comments_toolbar)
-    lateinit var toolbar: Toolbar
+    lateinit var toolbar: MaterialToolbar
 
     @BindView(R.id.comments_list_area)
     lateinit var ribbonRefresher: SwipeRefreshLayout
@@ -98,14 +100,14 @@ class CommentListFragment : UserContentListFragment() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(TOOLBAR, toolbar)
+        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
 
         styleLevel.bind(ACCENT, addCommentButton, BackgroundTintColorAdapter())
         styleLevel.bind(ACCENT_TEXT, addCommentButton, FabIconAdapter())
 
-        styleLevel.bind(BACKGROUND, commentRibbon)
+        styleLevel.bind(BACKGROUND, commentRibbon, DefaultColorAdapter())
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
         val backgrounds = mapOf<View, Int>(commentRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)

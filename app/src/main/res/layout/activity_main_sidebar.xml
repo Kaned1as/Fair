@@ -251,6 +251,7 @@
                     android:text="@string/inbox"
                     android:textSize="14sp"
                     android:textStyle="bold"/>
+
             </LinearLayout>
 
             <TextView
@@ -345,39 +346,6 @@
             android:layout_marginTop="4dp"
             android:alpha=".25"
             android:visibility="gone"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:descendantFocusability="afterDescendants"
-            android:focusableInTouchMode="true">
-
-            <EditText
-                android:id="@+id/goto_input_filter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="10dp"
-                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.+"
-                android:hint="@string/go_to"
-                android:imeOptions="actionSearch|flagNoExtractUi"
-                android:singleLine="true"
-                android:visibility="gone"/>
-
-            <ImageView
-                android:id="@+id/close_goto_filder"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignBottom="@+id/goto_input_filter"
-                android:layout_alignParentEnd="true"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="16dp"
-                android:padding="8dp"
-                android:theme="@style/Ripple.Item"
-                android:visibility="gone"
-                android:src="@drawable/close"/>
-        </RelativeLayout>
 
     </LinearLayout>
 

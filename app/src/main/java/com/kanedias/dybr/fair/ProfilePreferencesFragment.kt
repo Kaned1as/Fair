@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.SwitchCompat
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import butterknife.BindView
@@ -16,6 +15,7 @@ import butterknife.ButterKnife
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.dto.ProfileCreateRequest
 import com.kanedias.dybr.fair.themes.*
@@ -34,7 +34,7 @@ class ProfilePreferencesFragment: Fragment() {
     }
 
     @BindView(R.id.profile_preferences_toolbar)
-    lateinit var toolbar: Toolbar
+    lateinit var toolbar: MaterialToolbar
 
     @BindView(R.id.new_posts_in_favorites_switch)
     lateinit var newPostsInFavs: SwitchCompat
