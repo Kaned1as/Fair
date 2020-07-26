@@ -23,7 +23,6 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
-import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.textfield.TextInputLayout
@@ -67,9 +66,6 @@ class EditorViews : Fragment() {
     @BindView(R.id.edit_quick_button_area)
     lateinit var buttonArea: GridLayout
 
-    @BindView(R.id.edit_top_divider)
-    lateinit var topDivider: View
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_edit_form, container, false)
         ButterKnife.bind(this, view)
@@ -94,7 +90,6 @@ class EditorViews : Fragment() {
         }
         styleLevel.bind(TEXT, clipboardSwitch, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, clipboardSwitch, CheckBoxAdapter())
-        styleLevel.bind(DIVIDER, topDivider, DefaultColorAdapter())
         styleLevel.bind(TEXT, contentInput, EditTextAdapter())
         styleLevel.bind(TEXT_LINKS, contentInput, EditTextLineAdapter())
         styleLevel.bind(TEXT_LINKS, contentInputLayout, EditTextLayoutBoxStrokeAdapter())

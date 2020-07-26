@@ -163,15 +163,8 @@ val MORE_FULL_REGEX = Regex(".*($MORE_START_PATTERN(.*?)$MORE_END_PATTERN)", Reg
  * @param view resulting text view to accept the modified spanned string
  */
 fun postProcessSpans(spanned: SpannableStringBuilder, ctx: Context) {
-    val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
-
     postProcessDrawables(spanned, ctx)
-
-    if (!prefs.getBoolean("auto-load-images", true)) {
-        postProcessDrawablesLoad(spanned, ctx)
-    }
     postProcessMore(spanned, ctx)
-
 }
 
 /**
@@ -243,6 +236,7 @@ fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
 
         // don't want any links where [MORE] expansion should be
         moreSpanned.getSpans(0, moreSpanned.length, LinkSpan::class.java).forEach { moreSpanned.removeSpan(it) }
+        moreSpanned.getSpans(0, moreSpanned.length, ClickableSpan::class.java).forEach { moreSpanned.removeSpan(it) }
 
         spanned.replace(outerRange.first, outerRange.last + 1, moreSpanned) // replace it just with text
         val wrapper = object : ClickableSpan() {
@@ -263,55 +257,6 @@ fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
             }
         }
         spanned.setSpan(wrapper, outerRange.first, outerRange.first + moreSpanned.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    }
-}
-
-/**
- * Post-process async drawables in the post. We have to do this because lots of drawables can overload native memory
- * reserved for the application.
- *
- * We replace such drawables with placeholders so if you need to actually load them you can
- *
- * @param spanned text to be modified. We cut out async drawables and put image placeholders instead of them there
- * @param view text view to accept resulting spanned string. On placeholder click show wrapped async drawables
- */
-private fun postProcessDrawablesLoad(spanned: SpannableStringBuilder, ctx: Context) {
-    val spans = spanned.getSpans(0, spanned.length, AsyncDrawableSpan::class.java)
-    for (span in spans) {
-        // skip static images
-        if (span.drawable.destination.contains("static")) {
-            continue
-        }
-
-        val start = spanned.getSpanStart(span)
-        val end = spanned.getSpanEnd(span)
-        val spansToWrap = spanned.getSpans(start, end, CharacterStyle::class.java)
-        val wrapperImg = ImageSpan(ctx, R.drawable.download_image)
-        val wrapperClick = object: ClickableSpan() {
-
-            override fun onClick(widget: View) {
-                val textView = widget as TextView
-                // replace wrappers with real previous spans
-
-                // text can be already moved around (due to MORE etc.), refresh start/end variables
-                val realStart = spanned.getSpanStart(this)
-                val realEnd = spanned.getSpanEnd(this)
-
-                spanned.removeSpan(wrapperImg)
-                spanned.removeSpan(this)
-
-                spansToWrap.forEach { spanned.setSpan(it, realStart, realEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) }
-
-
-                textView.text = spanned
-                AsyncDrawableScheduler.schedule(textView)
-            }
-
-        }
-
-        spansToWrap.forEach { spanned.removeSpan(it) }
-        spanned.setSpan(wrapperImg, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        spanned.setSpan(wrapperClick, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 }
 
