@@ -262,10 +262,11 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         val pw = PopupWindow().apply {
             height = WindowManager.LayoutParams.WRAP_CONTENT
             width = WindowManager.LayoutParams.WRAP_CONTENT
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT)) // hack for Android 5.1.1, see https://stackoverflow.com/questions/12232724/popupwindow-dismiss-when-clicked-outside
             contentView = emojiTable
             isOutsideTouchable = true
         }
+
+        parentFragment.styleLevel.bind(TEXT_BLOCK, pw.contentView, DefaultColorAdapter())
 
         for (type in reactionTypes.sortedBy { it.id }) {
             emojiTable.addView(TextView(view.context).apply {
@@ -566,7 +567,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             emojiCount.text = postedWithThisType.size.toString()
 
             styleLevel.bind(TEXT_LINKS, reactionView, BackgroundTintColorAdapter())
-            styleLevel.bind(TEXT, emojiCount)
+            styleLevel.bind(TEXT, emojiCount, TextViewColorAdapter())
 
             reactionArea.addView(reactionView)
         }
