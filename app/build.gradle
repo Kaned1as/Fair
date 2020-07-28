@@ -23,7 +23,7 @@ android {
         targetSdkVersion 29 // device you test on
         minSdkVersion 21    // device you allow your users to be on :)
         versionCode 86
-        versionName "1.17.5"
+        versionName "1.18.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -137,6 +137,7 @@ dependencies {
     implementation "io.noties.markwon:html:$markwonVersion"
     implementation "io.noties.markwon:ext-tables:$markwonVersion"
     implementation "io.noties.markwon:ext-strikethrough:$markwonVersion"
+    implementation "com.hootsuite.android:nachos:1.1.1"                         // Material chip input
     //implementation 'com.github.clans:fab:1.6.4'                               // Floating action button with menu
     implementation 'com.github.bumptech.glide:okhttp3-integration:4.8.0'
     implementation 'com.github.bumptech.glide:glide:4.9.0'                      // image processing/caching lib
