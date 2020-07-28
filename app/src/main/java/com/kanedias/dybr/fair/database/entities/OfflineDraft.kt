@@ -19,11 +19,11 @@ class OfflineDraft {
 
     constructor()
 
-    constructor(key: String? = null, title: TextView? = null, base: TextView, tags: TextView? = null) {
+    constructor(key: String? = null, title: String? = null, base: String, tags: String? = null) {
         this.key = key
-        this.title = title?.text?.toString()
-        this.content = base.text.toString()
-        this.tags = tags?.text?.toString()
+        this.title = title
+        this.content = base
+        this.tags = tags
     }
 
     /**

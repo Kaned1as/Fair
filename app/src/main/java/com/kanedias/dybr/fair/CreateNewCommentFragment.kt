@@ -163,7 +163,11 @@ class CreateNewCommentFragment : Fragment() {
         }
 
         // persist draft
-        DbProvider.helper.draftDao.create(OfflineDraft(key = "comment,entry=${entry.id}", base = contentInput))
+        DbProvider.helper.draftDao.create(OfflineDraft(
+                key = "comment,entry=${entry.id}",
+                base = contentInput.text.toString()
+        ))
+
         Toast.makeText(requireContext(), R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
         parentFragmentManager.popBackStack()
     }
@@ -234,7 +238,7 @@ class CreateNewCommentFragment : Fragment() {
             return
 
         // persist new draft
-        DbProvider.helper.draftDao.create(OfflineDraft(base = contentInput))
+        DbProvider.helper.draftDao.create(OfflineDraft(base = contentInput.text.toString()))
 
         // clear the context and show notification
         contentInput.setText("")

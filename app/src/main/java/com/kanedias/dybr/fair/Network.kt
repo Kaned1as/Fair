@@ -247,6 +247,7 @@ object Network {
         return MAIN_DYBR_API_ENDPOINT.resolve(url)
     }
 
+    @UiThread
     fun defaultAvatar(): HttpUrl {
         return resolve("/static/media/default_ava.9b2e26d5.jpg")!!
     }

@@ -33,6 +33,7 @@ import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.hootsuite.nachos.NachoTextView
 import com.kanedias.dybr.fair.Network
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -336,23 +337,55 @@ class EditTextAdapter: ColorAdapter<EditText> {
 class EditTextLineAdapter: ColorAdapter<EditText> {
 
     override fun applyColor(view: EditText, color: Int) {
-        if (view is TintableBackgroundView) {
-            view.supportBackgroundTintList = ColorStateList.valueOf(color)
-        }
+        view.backgroundTintList = ColorStateList.valueOf(color)
     }
 
     override fun getColor(view: EditText): Int {
-        if (view is TintableBackgroundView) {
-            return view.supportBackgroundTintList?.defaultColor ?: Color.TRANSPARENT
+        return view.backgroundTintList?.defaultColor ?: Color.TRANSPARENT
+    }
+}
+
+class AutocompleteDropdownNoAlphaAdapter: ColorAdapter<MultiAutoCompleteTextView> {
+
+    override fun applyColor(view: MultiAutoCompleteTextView, color: Int) {
+        view.setDropDownBackgroundDrawable(ColorDrawable(ColorUtils.setAlphaComponent(color, 255)))
+    }
+
+    override fun getColor(view: MultiAutoCompleteTextView): Int {
+        if (view.dropDownBackground is ColorDrawable) {
+            return (view.dropDownBackground as ColorDrawable).color
         }
 
         return Color.TRANSPARENT
     }
 }
 
+class NachosChipTextColorAdapter: ColorAdapter<NachoTextView> {
+
+    override fun applyColor(view: NachoTextView, color: Int) {
+        view.chipTextColor = color
+    }
+
+    override fun getColor(view: NachoTextView): Int {
+        return view.chipTextColor
+    }
+}
+
+class NachosChipBgColorAdapter: ColorAdapter<NachoTextView> {
+
+    override fun applyColor(view: NachoTextView, color: Int) {
+        view.chipBackground = ColorStateList.valueOf(color)
+    }
+
+    override fun getColor(view: NachoTextView): Int {
+        return view.chipBackground.defaultColor
+    }
+}
+
 class EditTextLayoutBoxStrokeAdapter: ColorAdapter<TextInputLayout> {
 
     override fun applyColor(view: TextInputLayout, color: Int) {
+        // main box tint
         view.setBoxStrokeColorStateList(ColorStateList(
                 arrayOf(
                         intArrayOf(-android.R.attr.state_enabled),
@@ -363,6 +396,9 @@ class EditTextLayoutBoxStrokeAdapter: ColorAdapter<TextInputLayout> {
                         color
                 )
         ))
+
+        // end icon tint
+        view.setEndIconTintList(ColorStateList.valueOf(color))
 
         if (view.boxBackgroundMode == TextInputLayout.BOX_BACKGROUND_FILLED) {
             view.boxBackgroundColor = ColorUtils.setAlphaComponent(color, 64)
@@ -377,12 +413,11 @@ class EditTextLayoutBoxStrokeAdapter: ColorAdapter<TextInputLayout> {
 class EditTextLayoutHintAdapter: ColorAdapter<TextInputLayout> {
 
     override fun applyColor(view: TextInputLayout, color: Int) {
-        view.hintTextColor = ColorStateList.valueOf(color)
         view.defaultHintTextColor = ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, 127))
     }
 
     override fun getColor(view: TextInputLayout): Int {
-        return view.hintTextColor?.defaultColor ?: Color.TRANSPARENT
+        return view.defaultHintTextColor?.defaultColor ?: Color.TRANSPARENT
     }
 }
 

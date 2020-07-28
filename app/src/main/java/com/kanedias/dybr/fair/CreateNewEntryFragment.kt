@@ -2,20 +2,17 @@ package com.kanedias.dybr.fair
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import androidx.fragment.app.Fragment
-import androidx.core.graphics.drawable.DrawableCompat
-import androidx.appcompat.widget.AppCompatSpinner
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
+import androidx.appcompat.widget.AppCompatSpinner
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnCheckedChanged
@@ -26,16 +23,20 @@ import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.ftinc.scoop.util.Utils
-import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.hootsuite.nachos.NachoTextView
+import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.OfflineDraft
 import com.kanedias.dybr.fair.dto.*
-import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.markdown.handleMarkdownRaw
 import com.kanedias.dybr.fair.markdown.markdownToHtml
+import com.kanedias.dybr.fair.themes.*
 import com.kanedias.html2md.Html2Markdown
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import moe.banana.jsonapi2.HasOne
 import java.text.SimpleDateFormat
 import java.util.*
@@ -67,7 +68,7 @@ class CreateNewEntryFragment : Fragment() {
      * Entry tag editor
      */
     @BindView(R.id.tags_text)
-    lateinit var tagsInput: AppCompatMultiAutoCompleteTextView
+    lateinit var tagsInput: NachoTextView
 
     /**
      * Permission type of an entry: visible for all, for registered
@@ -160,31 +161,22 @@ class CreateNewEntryFragment : Fragment() {
         permissionSpinner.setSelection(4) // select "Visible for all" by default
 
         // tags autocompletion
-        val tags = profile.tags.map { "#${it.name}" }
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
-        tagsInput.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
-        tagsInput.threshold = 1
+        lifecycleScope.launch {
+            Network.perform(
+                    networkAction = { Network.loadProfile(profile.id) },
+                    uiAction = { prof ->
+                        val tags = prof.tags.map { it.name }
+                        val adapter = TagsAdapter(requireContext(), tags)
+                        tagsInput.setAdapter(adapter)
+                    })
+        }
+        tagsInput.addChipTerminator('\n', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
+        tagsInput.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
         tagsInput.onFocusChangeListener = View.OnFocusChangeListener { _, focused ->
             if (focused && tagsInput.text.isNullOrBlank()) {
                 tagsInput.showDropDown()
             }
         }
-        tagsInput.addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(content: Editable?) {
-                if (!tagsInput.isFocused || content == null)
-                    return
-
-                if (content.endsWith(", ")) {
-                    tagsInput.postDelayed({ tagsInput.showDropDown() }, 150)
-                }
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-        })
-        tagsInput.setAdapter(adapter)
     }
 
     private fun setupTheming(view: View) {
@@ -196,18 +188,27 @@ class CreateNewEntryFragment : Fragment() {
         styleLevel.bind(TEXT_LINKS, titleInput, EditTextLineAdapter())
         styleLevel.bind(TEXT, titleInputLayout, EditTextLayoutHintAdapter())
         styleLevel.bind(TEXT_LINKS, titleInputLayout, EditTextLayoutBoxStrokeAdapter())
+
         styleLevel.bind(TEXT, tagsInput, EditTextAdapter())
         styleLevel.bind(TEXT_LINKS, tagsInput, EditTextLineAdapter())
+        styleLevel.bind(TEXT_BLOCK, tagsInput, AutocompleteDropdownNoAlphaAdapter())
+        styleLevel.bind(ACCENT_TEXT, tagsInput, NachosChipTextColorAdapter())
+        styleLevel.bind(ACCENT, tagsInput, NachosChipBgColorAdapter())
+
         styleLevel.bind(TEXT, preview, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, preview, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, previewButton, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, submitButton, TextViewColorAdapter())
+
         styleLevel.bind(TEXT_LINKS, permissionSpinner, SpinnerDropdownColorAdapter())
         styleLevel.bind(TEXT_BLOCK, permissionSpinner, SpinnerDropdownBackgroundColorAdapter())
+
         styleLevel.bind(TEXT, draftSwitch, TextViewColorAdapter())
-        styleLevel.bind(TEXT, pinSwitch, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, draftSwitch, CheckBoxAdapter())
+
+        styleLevel.bind(TEXT, pinSwitch, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, pinSwitch, CheckBoxAdapter())
+
+        styleLevel.bind(TEXT_LINKS, previewButton, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, submitButton, TextViewColorAdapter())
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -293,8 +294,12 @@ class CreateNewEntryFragment : Fragment() {
         }
 
         // persist draft
-        DbProvider.helper.draftDao.create(OfflineDraft(key = "entry,blog=${profile.id}",
-                title = titleInput, base = contentInput, tags = tagsInput))
+        DbProvider.helper.draftDao.create(OfflineDraft(
+                key = "entry,blog=${profile.id}",
+                title = titleInput.text.toString(),
+                base = contentInput.text.toString(),
+                tags = tagsInput.chipValues.joinToString()
+        ))
         Toast.makeText(activity, R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
         requireFragmentManager().popBackStack()
     }
@@ -316,12 +321,11 @@ class CreateNewEntryFragment : Fragment() {
             else -> null // visible for all
         }
 
-        val tagList = tagsInput.text.split(Regex(", *")).filter { it.startsWith("#") }.map { it.removePrefix("#") }
         val entry = EntryCreateRequest().apply {
             title = titleInput.text.toString()
             state = if (draftSwitch.isChecked) { "published" } else { "draft" }
             content = markdownToHtml(contentInput.text.toString())
-            tags = tagList
+            tags = tagsInput.chipValues
             settings = RecordSettings(permissions = RecordPermissions(listOfNotNull(access)))
         }
 
@@ -388,7 +392,11 @@ class CreateNewEntryFragment : Fragment() {
             return
 
         // persist new draft
-        DbProvider.helper.draftDao.create(OfflineDraft(title = titleInput, base = contentInput, tags = tagsInput))
+        DbProvider.helper.draftDao.create(OfflineDraft(
+                title = titleInput.text.toString(),
+                base = contentInput.text.toString(),
+                tags = tagsInput.chipValues.joinToString()
+        ))
 
         // clear the context and show notification
         titleInput.setText("")
@@ -436,7 +444,7 @@ class CreateNewEntryFragment : Fragment() {
     private fun popDraftUI(draft: OfflineDraft) {
         titleInput.setText(draft.title)
         contentInput.setText(draft.content)
-        tagsInput.setText(draft.tags)
+        tagsInput.setText(draft.tags?.split(Regex(",\\s+")))
         Toast.makeText(context, R.string.offline_draft_loaded, Toast.LENGTH_SHORT).show()
 
         DbProvider.helper.draftDao.deleteById(draft.id)
@@ -517,10 +525,19 @@ class CreateNewEntryFragment : Fragment() {
 
     inner class TagsAdapter : ArrayAdapter<String> {
 
-        constructor(context: Context, resource: Int, textViewResourceId: Int, objects: MutableList<String>)
-                : super(context, resource, textViewResourceId, objects)
+        constructor(context: Context, objects: List<String>)
+                : super(context, R.layout.fragment_edit_form_tags_item, R.id.tag_text_label, objects)
 
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = convertView ?: layoutInflater.inflate(R.layout.fragment_edit_form_tags_item, parent, false)
 
+            val tagName = view.findViewById<TextView>(R.id.tag_text_label)
+            tagName.text = getItem(position)
+
+            styleLevel.bind(TEXT, tagName, TextViewColorAdapter())
+
+            return view
+        }
     }
 
     /**
