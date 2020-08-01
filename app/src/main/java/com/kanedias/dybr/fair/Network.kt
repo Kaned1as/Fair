@@ -738,7 +738,7 @@ object Network {
         if (Auth.profile == null)
             return ArrayDocument()
 
-        val builder = HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/relationships/notifications")!!.newBuilder()
+        val builder = HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/notifications")!!.newBuilder()
         builder.addQueryParameter("page[number]", pageNum.toString())
                 .addQueryParameter("page[size]", pageSize.toString())
                 .addQueryParameter("include", "comments,profiles")
