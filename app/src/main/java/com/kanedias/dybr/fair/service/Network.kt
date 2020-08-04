@@ -1,16 +1,16 @@
-package com.kanedias.dybr.fair
+package com.kanedias.dybr.fair.service
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
-import androidx.preference.PreferenceManager
 import com.auth0.android.jwt.JWT
-import com.kanedias.SpanCache
+import com.kanedias.dybr.fair.BuildConfig
+import com.kanedias.dybr.fair.PAGE_SIZE
+import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.database.entities.Account
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -90,8 +90,8 @@ import kotlin.reflect.jvm.kotlinProperty
 @WorkerThread
 object Network {
 
-    private const val USER_AGENT = "Fair ${BuildConfig.VERSION_NAME}"
-    private const val DEFAULT_DYBR_API_ENDPOINT = "https://dybr.ru/v2/"
+    const val DEFAULT_DYBR_API_ENDPOINT = "https://dybr.ru/v2/"
+    const val USER_AGENT = "Fair ${BuildConfig.VERSION_NAME}"
 
     private lateinit var MAIN_DYBR_API_ENDPOINT: HttpUrl
     private lateinit var IMG_UPLOAD_ENDPOINT: String
@@ -189,11 +189,10 @@ object Network {
         appCtx = ctx
 
         // reinitialize endpoints
-        val pref = PreferenceManager.getDefaultSharedPreferences(ctx)
-        setupEndpoints(ctx, pref)
+        setupEndpoints(ctx)
 
-        prefChangeListener = OnSharedPreferenceChangeListener { preferences, _ -> setupEndpoints(ctx, preferences) }
-        pref.registerOnSharedPreferenceChangeListener(prefChangeListener)
+        prefChangeListener = OnSharedPreferenceChangeListener { _, _ -> setupEndpoints(ctx) }
+        UserPrefs.registerListener(prefChangeListener)
 
         // setup http client
         httpClient = OkHttpClient.Builder()
@@ -209,8 +208,8 @@ object Network {
     }
 
     @UiThread
-    private fun setupEndpoints(ctx: Context, pref: SharedPreferences) {
-        val endpoint = pref.getString("home-server", DEFAULT_DYBR_API_ENDPOINT)!!
+    private fun setupEndpoints(ctx: Context) {
+        val endpoint = UserPrefs.homeServerUrl
 
         // endpoint itself must be valid url
         val valid = HttpUrl.parse(endpoint)
@@ -218,7 +217,7 @@ object Network {
             // url is invalid
             Toast.makeText(ctx, R.string.invalid_dybr_endpoint, Toast.LENGTH_SHORT).show()
             MAIN_DYBR_API_ENDPOINT = HttpUrl.parse(DEFAULT_DYBR_API_ENDPOINT)!!
-            pref.edit().putString("home-server", DEFAULT_DYBR_API_ENDPOINT).apply()
+            UserPrefs.homeServerUrl = DEFAULT_DYBR_API_ENDPOINT
         } else {
             // url is valid, proceed
             MAIN_DYBR_API_ENDPOINT = HttpUrl.parse(endpoint)!!
@@ -331,7 +330,8 @@ object Network {
         // save user info
         val reqUser = Request.Builder().url(USERS_ENDPOINT).build()
         val respUser = httpClient.newCall(reqUser).execute() // returns array with only one element
-        val user = fromWrappedJson(respUser.body()!!.source(), User::class.java) ?: return
+        val user = fromWrappedJson(respUser.body()!!.source(), User::class.java)
+                ?: return
 
         // memorize account info
         acc.apply {
@@ -395,7 +395,8 @@ object Network {
             throw extractErrors(resp, "Can't load user profiles")
 
         // there's an edge-case when user is deleted on server but we still have Auth.user.serverId set
-        val user = fromWrappedJson(resp.body()!!.source(), User::class.java) ?: return emptyList()
+        val user = fromWrappedJson(resp.body()!!.source(), User::class.java)
+                ?: return emptyList()
         return user.profiles.get(user.document)
     }
 

@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.recyclerview.widget.RecyclerView
-import androidx.appcompat.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +19,7 @@ import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import moe.banana.jsonapi2.ArrayDocument
 import java.text.SimpleDateFormat

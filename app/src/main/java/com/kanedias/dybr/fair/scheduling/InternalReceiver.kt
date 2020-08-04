@@ -6,6 +6,7 @@ import android.content.Intent
 import com.kanedias.dybr.fair.*
 import com.kanedias.dybr.fair.dto.Notification
 import com.kanedias.dybr.fair.dto.NotificationRequest
+import com.kanedias.dybr.fair.service.Network
 import kotlinx.coroutines.*
 import java.lang.Exception
 

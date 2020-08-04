@@ -22,6 +22,7 @@ import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.misc.onClickSingleOnly
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
 import kotlinx.coroutines.*
 import moe.banana.jsonapi2.ArrayDocument

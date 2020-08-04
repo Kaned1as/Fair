@@ -16,7 +16,6 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 import android.text.style.ClickableSpan
-import android.text.style.ImageSpan
 import android.text.style.MetricAffectingSpan
 import android.util.AttributeSet
 import android.util.Log
@@ -30,16 +29,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.preference.PreferenceManager
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.ftinc.scoop.binding.AbstractBinding
-import com.kanedias.SpanCache
+import com.kanedias.dybr.fair.service.SpanCache
 import com.kanedias.dybr.fair.BuildConfig
-import com.kanedias.dybr.fair.Network
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.R
 import com.kanedias.html2md.Html2Markdown
 import com.stfalcon.imageviewer.StfalconImageViewer

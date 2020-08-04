@@ -1,7 +1,6 @@
 package com.kanedias.dybr.fair
 
 import android.app.Dialog
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
@@ -30,6 +29,7 @@ import com.kanedias.dybr.fair.dto.Auth
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import kotlinx.coroutines.*
 import moe.banana.jsonapi2.HasMany

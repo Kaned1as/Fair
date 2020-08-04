@@ -19,6 +19,7 @@ import com.kanedias.dybr.fair.dto.NotificationRequest
 import com.kanedias.dybr.fair.markdown.handleMarkdown
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.*
 import kotlinx.coroutines.*

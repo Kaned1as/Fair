@@ -1,7 +1,7 @@
 package com.kanedias.dybr.fair
 
+import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.Bundle
@@ -22,7 +22,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import butterknife.BindView
@@ -42,7 +41,6 @@ import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
-import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.database.entities.SearchGotoInfo
@@ -53,7 +51,10 @@ import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.Sidebar
 import com.kanedias.dybr.fair.misc.getTopFragment
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
+import com.kanedias.dybr.fair.service.Network
+import com.kanedias.dybr.fair.service.UserPrefs
 import kotlinx.coroutines.*
+import java.util.*
 import kotlin.collections.HashMap
 
 /**
@@ -114,12 +115,6 @@ class MainActivity : AppCompatActivity() {
      */
     private lateinit var sidebar: Sidebar
 
-    /**
-     * App-global shared preferences for small config changes not suitable for database
-     * (seen-marks, first launch options etc.)
-     */
-    private lateinit var preferences: SharedPreferences
-
     private lateinit var donateHelper: DonateHelper
 
     /**
@@ -130,13 +125,18 @@ class MainActivity : AppCompatActivity() {
      */
     lateinit var styleLevel: StyleLevel
 
+    override fun attachBaseContext(newBase: Context) {
+        // init custom language if we should
+        val wrapped = initLanguage(newBase)
+        super.attachBaseContext(wrapped)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         ButterKnife.bind(this)
 
         // init preferences
-        preferences = PreferenceManager.getDefaultSharedPreferences(this)
         donateHelper = DonateHelper(this)
 
         // set app bar
@@ -168,9 +168,9 @@ class MainActivity : AppCompatActivity() {
         tabs.setupWithViewPager(pager, true)
 
         // handle first launch
-        if (preferences.getBoolean("first-app-launch", true)) {
+        if (UserPrefs.firstAppLaunch) {
             drawer.openDrawer(GravityCompat.START)
-            preferences.edit().putBoolean("first-app-launch", false).apply()
+            UserPrefs.firstAppLaunch = false
         }
 
         // hack: resume fragment that is activated on tapping "back"
@@ -423,6 +423,20 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(received: Intent) {
         super.onNewIntent(received)
         handleIntent(received)
+    }
+
+    private fun initLanguage(ctx: Context): Context {
+        // can't use UserPrefs here, not initialized yet
+        val userLang = UserPrefs.userPreferredLanguage
+        if (userLang.isEmpty()) {
+            // custom language not set
+            return ctx
+        }
+
+        // override language
+        val config = ctx.resources.configuration
+        config.setLocale(Locale(userLang))
+        return ctx.createConfigurationContext(config)
     }
 
     /**

@@ -67,6 +67,22 @@
         <item>1440</item>
     </string-array>
 
+    <string-array name="available_languages_desc">
+        <item>Русский</item>
+        <item>Беларускі</item>
+        <item>Український</item>
+        <item>Deutsch</item>
+        <item>English</item>
+    </string-array>
+
+    <string-array name="available_languages">
+        <item>ru</item>
+        <item>be</item>
+        <item>uk</item>
+        <item>de</item>
+        <item>en</item>
+    </string-array>
+
     <!-- regular strings -->
     <string name="my_profile">My Profile</string>
     <string name="my_diary">My Diary</string>
@@ -316,4 +332,6 @@
     <string name="my_banned">My banned</string>
     <string name="my_communities">My communities</string>
     <string name="keep_comments_in_other_blogs">Keep comments in other blogs</string>
+    <string name="user_preferred_language">User preferred language</string>
+    <string name="needs_app_restart">Needs full app restart to work</string>
 </resources>

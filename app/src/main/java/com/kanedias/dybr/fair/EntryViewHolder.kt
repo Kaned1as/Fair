@@ -35,6 +35,7 @@ import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.onClickSingleOnly
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.openUrlExternally
 import com.kanedias.dybr.fair.ui.showToastAtView

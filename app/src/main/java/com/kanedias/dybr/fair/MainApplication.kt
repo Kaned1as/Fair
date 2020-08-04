@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
-import androidx.preference.PreferenceManager
 import androidx.work.WorkManager
 import com.ftinc.scoop.Scoop
 import com.kanedias.dybr.fair.database.DbProvider
@@ -18,6 +17,8 @@ import org.acra.annotation.AcraDialog
 import org.acra.annotation.AcraMailSender
 import org.acra.data.StringFormat
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
+import com.kanedias.dybr.fair.service.Network
+import com.kanedias.dybr.fair.service.UserPrefs
 
 
 /**
@@ -32,11 +33,11 @@ class MainApplication : Application() {
 
     private val preferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when(key) {
-            "notification-check-interval" -> rescheduleJobs()
+            UserPrefs.NOTIFICATION_CHECK_PREF -> rescheduleJobs()
         }
     }
 
-    override fun attachBaseContext(base: Context?) {
+    override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
 
         // init crash reporting
@@ -47,6 +48,7 @@ class MainApplication : Application() {
         super.onCreate()
 
         DbProvider.setHelper(this)
+        UserPrefs.init(this)
         Network.init(this)
         Auth.init(this)
 
@@ -61,8 +63,7 @@ class MainApplication : Application() {
         }
 
         // setup configuration change listener
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        prefs.registerOnSharedPreferenceChangeListener(preferenceListener)
+        UserPrefs.registerListener(preferenceListener)
     }
 
     private fun rescheduleJobs() {
@@ -74,7 +75,7 @@ class MainApplication : Application() {
         WorkManager.getInstance().cancelUniqueWork(SYNC_NOTIFICATIONS_UNIQUE_JOB).result.get()
 
         // replace with new one
-        SyncNotificationsWorker.scheduleJob(this)
+        SyncNotificationsWorker.scheduleJob()
     }
 
     private fun initStatusNotifications() {

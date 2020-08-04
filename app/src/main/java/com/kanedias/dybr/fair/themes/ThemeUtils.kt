@@ -3,23 +3,16 @@ package com.kanedias.dybr.fair.themes
 import android.content.Context
 import android.view.View
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.preference.PreferenceManager
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import android.util.Log
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.CustomViewTarget
-import com.bumptech.glide.request.transition.DrawableCrossFadeTransition
-import com.bumptech.glide.request.transition.Transition
 import com.ftinc.scoop.StyleLevel
-import com.kanedias.dybr.fair.Network
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.dto.Design
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.dto.isMarkerBlog
 import kotlinx.coroutines.*
-import okhttp3.HttpUrl
 import java.util.regex.Pattern
 
 const val TOOLBAR = 0       // top toolbar color

@@ -254,5 +254,7 @@
     <string name="my_readers">Мои читатели</string>
     <string name="my_banned">Мои забаненные</string>
     <string name="my_communities">Мои сообщества</string>
+    <string name="user_preferred_language">Предпочитаемый язык</string>
+    <string name="needs_app_restart">Требует полного рестарта приложения</string>
 
 </resources>

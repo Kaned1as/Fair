@@ -26,5 +26,14 @@
         android:entries="@array/notification_intervals_desc"
         android:entryValues="@array/notification_intervals"/>
 
+    <ListPreference
+        android:icon="@drawable/language"
+        android:key="user-preferred-language"
+        android:defaultValue=""
+        android:title="@string/user_preferred_language"
+        android:summary="@string/needs_app_restart"
+        android:entries="@array/available_languages_desc"
+        android:entryValues="@array/available_languages"/>
+
 
 </PreferenceScreen>

@@ -8,7 +8,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.recyclerview.widget.RecyclerView
-import androidx.appcompat.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +24,7 @@ import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.misc.getTopFragment
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
+import com.kanedias.dybr.fair.service.Network
 import kotlinx.coroutines.*
 import moe.banana.jsonapi2.ArrayDocument
 

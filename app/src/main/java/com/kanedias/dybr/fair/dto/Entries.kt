@@ -1,7 +1,6 @@
 package com.kanedias.dybr.fair.dto
 
-import android.text.Spanned
-import com.kanedias.dybr.fair.Network
+import com.kanedias.dybr.fair.service.Network
 import com.squareup.moshi.Json
 import moe.banana.jsonapi2.*
 

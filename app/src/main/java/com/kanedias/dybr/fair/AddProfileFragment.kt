@@ -15,6 +15,7 @@ import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.kanedias.dybr.fair.dto.Auth
 import com.kanedias.dybr.fair.dto.ProfileCreateRequest
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
 import kotlinx.coroutines.*
 

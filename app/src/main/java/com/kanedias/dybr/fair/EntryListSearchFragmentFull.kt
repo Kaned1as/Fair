@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.kanedias.dybr.fair.dto.Entry
+import com.kanedias.dybr.fair.service.Network
 import moe.banana.jsonapi2.ArrayDocument
 
 /**

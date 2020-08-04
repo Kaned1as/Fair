@@ -1,6 +1,5 @@
 package com.kanedias.dybr.fair
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -10,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ftinc.scoop.StyleLevel
 import com.kanedias.dybr.fair.dto.Authored
+import com.kanedias.dybr.fair.service.Network
 import kotlinx.coroutines.*
 import moe.banana.jsonapi2.Resource
 

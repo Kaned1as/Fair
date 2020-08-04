@@ -1,4 +1,4 @@
-package com.kanedias
+package com.kanedias.dybr.fair.service
 
 import android.text.Spanned
 import android.util.LruCache

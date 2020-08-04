@@ -11,7 +11,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.view.TintableBackgroundView
 import androidx.core.widget.CompoundButtonCompat
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.cardview.widget.CardView
@@ -31,10 +30,9 @@ import com.bumptech.glide.request.transition.Transition
 import com.ftinc.scoop.adapters.ColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.hootsuite.nachos.NachoTextView
-import com.kanedias.dybr.fair.Network
+import com.kanedias.dybr.fair.service.Network
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay

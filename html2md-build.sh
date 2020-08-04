@@ -7,7 +7,7 @@ readonly JNI_LIBS="$PWD/app/src/main/jniLibs"
 readonly NDK_PATH="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
 export PATH="$PATH:$NDK_PATH"
 
-rm -rf $JNI_LIBS
+rm -rf $JNI_LIBS/{armeabi-v7a,arm64-v8a,x86,x86_64}
 mkdir -pv $JNI_LIBS/{armeabi-v7a,arm64-v8a,x86,x86_64}
 
 cd $PWD/html2md

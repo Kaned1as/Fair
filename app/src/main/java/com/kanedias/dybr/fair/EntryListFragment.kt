@@ -18,6 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.setMaxFlingVelocity
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

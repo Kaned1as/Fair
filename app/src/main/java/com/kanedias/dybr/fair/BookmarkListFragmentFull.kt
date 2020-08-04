@@ -3,12 +3,12 @@ package com.kanedias.dybr.fair
 import android.view.View
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
-import androidx.appcompat.widget.Toolbar
 import butterknife.BindView
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.*
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import moe.banana.jsonapi2.ArrayDocument
 

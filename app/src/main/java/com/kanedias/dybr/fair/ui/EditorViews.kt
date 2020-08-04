@@ -26,7 +26,7 @@ import com.afollestad.materialdialogs.list.listItems
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.textfield.TextInputLayout
-import com.kanedias.dybr.fair.Network
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.misc.styleLevel
 import com.kanedias.dybr.fair.themes.*

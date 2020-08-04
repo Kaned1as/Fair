@@ -19,6 +19,8 @@ import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.dto.Notification
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.markdown.mdRendererFrom
+import com.kanedias.dybr.fair.service.Network
+import com.kanedias.dybr.fair.service.UserPrefs
 import java.lang.Exception
 import java.util.*
 import java.util.concurrent.TimeUnit.*
@@ -195,9 +197,8 @@ class SyncNotificationsWorker(val ctx: Context, params: WorkerParameters): Worke
         /**
          * Called on application/activity start. Schedules periodic job executions
          */
-        fun scheduleJob(ctx: Context) {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
-            val periodMinutes = prefs.getString("notification-check-interval", "15")?.toLong() ?: return
+        fun scheduleJob() {
+            val periodMinutes = UserPrefs.notifCheckInterval.toLong()
 
             if (periodMinutes <= 0) {
                 // user selected not to check for notifications

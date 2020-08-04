@@ -18,6 +18,7 @@ import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.dto.ProfileCreateRequest
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.showToastAtView
 import kotlinx.coroutines.*

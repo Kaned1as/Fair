@@ -11,6 +11,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.ftinc.scoop.Scoop
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import kotlinx.coroutines.*
 import moe.banana.jsonapi2.ArrayDocument

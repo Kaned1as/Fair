@@ -18,13 +18,10 @@ import com.kanedias.dybr.fair.dto.Authored
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.misc.getTopFragment
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
 import com.kanedias.dybr.fair.ui.showToastAtView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.HttpUrl
 import java.text.SimpleDateFormat
 import java.util.*
 
