@@ -88,12 +88,14 @@ android {
             // code based on track
             def gitVersionCode = versionDetails().commitDistance
 
+            // production code should be higher than alpha so it can substitute it on release publish
+            // (google play requirement)
             def playVersionCode = 0
             switch (play.track) {
-                case 'production': playVersionCode = 0; break
-                case 'beta': playVersionCode = 1; break
+                case 'internal': playVersionCode = 1; break
                 case 'alpha': playVersionCode = 2; break
-                case 'internal': playVersionCode = 3; break
+                case 'beta': playVersionCode = 3; break
+                case 'production': playVersionCode = 4; break
             }
 
             output.versionCodeOverride = versionCode * 10000 + playVersionCode * 1000 + gitVersionCode * 10 + abiVersionCode
