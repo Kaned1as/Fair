@@ -7,14 +7,15 @@ readonly JNI_LIBS="$PWD/app/src/main/jniLibs"
 readonly NDK_PATH="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
 export PATH="$PATH:$NDK_PATH"
 
-rm -rf $JNI_LIBS/{armeabi-v7a,arm64-v8a,x86,x86_64}
+rm -rf $JNI_LIBS
 mkdir -pv $JNI_LIBS/{armeabi-v7a,arm64-v8a,x86,x86_64}
 
 cd $PWD/html2md
 
 echo "Setting up cargo configuration"
-mkdir -pv .cargo
-cat <<EOF > .cargo/config
+export CARGO_HOME="$PWD/.cargo"
+mkdir -pv "$CARGO_HOME"
+cat <<EOF > "$CARGO_HOME/config"
 [target.aarch64-linux-android]
 ar = "$NDK_PATH/aarch64-linux-android-ar"
 linker = "$NDK_PATH/aarch64-linux-android21-clang"

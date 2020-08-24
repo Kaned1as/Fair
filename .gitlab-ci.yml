@@ -16,9 +16,8 @@ variables:
 
 .install_rust_toolchain: &install_rust_toolchain
   - apt-get --quiet install gcc --yes
-  - export CARGO_HOME=$PWD/.cargo
   - curl -sSf https://sh.rustup.rs | sh -s -- -y
-  - source $CARGO_HOME/env
+  - source $HOME/.cargo/env
   - rustup target add armv7-linux-androideabi
   - rustup target add aarch64-linux-android
   - rustup target add i686-linux-android
@@ -34,10 +33,9 @@ cache:
     # gradle cache
     - .gradle/caches/
     - .gradle/wrapper/
-    # rust cargo deps
-    - .cargo/
     # rust compiled deps
     - html2md/target/
+    - html2md/.cargo/registry
 
 
 stages:
