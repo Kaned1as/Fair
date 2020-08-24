@@ -161,6 +161,7 @@
     <string name="select_image_width">Выберите ширину изображения:</string>
     <string name="no_permissions">Отказано в доступе, невозможно выполнить действие</string>
     <string name="world">Лента</string>
+    <string name="communities">Сообщества</string>
     <string name="user_avatar">Аватар пользователя</string>
     <string name="author_name_label">Имя:</string>
     <string name="registration_date_label">Дата регистрации:</string>
@@ -193,9 +194,10 @@
     <string name="share">Поделиться</string>
     <string name="open_in_browser">Открыть в браузере</string>
     <string name="no_browser_found">Браузер не найден</string>
-    <string name="share_link_using">Поделиться ссылкой с помощью...</string>
-    <string name="share_image_using">Поделиться изображением с помощью...</string>
+    <string name="share_link_using">Поделиться ссылкой с помощью…</string>
+    <string name="share_image_using">Поделиться изображением с помощью…</string>
     <string name="no_blog_yet">У вас ещё нет дневника</string>
+    <string name="no_communities_yet">Вы ещё не присоединились ни к одному сообществу</string>
     <string name="mark_read">Отметить прочитанным</string>
     <string name="notifications">Уведомления</string>
     <string name="mark_all_read">Отметить всё прочитанным</string>

@@ -21,7 +21,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/acc_email"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
 
             <EditText
                 android:id="@+id/acc_email_input"
@@ -37,6 +38,7 @@
             android:id="@+id/acc_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             app:passwordToggleEnabled="true">
 
             <EditText
@@ -53,6 +55,7 @@
             android:id="@+id/acc_password_confirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:visibility="gone">
 
             <EditText
@@ -70,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="start|center_vertical"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:visibility="gone"
             android:nextFocusForward="@id/acc_is_over_18_checkbox"
             android:text="@string/termsofservice_accept"/>
@@ -80,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="start|center_vertical"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:visibility="gone"
             android:nextFocusForward="@id/confirm_button"
             android:text="@string/i_am_over_eighteen"/>

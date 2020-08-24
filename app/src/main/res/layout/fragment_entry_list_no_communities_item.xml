@@ -6,12 +6,12 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/no_blog_label"
+        android:id="@+id/no_communities_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:padding="8dp"
-        android:text="@string/no_blog_yet"
+        android:text="@string/no_communities_yet"
         android:gravity="center"
         android:shadowColor="@color/black"
         android:textAppearance="?android:attr/textAppearanceLarge"
@@ -20,10 +20,10 @@
         android:shadowRadius="1"/>
 
     <ImageView
-        android:id="@+id/no_blog_create_button"
+        android:id="@+id/no_communities_join_button"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_below="@id/no_blog_label"
+        android:layout_below="@id/no_communities_label"
         android:layout_centerHorizontal="true"
         android:scaleType="fitXY"
         android:src="@drawable/add_box"/>

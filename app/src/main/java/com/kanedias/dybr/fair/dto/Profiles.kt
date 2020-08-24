@@ -167,6 +167,12 @@ class ProfileResponse : Dated() {
      */
     @Json(name = "favorites")
     var favorites = HasMany<OwnProfile>()
+
+    /**
+     * Link to the communities this profile participates in
+     */
+    @Json(name = "communities")
+    var communities = HasMany<OwnProfile>()
 }
 
 data class Tag(

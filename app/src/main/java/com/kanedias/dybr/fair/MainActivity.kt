@@ -68,8 +68,9 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val MY_DIARY_TAB = 0
         private const val FAV_TAB = 1
-        private const val WORLD_TAB = 2
-        private const val NOTIFICATIONS_TAB = 3
+        private const val COMMUNITIES_TAB = 2
+        private const val WORLD_TAB = 3
+        private const val NOTIFICATIONS_TAB = 4
     }
 
     /**
@@ -764,11 +765,12 @@ class MainActivity : AppCompatActivity() {
 
     inner class TabAdapter(private val self: OwnProfile?): FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-        override fun getCount() = 4 // own blog, favorites, world and notifications
+        override fun getCount() = 5 // own blog, favorites, world and notifications
 
         override fun getItem(position: Int) = when(position) {
             MY_DIARY_TAB -> EntryListFragment().apply { profile = this@TabAdapter.self }
             FAV_TAB  -> EntryListFragment().apply { profile = Auth.favoritesMarker }
+            COMMUNITIES_TAB -> EntryListFragment().apply { profile = Auth.communitiesMarker }
             WORLD_TAB -> EntryListFragment().apply { profile = Auth.worldMarker }
             NOTIFICATIONS_TAB -> NotificationListFragment()
             else -> EntryListFragment().apply { profile = null }
@@ -777,6 +779,7 @@ class MainActivity : AppCompatActivity() {
         override fun getPageTitle(position: Int): CharSequence? = when (position) {
             MY_DIARY_TAB -> getString(R.string.my_diary)
             FAV_TAB -> getString(R.string.favorite)
+            COMMUNITIES_TAB -> getString(R.string.communities)
             WORLD_TAB -> getString(R.string.world)
             NOTIFICATIONS_TAB -> getString(R.string.notifications)
             else -> ""

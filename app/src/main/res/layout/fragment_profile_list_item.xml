@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="32dp"
+    app:cardCornerRadius="4dp"
     app:cardElevation="4dp"
     app:cardMaxElevation="8dp">
 
@@ -31,7 +31,7 @@
             android:padding="8dp"
             android:textStyle="bold"
             android:text="@string/placeholder_long"
-            android:maxEms="12"/>
+            android:maxEms="18"/>
 
         <TextView
             android:id="@+id/profile_registration_date_label"

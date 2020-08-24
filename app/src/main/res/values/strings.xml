@@ -220,6 +220,7 @@
     <string name="select_image_width">Select image width:</string>
     <string name="no_permissions">Permission denied, can\'t perform action</string>
     <string name="world">World</string>
+    <string name="communities">Communities</string>
     <string name="user_avatar">User\'s avatar</string>
     <string name="author_name_label">Name:</string>
     <string name="subtext">Subtext:</string>
@@ -254,7 +255,7 @@
     <string name="no_browser_found">No browser found</string>
     <string name="share_link_using">Share link using…</string>
     <string name="share_image_using">Share image using…</string>
-    <string name="no_blog_yet">You don\'t have a blog yet!</string>
+    <string name="no_blog_yet">You don\'t have a blog yet</string>
     <string name="mark_read">Mark read</string>
     <string name="text_divider" translatable="false">·</string>
     <string name="notifications">Notifications</string>
@@ -334,4 +335,5 @@
     <string name="keep_comments_in_other_blogs">Keep comments in other blogs</string>
     <string name="user_preferred_language">User preferred language</string>
     <string name="needs_app_restart">Needs full app restart to work</string>
+    <string name="no_communities_yet">You haven\'t joined any communities yet</string>
 </resources>

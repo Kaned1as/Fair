@@ -127,9 +127,18 @@ open class EntryListFragment: UserContentListFragment() {
             return true
         }
 
-        if (profile?.blogSlug == null) {
+        if (profile === Auth.profile && profile?.blogSlug == null) {
             // profile doesn't have a blog yet, ask to create
             entryRibbon.adapter = EmptyBlogAdapter()
+            allLoaded = true
+            ribbonRefresher.isRefreshing = false
+            return true
+        }
+
+        val communitiesSize = Auth.profile?.communities?.size() ?: 0
+        if (profile === Auth.communitiesMarker && Auth.profile != null && communitiesSize == 0) {
+            // profile doesn't have any communities yet, ask to join
+            entryRibbon.adapter = EmptyCommunitiesAdapter()
             allLoaded = true
             ribbonRefresher.isRefreshing = false
             return true
@@ -177,6 +186,33 @@ open class EntryListFragment: UserContentListFragment() {
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             holder.itemView.setOnClickListener { activity.createBlog() }
+        }
+
+    }
+
+    /**
+     * Adapter for showing "create blog" button if selected profile doesn't yet have a blog
+     */
+    inner class EmptyCommunitiesAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            val inflater = LayoutInflater.from(activity)
+            val view = inflater.inflate(R.layout.fragment_entry_list_no_communities_item, parent, false)
+            return object: RecyclerView.ViewHolder(view) {}
+        }
+
+        override fun getItemCount() = 1
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            holder.itemView.setOnClickListener {
+                // search for communities
+                val fragment = ProfileListSearchFragment().apply {
+                    arguments = Bundle().apply {
+                        putSerializable("filters", HashMap(mapOf("is-community" to "1")))
+                    }
+                }
+                activity.showFullscreenFragment(fragment)
+            }
         }
 
     }
