@@ -1,3 +1,4 @@
 [submodule "html2md"]
-	path = html2md
-	url = https://gitlab.com/Kanedias/html2md.git
+    path = html2md
+    url = https://gitlab.com/Kanedias/html2md.git
+    ignore = dirty
