@@ -126,6 +126,8 @@ object Network {
             .add(ReactionSetResponse::class.java)
             .add(CreateReactionRequest::class.java)
             .add(ReactionResponse::class.java)
+            .add(CommunityJoinRequest::class.java)
+            .add(CommunityJoinResponse::class.java)
             .setJsonNameMapping { it.kotlinProperty?.findAnnotation<Json>()?.name ?: it.name }
             .build()
 
