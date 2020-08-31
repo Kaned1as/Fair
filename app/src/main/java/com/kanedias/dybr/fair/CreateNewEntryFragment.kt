@@ -233,7 +233,7 @@ class CreateNewEntryFragment : Fragment() {
         // need to convert entry content (html) to Markdown somehow...
         val markdown = Html2Markdown().parseExtended(editEntry.content)
         contentInput.setText(markdown)
-        tagsInput.setText(editEntry.tags.joinToString(transform = { "#$it" }, separator = ", "))
+        tagsInput.setText(editEntry.tags)
 
         // permission settings, if exist
         when (editEntry.settings?.permissions?.access?.firstOrNull()) {
