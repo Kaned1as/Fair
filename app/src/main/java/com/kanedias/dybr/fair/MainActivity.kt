@@ -765,7 +765,7 @@ class MainActivity : AppCompatActivity() {
 
     inner class TabAdapter(private val self: OwnProfile?): FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-        override fun getCount() = 5 // own blog, favorites, world and notifications
+        override fun getCount() = 5 // own blog, favorites, communities, world and notifications
 
         override fun getItem(position: Int) = when(position) {
             MY_DIARY_TAB -> EntryListFragment().apply { profile = this@TabAdapter.self }

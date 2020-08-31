@@ -31,7 +31,7 @@ object Auth {
         // setup special values
         this.guest = Account().apply { email = ctx.getString(R.string.guest) }
         this.worldMarker = OwnProfile().apply { id = "world"; blogSlug = ctx.getString(R.string.world) }
-        this.communitiesMarker = OwnProfile().apply { id = "world"; blogSlug = ctx.getString(R.string.communities) }
+        this.communitiesMarker = OwnProfile().apply { id = "communities"; blogSlug = ctx.getString(R.string.communities) }
         this.favoritesMarker = OwnProfile().apply { id = "favorites"; blogSlug = ctx.getString(R.string.favorite) }
 
         this.user = guest
