@@ -52,5 +52,15 @@
             android:padding="5dp"
             android:text="@string/placeholder_short"/>
 
+        <ImageView
+            android:id="@+id/profile_community_join_action"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/community_join"
+            android:visibility="gone"/>
+
+
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

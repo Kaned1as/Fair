@@ -220,6 +220,17 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         }
     }
 
+    @OnClick(R.id.my_communities)
+    fun goToCommunities() {
+        drawer.closeDrawers()
+        val fragment = ProfileListSearchFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable("filters", HashMap(mapOf("is-community" to "1")))
+            }
+        }
+        activity.showFullscreenFragment(fragment)
+    }
+
     /**
      * Update sidebar after account change/refresh
      */

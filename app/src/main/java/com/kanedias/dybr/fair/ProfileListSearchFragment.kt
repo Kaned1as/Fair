@@ -9,18 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.kanedias.dybr.fair.dto.*
+import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
+import kotlinx.coroutines.launch
 import moe.banana.jsonapi2.ArrayDocument
 import java.text.SimpleDateFormat
 import java.util.*
@@ -135,6 +139,9 @@ open class ProfileListSearchFragment : UserContentListFragment() {
         @BindView(R.id.profile_registration_date)
         lateinit var registrationDate: TextView
 
+        @BindView(R.id.profile_community_join_action)
+        lateinit var communityJoinBtn: ImageView
+
         init {
             ButterKnife.bind(this, iv)
             setupTheming()
@@ -145,6 +152,7 @@ open class ProfileListSearchFragment : UserContentListFragment() {
             parentFragment.styleLevel.bind(TEXT, profileName, TextViewColorAdapter())
             parentFragment.styleLevel.bind(TEXT, profileName, TextViewDrawableAdapter())
             parentFragment.styleLevel.bind(TEXT, registrationDate, TextViewColorAdapter())
+            parentFragment.styleLevel.bind(TEXT_LINKS, communityJoinBtn, ImageViewColorAdapter())
         }
 
         private fun showProfile(profile: OwnProfile) {
@@ -168,13 +176,42 @@ open class ProfileListSearchFragment : UserContentListFragment() {
             }
             registrationDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(profile.createdAt)
 
-
             // set avatar
             val avatar = Network.resolve(profile.settings.avatar) ?: Network.defaultAvatar()
             Glide.with(profileAvatar)
                     .load(avatar.toString())
                     .apply(RequestOptions().centerInside().circleCrop())
                     .into(profileAvatar)
+
+            // setup community join button
+            if (Auth.profile != null && profile.isCommunity) {
+                // check if logged in profile has this community in "my-communities"
+                communityJoinBtn.visibility = View.VISIBLE
+                val isParticipant = Auth.profile!!.communities.any { it.idMatches(profile) }
+                when (isParticipant) {
+                    true -> communityJoinBtn.setImageResource(R.drawable.community_leave)
+                    false -> communityJoinBtn.setImageResource(R.drawable.community_join)
+                }
+                communityJoinBtn.setOnClickListener { handleCommunityJoin(profile, !isParticipant) }
+            }
+        }
+
+        private fun handleCommunityJoin(communityProf: OwnProfile, join: Boolean) {
+            parentFragment.lifecycleScope.launch {
+                when(join) {
+                    true -> Network.perform(
+                            networkAction = { Network.communityJoin(communityProf) },
+                            uiAction = { communityJoinBtn.setImageResource(R.drawable.community_joined) },
+                            errorAction = { communityJoinBtn.setImageResource(R.drawable.community_join) }
+                    )
+                    false -> Network.perform(
+                            networkAction = { Network.communityLeave(communityProf) },
+                            uiAction = { communityJoinBtn.setImageResource(R.drawable.community_left) },
+                            errorAction = { communityJoinBtn.setImageResource(R.drawable.community_leave) }
+                    )
+                }
+
+            }
         }
     }
 

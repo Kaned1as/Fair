@@ -321,8 +321,7 @@
             android:paddingStart="16dp"
             android:text="@string/my_communities"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:enabled="false"/>
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/my_settings"

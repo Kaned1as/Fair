@@ -107,6 +107,7 @@ object Network {
     private lateinit var REACTIONS_ENDPOINT: String
     private lateinit var REACTION_SETS_ENDPOINT: String
     private lateinit var ACTION_LISTS_ENDPOINT: String
+    private lateinit var COMMUNITY_JOIN_REQ_ENDPOINT: String
 
     private val MIME_JSON_API = MediaType.parse("application/vnd.api+json")
 
@@ -238,6 +239,7 @@ object Network {
         REACTIONS_ENDPOINT = resolve("reactions")!!.toString()
         REACTION_SETS_ENDPOINT = resolve("reaction-sets")!!.toString()
         ACTION_LISTS_ENDPOINT = resolve("lists")!!.toString()
+        COMMUNITY_JOIN_REQ_ENDPOINT = resolve("community-join-request")!!.toString()
     }
 
     @UiThread
@@ -391,7 +393,7 @@ object Network {
      * @return list of profiles that are bound to currently logged in user
      */
     fun loadUserProfiles(): List<OwnProfile> {
-        val req = Request.Builder().url("$USERS_ENDPOINT/${Auth.user.serverId}?include=profiles,favorites").build()
+        val req = Request.Builder().url("$USERS_ENDPOINT/${Auth.user.serverId}?include=profiles,favorites,my-communities").build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
             throw extractErrors(resp, "Can't load user profiles")
@@ -407,7 +409,7 @@ object Network {
      * @param id identifier of profile to load
      */
     fun loadProfile(id: String): OwnProfile {
-        val req = Request.Builder().url("$PROFILES_ENDPOINT/$id?include=favorites").build()
+        val req = Request.Builder().url("$PROFILES_ENDPOINT/$id?include=favorites,my-communities").build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful) {
             throw extractErrors(resp, "Can't load profile $id")
@@ -571,8 +573,6 @@ object Network {
         return filtered[0]
     }
 
-    // TODO: empty list mark with sad cloud, "my subs", "my favs", "my bans"
-
     /**
      * Pull diary entries from blog denoted by [prof]. Includes profiles and blog for returned entry list.
      * The resulting URL will be like this: http://dybr.ru/api/v1/blogs/<blog-slug>
@@ -587,8 +587,14 @@ object Network {
                     starter: Long = System.currentTimeMillis() / 1000): ArrayDocument<Entry> {
         // handle special case when we selected tab with favorites
         val builder = when (prof) {
-            Auth.favoritesMarker -> HttpUrl.parse("$FAVORITES_ENDPOINT/${Auth.profile?.id}/entries")!!.newBuilder()
-            Auth.worldMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!.newBuilder().addQueryParameter("filters[feed]", "1")
+            Auth.favoritesMarker -> HttpUrl.parse("$FAVORITES_ENDPOINT/${Auth.profile?.id}/entries")!!
+                    .newBuilder()
+            Auth.communitiesMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!
+                    .newBuilder()
+                    .addQueryParameter("filters[profile_id]", Auth.profile?.communities?.joinToString { it.id })
+            Auth.worldMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!
+                    .newBuilder()
+                    .addQueryParameter("filters[feed]", "1")
             null -> HttpUrl.parse(ENTRIES_ENDPOINT)!!.newBuilder()
             else -> HttpUrl.parse("$BLOGS_ENDPOINT/${prof.id}/entries")!!.newBuilder()
         }
@@ -958,6 +964,44 @@ object Network {
     }
 
     /**
+     * Create a join request for specified community. Depending on community join type
+     * it can be fulfilled automatically
+     */
+    fun communityJoin(communityProf: OwnProfile): CommunityJoinResponse {
+        val joinReq = CommunityJoinRequest().apply {
+            this.message = "" // TODO: add message input when non-auto-join communities are implemented
+            this.profile = HasOne(Auth.profile)
+            this.community = HasOne(communityProf)
+        }
+
+        val req = Request.Builder()
+                .post(RequestBody.create(MIME_JSON_API, toWrappedJson(joinReq)))
+                .url(COMMUNITY_JOIN_REQ_ENDPOINT)
+                .build()
+
+        val resp = httpClient.newCall(req).execute()
+
+        if (!resp.isSuccessful) {
+            throw extractErrors(resp, "Can't join community ${communityProf.nickname} with id ${communityProf.id}")
+        }
+
+        return fromWrappedJson(resp.body()!!.source(), CommunityJoinResponse::class.java)!!
+    }
+
+    fun communityLeave(communityProf: OwnProfile) {
+        val leaveReq = ArrayDocument<Resource>().apply { add(Auth.profile) }
+        val req = Request.Builder()
+                .url("$PROFILES_ENDPOINT/${communityProf.id}/relationships/community-participants")
+                .delete(RequestBody.create(MIME_JSON_API, jsonConverter.adapter(Document::class.java).toJson(leaveReq)))
+                .build()
+
+        val resp = httpClient.newCall(req).execute()
+        if (!resp.isSuccessful) {
+            throw extractErrors(resp, "Can't leave community ${communityProf.nickname} with id ${communityProf.id}")
+        }
+    }
+
+    /**
      * Deletes reaction [myReaction]. This reaction must exist and must have
      * current profile as its author.
      */
@@ -1037,11 +1081,15 @@ object Network {
      * @param networkAction action to be performed in background thread
      * @param uiAction action to be performed after [networkAction], in UI thread
      */
-    suspend fun <T> perform(networkAction: () -> T, uiAction: (input: T) -> Unit = {}) {
+    suspend fun <T> perform(
+            networkAction: () -> T,
+            uiAction: (input: T) -> Unit = {},
+            errorAction: () -> Unit = {}) {
         try {
             val result = withContext(Dispatchers.IO) { networkAction() }
             uiAction(result)
         } catch (ex: Exception) {
+            errorAction()
             reportErrors(appCtx, ex)
         }
     }
