@@ -336,4 +336,7 @@
     <string name="user_preferred_language">User preferred language</string>
     <string name="needs_app_restart">Needs full app restart to work</string>
     <string name="no_communities_yet">You haven\'t joined any communities yet</string>
+    <string name="joined_community">Joined community successfully</string>
+    <string name="left_community">Left community successfully</string>
+    <string name="community_join_request_sent">Community join request sent. Moderators approval pending.</string>
 </resources>

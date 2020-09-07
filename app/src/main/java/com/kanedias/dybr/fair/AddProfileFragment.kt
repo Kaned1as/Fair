@@ -15,6 +15,7 @@ import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.kanedias.dybr.fair.dto.Auth
 import com.kanedias.dybr.fair.dto.ProfileCreateRequest
+import com.kanedias.dybr.fair.dto.ProfileSettings
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
 import kotlinx.coroutines.*
@@ -57,6 +58,13 @@ class AddProfileFragment: Fragment() {
             birthday = birthdayInput.text.toString()
             description = descInput.text.toString()
             isCommunity = communityMarker.isChecked
+        }
+
+        if (profReq.isCommunity) {
+            // community settings are essential, for now we need
+            // them to be auto-joinable while we don't yet have handling of manual requests
+            profReq.settings = ProfileSettings().apply { community.joinRequest = "auto" }
+
         }
 
         val progressDialog = MaterialDialog(requireContext())

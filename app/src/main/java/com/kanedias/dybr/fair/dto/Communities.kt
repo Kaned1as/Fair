@@ -40,7 +40,7 @@ import java.util.*
  *
  * Created on 2020-08-31
  */
-@JsonApi(type = "community-join-request", policy = Policy.SERIALIZATION_ONLY)
+@JsonApi(type = "community-join-requests", policy = Policy.SERIALIZATION_ONLY)
 class CommunityJoinRequest: Resource() {
 
     /**
@@ -98,8 +98,14 @@ class CommunityJoinRequest: Resource() {
  *
  * Created on 2020-08-31
  */
-@JsonApi(type = "community-join-request", policy = Policy.DESERIALIZATION_ONLY)
+@JsonApi(type = "community-join-requests", policy = Policy.DESERIALIZATION_ONLY)
 class CommunityJoinResponse: Resource() {
+
+    /**
+     * State of this join request. Can be "approved" or "pending"
+     */
+    @Json(name = "state")
+    lateinit var state: String
 
     /**
      * Message that user enters, it's visible to admins
@@ -131,4 +137,34 @@ class CommunityJoinResponse: Resource() {
      */
     @Json(name = "community")
     lateinit var community : HasOne<OwnProfile>
+
+    /**
+     * Community participant, present in case this request was approved
+     */
+    @Json(name = "participant")
+    lateinit var participant: HasOne<CommunityParticipant>
 }
+
+@JsonApi(type = "community-participants", policy = Policy.DESERIALIZATION_ONLY)
+class CommunityParticipantResponse: Resource() {
+
+    /**
+     * Permissions of specified participant
+     */
+    @Json(name = "permissions")
+    lateinit var message: List<String>
+
+    /**
+     * Profile this participant represents
+     */
+    @Json(name = "profile")
+    lateinit var profile : HasOne<OwnProfile>
+
+    /**
+     * Community this participant is from
+     */
+    @Json(name = "community")
+    lateinit var community : HasOne<OwnProfile>
+}
+
+typealias CommunityParticipant = CommunityParticipantResponse

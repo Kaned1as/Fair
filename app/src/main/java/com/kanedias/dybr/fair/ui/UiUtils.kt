@@ -13,14 +13,7 @@ import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.view.Gravity
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentTransaction
-import com.ftinc.scoop.StyleLevel
-import com.kanedias.dybr.fair.MainActivity
-import com.kanedias.dybr.fair.UserContentListFragment
-import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
+import androidx.annotation.StringRes
 
 
 /**
@@ -62,6 +55,11 @@ fun showToastAtView(view: View, text: String) {
 
     toast.setGravity(Gravity.TOP or Gravity.START, location[0] - 25, location[1] - 10)
     toast.show()
+}
+
+fun showToastAtView(view: View, @StringRes textResId: Int) {
+    val textStr = view.context.getString(textResId)
+    showToastAtView(view, textStr)
 }
 
 /**

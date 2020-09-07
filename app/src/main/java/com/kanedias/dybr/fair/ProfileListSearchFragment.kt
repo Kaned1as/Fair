@@ -24,6 +24,7 @@ import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
+import com.kanedias.dybr.fair.ui.showToastAtView
 import kotlinx.coroutines.launch
 import moe.banana.jsonapi2.ArrayDocument
 import java.text.SimpleDateFormat
@@ -192,21 +193,43 @@ open class ProfileListSearchFragment : UserContentListFragment() {
                     true -> communityJoinBtn.setImageResource(R.drawable.community_leave)
                     false -> communityJoinBtn.setImageResource(R.drawable.community_join)
                 }
-                communityJoinBtn.setOnClickListener { handleCommunityJoin(profile, !isParticipant) }
+                communityJoinBtn.setOnClickListener { handleCommunityJoin(profile) }
             }
         }
 
-        private fun handleCommunityJoin(communityProf: OwnProfile, join: Boolean) {
+        private fun handleCommunityJoin(communityProf: OwnProfile) {
+            val shouldJoin = Auth.profile!!.communities.any { it.idMatches(communityProf) }.not()
+
             parentFragment.lifecycleScope.launch {
-                when(join) {
+
+                communityJoinBtn.setImageResource(R.drawable.wait)
+                when(shouldJoin) {
                     true -> Network.perform(
                             networkAction = { Network.communityJoin(communityProf) },
-                            uiAction = { communityJoinBtn.setImageResource(R.drawable.community_joined) },
+                            uiAction = { answer ->
+                                when (answer.state) {
+                                    "approved" -> {
+                                        // this is an auto-join community
+                                        communityJoinBtn.setImageResource(R.drawable.community_joined)
+                                        Auth.profile!!.communities.add(communityProf)
+                                        showToastAtView(communityJoinBtn, R.string.joined_community)
+                                    }
+                                    "pending" -> {
+                                        // this is a pre-moderated community
+                                        showToastAtView(communityJoinBtn, R.string.community_join_request_sent)
+                                    }
+                                }
+
+                            },
                             errorAction = { communityJoinBtn.setImageResource(R.drawable.community_join) }
                     )
                     false -> Network.perform(
                             networkAction = { Network.communityLeave(communityProf) },
-                            uiAction = { communityJoinBtn.setImageResource(R.drawable.community_left) },
+                            uiAction = {
+                                communityJoinBtn.setImageResource(R.drawable.community_left)
+                                Auth.profile!!.communities.remove(communityProf)
+                                showToastAtView(communityJoinBtn, R.string.left_community)
+                            },
                             errorAction = { communityJoinBtn.setImageResource(R.drawable.community_leave) }
                     )
                 }

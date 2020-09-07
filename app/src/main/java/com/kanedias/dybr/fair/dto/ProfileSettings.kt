@@ -12,6 +12,7 @@ import java.io.Serializable
  *     "subtext": "Sample text",
  *     "designs": {...},
  *     "notifications": {...},
+ *     "community": {...},
  *     "privacy": {...},
  *     "permissions": {...},
  *     "pinned-entries": ["1", "2", "3"]
@@ -42,6 +43,9 @@ data class ProfileSettings(
         @Json(name = "privacy")
         var privacy: PrivacySettings = PrivacySettings(),
 
+        @Json(name = "community")
+        var community: CommunitySettings = CommunitySettings(),
+
         @Json(name = "permissions")
         var permissions: RecordPermissions = RecordPermissions(),
 
@@ -53,11 +57,32 @@ data class ProfileSettings(
 ) : Serializable
 
 /**
+ * Only ever present in community profiles
  * Example:
+ * ```
+ * "community": {
+ *     "join-request": "auto"
+ * }
+ * ```
+ */
+data class CommunitySettings(
+        /**
+         * How this community handles join requests.
+         * "auto" means they're automatically approved after creation.
+         * "manual" means it's a pre-moderated community.
+         */
+        @Json(name = "join-request")
+        var joinRequest: String = "auto"
+) : Serializable
+
+/**
+ * Example:
+ * ```
  * "notifications": {
  *     "comments": {...},
  *     "entries": {...}
  * }
+ * ```
  *
  * @see NotificationConfig
  */

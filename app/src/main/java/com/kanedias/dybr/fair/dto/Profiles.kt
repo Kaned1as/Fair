@@ -1,5 +1,6 @@
 package com.kanedias.dybr.fair.dto
 
+import com.kanedias.dybr.fair.misc.idMatches
 import com.squareup.moshi.Json
 import moe.banana.jsonapi2.*
 import java.io.Serializable
@@ -183,16 +184,22 @@ data class Tag(
 typealias OwnProfile = ProfileResponse
 
 fun isBlogWritable(profile: OwnProfile?): Boolean {
+    // if we don't have a blog yet we can't create any entries at all, only comments
     if (profile?.blogSlug == null)
         return false
 
+    // check if it's our own blog
     if (profile == Auth.profile)
         return true
 
-    if (profile.isCommunity)
+    // check if we're a participant of this community
+    if (profile.isCommunity && Auth.profile?.communities?.any { it.idMatches(profile) } == true)
         return true
 
+    // can't write here
     return false
 }
 
-fun isMarkerBlog(profile: OwnProfile?) = profile == Auth.favoritesMarker || profile == Auth.worldMarker
+fun isMarkerBlog(profile: OwnProfile?) = profile == Auth.favoritesMarker
+        || profile == Auth.communitiesMarker
+        || profile == Auth.worldMarker

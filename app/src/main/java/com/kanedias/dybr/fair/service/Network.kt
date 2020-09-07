@@ -129,6 +129,7 @@ object Network {
             .add(ReactionResponse::class.java)
             .add(CommunityJoinRequest::class.java)
             .add(CommunityJoinResponse::class.java)
+            .add(CommunityParticipantResponse::class.java)
             .setJsonNameMapping { it.kotlinProperty?.findAnnotation<Json>()?.name ?: it.name }
             .build()
 
@@ -239,7 +240,7 @@ object Network {
         REACTIONS_ENDPOINT = resolve("reactions")!!.toString()
         REACTION_SETS_ENDPOINT = resolve("reaction-sets")!!.toString()
         ACTION_LISTS_ENDPOINT = resolve("lists")!!.toString()
-        COMMUNITY_JOIN_REQ_ENDPOINT = resolve("community-join-request")!!.toString()
+        COMMUNITY_JOIN_REQ_ENDPOINT = resolve("community-join-requests")!!.toString()
     }
 
     @UiThread
@@ -591,7 +592,7 @@ object Network {
                     .newBuilder()
             Auth.communitiesMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!
                     .newBuilder()
-                    .addQueryParameter("filters[profile_id]", Auth.profile?.communities?.joinToString { it.id })
+                    .addQueryParameter("filters[profile-id]", Auth.profile?.communities?.joinToString { it.id })
             Auth.worldMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!
                     .newBuilder()
                     .addQueryParameter("filters[feed]", "1")
@@ -989,10 +990,11 @@ object Network {
     }
 
     fun communityLeave(communityProf: OwnProfile) {
-        val leaveReq = ArrayDocument<Resource>().apply { add(Auth.profile) }
+        val leaveReq = ArrayDocument<ResourceIdentifier>().apply { add(ResourceIdentifier(Auth.profile)) }
+        val docType = Types.newParameterizedType(Document::class.java, ResourceIdentifier::class.java)
         val req = Request.Builder()
                 .url("$PROFILES_ENDPOINT/${communityProf.id}/relationships/community-participants")
-                .delete(RequestBody.create(MIME_JSON_API, jsonConverter.adapter(Document::class.java).toJson(leaveReq)))
+                .delete(RequestBody.create(MIME_JSON_API, jsonConverter.adapter<Document>(docType).toJson(leaveReq)))
                 .build()
 
         val resp = httpClient.newCall(req).execute()
