@@ -339,4 +339,5 @@
     <string name="joined_community">Joined community successfully</string>
     <string name="left_community">Left community successfully</string>
     <string name="community_join_request_sent">Community join request sent. Moderators approval pending.</string>
+    <string name="join_community">Join community</string>
 </resources>

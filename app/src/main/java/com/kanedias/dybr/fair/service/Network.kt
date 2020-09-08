@@ -592,7 +592,8 @@ object Network {
                     .newBuilder()
             Auth.communitiesMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!
                     .newBuilder()
-                    .addQueryParameter("filters[profile-id]", Auth.profile?.communities?.joinToString { it.id })
+                    .addQueryParameter("filters[blog-id]",
+                            Auth.profile?.communities?.joinToString(separator = ",", transform = { it.id }))
             Auth.worldMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!
                     .newBuilder()
                     .addQueryParameter("filters[feed]", "1")

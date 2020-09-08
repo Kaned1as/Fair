@@ -223,6 +223,19 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
     @OnClick(R.id.my_communities)
     fun goToCommunities() {
         drawer.closeDrawers()
+
+        val myCommunities = Auth.profile?.communities?.joinToString(separator = ",", transform = { it.id })
+        val fragment = ProfileListSearchFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable("filters", HashMap(mapOf("profile-id" to myCommunities)))
+            }
+        }
+        activity.showFullscreenFragment(fragment)
+    }
+
+    @OnClick(R.id.join_community)
+    fun searchNewCommunities() {
+        drawer.closeDrawers()
         val fragment = ProfileListSearchFragment().apply {
             arguments = Bundle().apply {
                 putSerializable("filters", HashMap(mapOf("is-community" to "1")))
@@ -416,8 +429,8 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
 
     private fun updateProfileListRows() {
         when (Auth.profile) {
-            null -> profileListRows.forEach { it.isEnabled = false }
-            else -> profileListRows.forEach { it.isEnabled = true }
+            null -> profileListRows.forEach { toggleEnableRecursive(it, false) }
+            else -> profileListRows.forEach { toggleEnableRecursive(it, true) }
         }
     }
 

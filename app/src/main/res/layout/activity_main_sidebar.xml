@@ -110,17 +110,20 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="?android:selectableItemBackground"
-            android:orientation="horizontal"
             android:clipChildren="false">
 
             <TextView
                 android:id="@+id/my_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/profile_actions_area"
                 android:gravity="center_vertical"
+                android:background="?android:selectableItemBackground"
                 android:drawableStart="@drawable/profile"
                 android:drawablePadding="26dp"
                 android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:text="@string/my_profile"
                 android:textSize="14sp"
                 android:textStyle="bold"/>
@@ -176,10 +179,14 @@
                 android:id="@+id/my_blog"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/blog_actions_area"
                 android:gravity="center_vertical"
+                android:background="?android:selectableItemBackground"
                 android:drawableStart="@drawable/home"
                 android:drawablePadding="26dp"
                 android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:text="@string/my_blog"
                 android:textSize="14sp"
                 android:textStyle="bold"/>
@@ -194,7 +201,7 @@
                 android:layout_marginEnd="2dp">
 
                 <!-- you can't have many blogs in one profile -->
-                <!-- but bloc can be not yet created for a profile -->
+                <!-- but blog can be not yet created for a profile -->
 
                 <ImageView
                     android:id="@+id/add_blog"
@@ -213,8 +220,8 @@
             android:id="@+id/my_bookmarks"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:background="?android:selectableItemBackground"
             android:gravity="center_vertical"
+            android:background="?android:selectableItemBackground"
             android:drawableStart="@drawable/bookmark_list"
             android:drawablePadding="26dp"
             android:paddingStart="16dp"
@@ -310,18 +317,39 @@
             android:textSize="14sp"
             android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/my_communities"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:gravity="center_vertical"
-            android:background="?android:selectableItemBackground"
-            android:drawableStart="@drawable/community_big"
-            android:drawablePadding="26dp"
-            android:paddingStart="16dp"
-            android:text="@string/my_communities"
-            android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:background="?android:selectableItemBackground">
+
+            <TextView
+                android:id="@+id/my_communities"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/join_community"
+                android:gravity="center_vertical"
+                android:background="?android:selectableItemBackground"
+                android:drawableStart="@drawable/community_big"
+                android:drawablePadding="26dp"
+                android:paddingStart="16dp"
+                android:text="@string/my_communities"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+
+            <ImageView
+                android:id="@+id/join_community"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="2dp"
+                android:padding="14dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/community_join"
+                android:contentDescription="@string/join_community"/>
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/my_settings"
