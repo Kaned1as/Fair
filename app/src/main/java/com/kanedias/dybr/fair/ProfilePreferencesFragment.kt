@@ -75,7 +75,7 @@ class ProfilePreferencesFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        profile = arguments!!.get(PROFILE) as OwnProfile
+        profile = requireArguments().get(PROFILE) as OwnProfile
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -107,7 +107,7 @@ class ProfilePreferencesFragment: Fragment() {
             styleLevel.bind(TEXT, it, TextViewColorAdapter())
         }
 
-        titles.forEach { styleLevel.bind(TEXT_HEADERS, it) }
+        titles.forEach { styleLevel.bind(TEXT_HEADERS, it, TextViewColorAdapter()) }
     }
 
     /**

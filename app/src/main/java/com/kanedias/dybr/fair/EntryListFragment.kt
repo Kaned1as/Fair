@@ -135,6 +135,11 @@ open class EntryListFragment: UserContentListFragment() {
             return true
         }
 
+        if (profile?.blogSlug == null && entryRibbon.adapter is EmptyBlogAdapter) {
+            // added blog, invalidate the adapter
+            entryRibbon.adapter = entryAdapter
+        }
+
         val communitiesSize = Auth.profile?.communities?.size() ?: 0
         if (profile === Auth.communitiesMarker && Auth.profile != null && communitiesSize == 0) {
             // profile doesn't have any communities yet, ask to join
@@ -142,6 +147,11 @@ open class EntryListFragment: UserContentListFragment() {
             allLoaded = true
             ribbonRefresher.isRefreshing = false
             return true
+        }
+
+        if (communitiesSize > 0 && entryRibbon.adapter is EmptyCommunitiesAdapter) {
+            // added communities, invalidate the adapter
+            entryRibbon.adapter = entryAdapter
         }
 
         return false
