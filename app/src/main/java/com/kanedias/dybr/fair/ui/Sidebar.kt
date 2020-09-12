@@ -221,13 +221,18 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
     }
 
     @OnClick(R.id.my_communities)
-    fun goToCommunities() {
-        drawer.closeDrawers()
+    fun goToCommunities(row: View) {
+        val myCommunities = Auth.profile?.communities
+        if (myCommunities == null || myCommunities.size() == 0) {
+            showToastAtView(row, R.string.no_communities_yet)
+            return
+        }
 
-        val myCommunities = Auth.profile?.communities?.joinToString(separator = ",", transform = { it.id })
+        drawer.closeDrawers()
+        val communityFilter = myCommunities.joinToString(separator = ",", transform = { it.id })
         val fragment = ProfileListSearchFragment().apply {
             arguments = Bundle().apply {
-                putSerializable("filters", HashMap(mapOf("profile-id" to myCommunities)))
+                putSerializable("filters", HashMap(mapOf("profile-id" to communityFilter)))
             }
         }
         activity.showFullscreenFragment(fragment)
