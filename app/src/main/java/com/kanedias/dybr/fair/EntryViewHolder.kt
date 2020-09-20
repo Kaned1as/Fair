@@ -98,7 +98,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
     lateinit var draftStateView: TextView
 
     @BindViews(
-            R.id.entry_bookmark, R.id.entry_subscribe, R.id.entry_edit,
+            R.id.entry_bookmark, R.id.entry_watch, R.id.entry_edit,
             R.id.entry_delete, R.id.entry_more_options, R.id.entry_add_reaction
     )
     lateinit var buttons: List<@JvmSuppressWildcards ImageView>
@@ -196,8 +196,8 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         activity.showFullscreenFragment(entryEdit)
     }
 
-    @OnClick(R.id.entry_subscribe)
-    fun subscribeToEntry(button: ImageView) {
+    @OnClick(R.id.entry_watch)
+    fun subscribeToEntry(subButton: ImageView) {
         val subscribe = !(metadata?.subscribed ?: false)
 
         val toastText = when (subscribe) {
@@ -208,10 +208,13 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         parentFragment.lifecycleScope.launch {
             try {
                 withContext(Dispatchers.IO) { Network.updateSubscription(entry, subscribe) }
-                showToastAtView(button, itemView.context.getString(toastText))
+                showToastAtView(subButton, itemView.context.getString(toastText))
 
                 metadata?.subscribed = subscribe
-                setupButtons()
+                when(subscribe) {
+                    true -> subButton.setImageResource(R.drawable.watch_added)
+                    false -> subButton.setImageResource(R.drawable.watch_removed)
+                }
             } catch (ex: Exception) {
                 Network.reportErrors(itemView.context, ex)
             }
@@ -401,10 +404,10 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         buttons.filter { it.tag == editTag }.forEach { it.visibility = editVisibility }
 
         // setup subscription button
-        val subButton = buttons.first { it.id == R.id.entry_subscribe }
+        val subButton = buttons.first { it.id == R.id.entry_watch }
         when (metadata?.subscribed) {
-            true -> subButton.apply { visibility = View.VISIBLE; setImageResource(R.drawable.star_filled) }
-            false -> subButton.apply { visibility = View.VISIBLE; setImageResource(R.drawable.star_border) }
+            true -> subButton.apply { visibility = View.VISIBLE; setImageResource(R.drawable.watch_remove) }
+            false -> subButton.apply { visibility = View.VISIBLE; setImageResource(R.drawable.watch_add) }
             null -> subButton.visibility = View.GONE
         }
 
@@ -510,7 +513,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         // don't show subscribe button if we can't subscribe
         // guests can't do anything
         if (Auth.profile == null) {
-            buttons.first { it.id == R.id.entry_subscribe }.visibility = View.GONE
+            buttons.first { it.id == R.id.entry_watch }.visibility = View.GONE
             buttons.first { it.id == R.id.entry_bookmark }.visibility = View.GONE
         }
 
