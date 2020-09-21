@@ -91,7 +91,7 @@ class CommentListFragment : UserContentListFragment() {
         ribbonRefresher.setOnRefreshListener { loadMore(reset = true) }
         commentRibbon.adapter = commentAdapter
 
-        if (!isEntryWritable(entry))
+        if (!isEntryCommentable(entry))
             addCommentButton.visibility = View.GONE
     }
 

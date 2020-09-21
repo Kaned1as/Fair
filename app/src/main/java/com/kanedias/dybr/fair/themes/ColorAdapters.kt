@@ -568,6 +568,24 @@ class TabLayoutLineAdapter: ColorAdapter<TabLayout> {
     }
 }
 
+class TabLayoutDrawableAdapter: ColorAdapter<TabLayout> {
+
+    private var color = Color.TRANSPARENT
+
+    override fun applyColor(view: TabLayout, color: Int) {
+        this.color = color
+        for (idx in (0..view.tabCount)) {
+            val tab = view.getTabAt(idx)
+            tab?.icon?.let { DrawableCompat.setTint(it, color) }
+        }
+    }
+
+    override fun getColor(view: TabLayout): Int {
+        // can't retrieve it without resorting to reflection, ugh
+        return color
+    }
+}
+
 class SpinnerDropdownColorAdapter: ColorAdapter<AppCompatSpinner> {
 
     private var color = Color.TRANSPARENT

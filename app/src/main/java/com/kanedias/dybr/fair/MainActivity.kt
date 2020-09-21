@@ -733,6 +733,8 @@ class MainActivity : AppCompatActivity() {
             // have account and profile
             else -> pager.adapter = TabAdapter(Auth.profile)
         }
+
+        (pager.adapter as IconAwareTabAdapter).setupIcons()
     }
 
     /**
@@ -754,16 +756,25 @@ class MainActivity : AppCompatActivity() {
         currFragment.addCreateNewEntryForm()
     }
 
-    inner class GuestTabAdapter: FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    interface IconAwareTabAdapter {
+        fun setupIcons()
+    }
+
+    inner class GuestTabAdapter: FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT),
+            IconAwareTabAdapter {
 
         override fun getCount() = 1 // only world
 
         override fun getItem(position: Int) = EntryListFragment().apply { profile = Auth.worldMarker }
 
-        override fun getPageTitle(position: Int): CharSequence? = getString(R.string.world)
+        override fun setupIcons() {
+            tabs.getTabAt(0)?.setIcon(R.drawable.earth)
+            styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutDrawableAdapter())
+        }
     }
 
-    inner class TabAdapter(private val self: OwnProfile?): FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    inner class TabAdapter(private val self: OwnProfile?): FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT),
+            IconAwareTabAdapter {
 
         override fun getCount() = 5 // own blog, favorites, communities, world and notifications
 
@@ -776,13 +787,13 @@ class MainActivity : AppCompatActivity() {
             else -> EntryListFragment().apply { profile = null }
         }
 
-        override fun getPageTitle(position: Int): CharSequence? = when (position) {
-            MY_DIARY_TAB -> getString(R.string.my_diary)
-            FAV_TAB -> getString(R.string.favorite)
-            COMMUNITIES_TAB -> getString(R.string.communities)
-            WORLD_TAB -> getString(R.string.world)
-            NOTIFICATIONS_TAB -> getString(R.string.notifications)
-            else -> ""
+        override fun setupIcons() {
+            tabs.getTabAt(MY_DIARY_TAB)?.setIcon(R.drawable.home)
+            tabs.getTabAt(FAV_TAB)?.setIcon(R.drawable.star_filled)
+            tabs.getTabAt(COMMUNITIES_TAB)?.setIcon(R.drawable.community_big)
+            tabs.getTabAt(WORLD_TAB)?.setIcon(R.drawable.earth)
+            tabs.getTabAt(NOTIFICATIONS_TAB)?.setIcon(R.drawable.notification)
+            styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutDrawableAdapter())
         }
     }
 

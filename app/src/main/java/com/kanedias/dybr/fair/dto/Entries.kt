@@ -212,7 +212,7 @@ class EntryMeta {
 
 typealias Entry = EntryResponse
 
-fun isEntryWritable(entry: Entry?): Boolean {
+fun isEntryCommentable(entry: Entry?): Boolean {
     if (entry == null)
         return false
 
@@ -224,4 +224,16 @@ fun isEntryWritable(entry: Entry?): Boolean {
         return false
 
     return true
+}
+
+fun isEntryWritable(entry: Entry?): Boolean {
+    if (entry == null)
+        return false
+
+    if (Auth.profile == null)
+        return false
+
+    val author = entry.profile.get() ?: return false
+
+    return author.id == Auth.profile?.id
 }

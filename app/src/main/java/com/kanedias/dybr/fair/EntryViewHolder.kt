@@ -396,7 +396,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
      */
     private fun setupButtons() {
         // setup edit buttons
-        val editVisibility = when (isBlogWritable(profile)) {
+        val editVisibility = when (isEntryWritable(entry)) {
             true -> View.VISIBLE
             false -> View.GONE
         }
