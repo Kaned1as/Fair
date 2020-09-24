@@ -79,8 +79,10 @@
     <string name="entry_content">Содержимое записи</string>
     <string name="entry_title">Заголовок записи</string>
     <string name="submit">Отправить</string>
-    <string name="termsofservice_accept">Я принимаю условия предоставления услуг</string>
+    <string name="tos_accept">Я принимаю условия предоставления услуг</string>
+    <string name="tos_not_accepted_error">Условия не приняты</string>
     <string name="i_am_over_eighteen">Мне есть 18 лет</string>
+    <string name="age_not_confirmed_error">Возраст не подтверждён</string>
     <string name="next_steps">Следующие шаги</string>
     <string name="registered_please_confirm_mail">Регистрация завершена! Проверьте почту и следуйте инструкциям по активации.</string>
     <string name="nickname">Никнейм</string>

@@ -61,7 +61,7 @@
     <string name="still_loading">Завантаження продовжується...</string>
     <string name="entry_content">Вміст запису</string>
     <string name="entry_title">Заголовок запису</string>
-    <string name="termsofservice_accept">Я приймаю умови надання послуг</string>
+    <string name="tos_accept">Я приймаю умови надання послуг</string>
     <string name="i_am_over_eighteen">Мені вже є вісімнадцять</string>
     <string name="next_steps">Наступні кроки</string>
     <string name="registered_please_confirm_mail">Реєстрацію завершено! Будь ласка, перевірте вашу пошту та дотримуйтеся інструкцій для активації.</string>

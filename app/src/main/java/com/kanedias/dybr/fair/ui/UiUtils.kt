@@ -13,8 +13,12 @@ import android.graphics.PorterDuffColorFilter
 import android.net.Uri
 import android.util.TypedValue
 import android.view.Gravity
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
+import io.github.anderscheow.validator.Validation
+import io.github.anderscheow.validator.rules.BaseRule
 
 
 /**
@@ -77,4 +81,25 @@ fun openUrlExternally(ctx: Context, uri: Uri) {
     // use default browser to open the url
     intent.component = with(defaultBrowser.activityInfo) { ComponentName(applicationInfo.packageName, name) }
     ctx.startActivity(intent)
+}
+
+class CheckBoxCheckedRule(private val view: CheckBox, errorRes: Int) : BaseRule(errorRes) {
+
+    override fun validate(value: String?): Boolean {
+        when (view.isChecked) {
+            true -> view.error = null
+            false -> view.error = getErrorMessage()
+        }
+
+        return view.isChecked
+    }
+
+}
+
+class PasswordMatchRule(private val passwordInput: EditText, errorRes: Int) : BaseRule(errorRes) {
+
+    override fun validate(value: String?): Boolean {
+        return passwordInput.text.toString() == value
+    }
+
 }

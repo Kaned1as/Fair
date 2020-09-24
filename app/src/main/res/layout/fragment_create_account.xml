@@ -76,7 +76,7 @@
             android:layout_marginTop="8dp"
             android:visibility="gone"
             android:nextFocusForward="@id/acc_is_over_18_checkbox"
-            android:text="@string/termsofservice_accept"/>
+            android:text="@string/tos_accept"/>
 
         <CheckBox
             android:id="@+id/acc_is_over_18_checkbox"

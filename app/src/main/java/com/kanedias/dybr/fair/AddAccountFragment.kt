@@ -12,12 +12,19 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import butterknife.*
 import com.afollestad.materialdialogs.MaterialDialog
+import com.google.android.material.textfield.TextInputLayout
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.dto.RegisterRequest
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
+import com.kanedias.dybr.fair.ui.CheckBoxCheckedRule
+import com.kanedias.dybr.fair.ui.PasswordMatchRule
 import com.kanedias.dybr.fair.ui.Sidebar
+import io.github.anderscheow.validator.Validation
+import io.github.anderscheow.validator.Validator
+import io.github.anderscheow.validator.rules.common.notEmpty
+import io.github.anderscheow.validator.rules.regex.EmailRule
 import kotlinx.coroutines.*
 
 /**
@@ -31,11 +38,20 @@ import kotlinx.coroutines.*
  */
 class AddAccountFragment : Fragment() {
 
+    @BindView(R.id.acc_email)
+    lateinit var emailLayout: TextInputLayout
+
     @BindView(R.id.acc_email_input)
     lateinit var emailInput: EditText
 
+    @BindView(R.id.acc_password)
+    lateinit var pwdLayout: TextInputLayout
+
     @BindView(R.id.acc_password_input)
-    lateinit var passwordInput: EditText
+    lateinit var pwdInput: EditText
+
+    @BindView(R.id.acc_password_confirm)
+    lateinit var confirmPwdLayout: TextInputLayout
 
     @BindView(R.id.acc_password_confirm_input)
     lateinit var confirmPasswordInput: EditText
@@ -63,11 +79,22 @@ class AddAccountFragment : Fragment() {
     lateinit var loginInputs: List<@JvmSuppressWildcards View>
 
     private lateinit var activity: MainActivity
+    private lateinit var emailCheck: Validation
+    private lateinit var tosCheck: Validation
+    private lateinit var ageCheck: Validation
+    private lateinit var pwdCheck: Validation
+    private lateinit var pwdConfirmCheck: Validation
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_create_account, container, false)
         ButterKnife.bind(this, view)
         activity = context as MainActivity
+
+        emailCheck = Validation(emailLayout).add(EmailRule(R.string.email_is_invalid))
+        pwdCheck = Validation(pwdLayout).notEmpty(R.string.should_not_be_empty)
+        pwdConfirmCheck = Validation(confirmPwdLayout).add(PasswordMatchRule(pwdInput, R.string.passwords_not_match))
+        tosCheck = Validation("").add(CheckBoxCheckedRule(termsOfServiceSwitch, R.string.tos_not_accepted_error))
+        ageCheck = Validation("").add(CheckBoxCheckedRule(isAdultSwitch, R.string.age_not_confirmed_error))
 
         return view
     }
@@ -93,13 +120,22 @@ class AddAccountFragment : Fragment() {
      * Performs register/login call after all fields are validated
      */
     @OnClick(R.id.confirm_button)
-    fun confirm() {
+    fun confirm(confirmBtn: View) {
         if (registerSwitch.isChecked) {
             // send register query
-            doRegistration()
+            Validator.with(confirmBtn.context)
+                    .setListener(object: Validator.OnValidateListener {
+                        override fun onValidateFailed(errors: List<String>) {}
+                        override fun onValidateSuccess(values: List<String>) { doRegistration() }
+                    }).validate(emailCheck, tosCheck, ageCheck, pwdCheck, pwdConfirmCheck)
         } else {
             // send login query
-            doLogin()
+            Validator.with(confirmBtn.context)
+                    .setListener(object: Validator.OnValidateListener {
+                        override fun onValidateFailed(errors: List<String>) {}
+                        override fun onValidateSuccess(values: List<String>) { doLogin() }
+                    }).validate(emailCheck, pwdCheck)
+
         }
 
     }
@@ -116,7 +152,7 @@ class AddAccountFragment : Fragment() {
 
         val acc = Account().apply {
             email = emailInput.text.toString()
-            password = passwordInput.text.toString()
+            password = pwdInput.text.toString()
             current = true
         }
 
@@ -158,7 +194,7 @@ class AddAccountFragment : Fragment() {
     private fun doRegistration() {
         val req = RegisterRequest().apply {
             email = emailInput.text.toString()
-            password = passwordInput.text.toString()
+            password = pwdInput.text.toString()
             confirmPassword = confirmPasswordInput.text.toString()
             termsOfService = termsOfServiceSwitch.isChecked
             isAdult = isAdultSwitch.isChecked

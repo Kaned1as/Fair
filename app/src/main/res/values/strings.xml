@@ -101,10 +101,10 @@
     <string name="password">Password</string>
     <string name="confirm_password">Confirm password</string>
     <string name="enter">Enter</string>
-    <string name="invalid_email">Invalid email!</string>
-    <string name="passwords_not_match">Passwords not match!</string>
-    <string name="invalid_password">Invalid password!</string>
-    <string name="should_not_be_empty">Should not be empty!</string>
+    <string name="invalid_email">Invalid email</string>
+    <string name="passwords_not_match">Passwords not match</string>
+    <string name="invalid_password">Invalid password</string>
+    <string name="should_not_be_empty">Should not be empty</string>
     <string name="should_only_contain_alphanumeric">Should only contain a–z or 0–9</string>
     <string name="register">Register</string>
     <string name="username">Username</string>
@@ -137,8 +137,10 @@
     <string name="entry_content">Entry content</string>
     <string name="entry_title">Entry title</string>
     <string name="submit">Submit</string>
-    <string name="termsofservice_accept">I accept Terms of Service</string>
+    <string name="tos_accept">I accept Terms of Service</string>
+    <string name="tos_not_accepted_error">ToS not accepted</string>
     <string name="i_am_over_eighteen">I am over eighteen</string>
+    <string name="age_not_confirmed_error">Age not confirmed</string>
     <string name="next_steps">Next steps</string>
     <string name="registered_please_confirm_mail">Registration complete! Please check your email and follow activation instructions.</string>
     <string name="nickname">Nickname</string>

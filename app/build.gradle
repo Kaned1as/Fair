@@ -146,7 +146,7 @@ dependencies {
     implementation 'com.auth0.android:jwtdecode:1.2.0'                          // handling JWT from server
     implementation 'com.github.stfalcon:stfalcon-imageviewer:0.1.0'             // embedded image viewer
     implementation 'com.github.marcoscgdev:EasyAbout:1.0.6'                     // about dialog
-
+    implementation 'com.github.anderscheow:validator:2.2.1'                     // input text validators
     googleplayImplementation 'com.android.billingclient:billing:1.0'            // billing library from Google
 
     kapt 'com.jakewharton:butterknife-compiler:10.2.0'                           // Kotlin annotation processors
