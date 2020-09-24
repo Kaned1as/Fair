@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#26c6da</color>
+    <!-- default color set -->
+    <color name="scoop_default_primary_color">#3f51b5</color>
+    <color name="scoop_default_primary_dark_color">#303f9f</color>
+    <color name="scoop_default_accent_color">#26c6da</color>
+    <color name="scoop_default_toolbar_text_color">@color/white</color>
+    <color name="scoop_default_text_color">#b3ffffff</color>
+    <color name="scoop_default_accent_text_color">@color/white</color>
+    <color name="scoop_default_offtop_text_color">@color/md_grey_700</color>
+    <color name="scoop_default_background_color">@color/md_grey_850</color>
+    <color name="scoop_default_text_block_background_color">@color/md_grey_800</color>
 
     <!-- Material design color set -->
     <color name="md_amber_200">#ffe082</color>

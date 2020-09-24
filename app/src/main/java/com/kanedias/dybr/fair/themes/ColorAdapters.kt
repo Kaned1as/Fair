@@ -574,10 +574,7 @@ class TabLayoutDrawableAdapter: ColorAdapter<TabLayout> {
 
     override fun applyColor(view: TabLayout, color: Int) {
         this.color = color
-        for (idx in (0..view.tabCount)) {
-            val tab = view.getTabAt(idx)
-            tab?.icon?.let { DrawableCompat.setTint(it, color) }
-        }
+        view.tabIconTint = ColorStateList.valueOf(color)
     }
 
     override fun getColor(view: TabLayout): Int {

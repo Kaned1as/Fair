@@ -7,31 +7,10 @@
     </style>
 
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/scoop_default_primary_color</item>
+        <item name="colorPrimaryDark">@color/scoop_default_primary_dark_color</item>
         <item name="colorAccent">@color/md_cyan_400</item>
         <item name="colorSurface">@color/transparent</item>
-
-        <!--<item name="activity_background">#312322</item>-->
-        <!--<item name="card_background">#402c2c</item>-->
-        <!--<item name="android:colorBackground">#402c2c</item>-->
-        <!--<item name="md_background_color">#402c2c</item>-->
-        <!--<item name="list_background">#261a1a</item>-->
-        <!--<item name="bs_bottomSheetStyle">@style/BottomSheet.StyleDialog.Night_Red</item>-->
-        <!--<item name="fontColor">#defff7ed</item> &lt;!&ndash; 87% white &ndash;&gt;-->
-        <!--<item name="tintColor">#8affebcf</item> &lt;!&ndash; 54% white &ndash;&gt;-->
-        <!--<item name="android:windowBackground">@null</item>-->
-        <!--<item name="android:alertDialogStyle">@style/AlertDialog.AppCompat</item>-->
-        <!--<item name="tp_selectionColor">?android:colorAccent</item>-->
-        <!--<item name="tp_textColor">?attr/fontColor</item>-->
-        <!--<item name="tp_backgroundColor">?attr/card_background</item>-->
     </style>
-
-    <!-- FAB style -->
-    <!--<style name="MenuButtonsStyle">-->
-        <!--<item name="fab_size">mini</item>-->
-        <!--<item name="fab_showAnimation">@anim/jump_from_down</item>-->
-        <!--<item name="fab_hideAnimation">@anim/jump_to_down</item>-->
-    <!--</style>-->
 
 </resources>

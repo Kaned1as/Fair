@@ -112,3 +112,15 @@ fun View.resolveAttr(attr: Int): Int {
     this.context.theme.resolveAttribute(attr, typedValue, true)
     return typedValue.data
 }
+
+
+/**
+ * Resolve attribute effectively
+ * @param attr attribute, for example [android.R.attr.colorPrimary]
+ * @return resolved reference
+ */
+fun Context.resolveAttr(attr: Int): Int {
+    val typedValue = TypedValue()
+    this.theme.resolveAttribute(attr, typedValue, true)
+    return typedValue.data
+}

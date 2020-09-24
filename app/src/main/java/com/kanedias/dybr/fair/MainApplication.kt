@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
 import com.ftinc.scoop.Scoop
 import com.kanedias.dybr.fair.database.DbProvider
@@ -92,18 +93,18 @@ class MainApplication : Application() {
 
     private fun initTheming() {
         Scoop.initialize(mapOf(
-                BACKGROUND to resources.getColor(R.color.background_material_dark),
-                TOOLBAR to resources.getColor(R.color.colorPrimary),
-                STATUS_BAR to resources.getColor(R.color.colorPrimaryDark),
-                TOOLBAR_TEXT to resources.getColor(R.color.primary_text_default_material_dark),
-                TEXT_HEADERS to resources.getColor(R.color.primary_text_default_material_dark),
-                TEXT to resources.getColor(R.color.secondary_text_default_material_dark),
-                TEXT_LINKS to resources.getColor(android.R.color.white),
-                TEXT_BLOCK to resources.getColor(R.color.cardview_dark_background),
-                TEXT_OFFTOP to resources.getColor(android.R.color.secondary_text_dark),
-                ACCENT to resources.getColor(R.color.colorAccent),
-                ACCENT_TEXT to resources.getColor(R.color.primary_text_default_material_dark),
-                DIVIDER to resources.getColor(R.color.colorAccent))
+                BACKGROUND to ContextCompat.getColor(this, R.color.scoop_default_background_color),
+                TOOLBAR to ContextCompat.getColor(this, R.color.scoop_default_primary_color),
+                STATUS_BAR to ContextCompat.getColor(this, R.color.scoop_default_primary_dark_color),
+                TOOLBAR_TEXT to ContextCompat.getColor(this, R.color.scoop_default_toolbar_text_color),
+                TEXT_HEADERS to ContextCompat.getColor(this, R.color.scoop_default_toolbar_text_color),
+                TEXT to ContextCompat.getColor(this, R.color.scoop_default_text_color),
+                TEXT_LINKS to ContextCompat.getColor(this, R.color.scoop_default_toolbar_text_color),
+                TEXT_BLOCK to ContextCompat.getColor(this, R.color.scoop_default_text_block_background_color),
+                TEXT_OFFTOP to ContextCompat.getColor(this, R.color.scoop_default_offtop_text_color),
+                ACCENT to ContextCompat.getColor(this, R.color.scoop_default_accent_color),
+                ACCENT_TEXT to ContextCompat.getColor(this, R.color.scoop_default_accent_text_color),
+                DIVIDER to ContextCompat.getColor(this, R.color.scoop_default_accent_color))
         )
     }
 
