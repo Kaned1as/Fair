@@ -38,6 +38,7 @@
     <string name="inbox">Почта</string>
     <string name="settings">Настройки</string>
     <string name="go_to">Перейти к…</string>
+    <string name="configure_account">Настроить аккаунт</string>
     <string name="register_new_account">Зарегистрировать новый аккаунт</string>
     <string name="email">E-Mail</string>
     <string name="password">Пароль</string>
@@ -48,7 +49,7 @@
     <string name="invalid_password">Неверный пароль</string>
     <string name="must_be_not_empty">Должно быть заполнено</string>
     <string name="must_be_no_longer_than">Должно быть не больше %d символов</string>
-    <string name="should_only_contain_alphanumeric">Должно содержать только a–z и 0–9</string>
+    <string name="must_only_contain_alphanumeric">Может содержать только дефис, латинские символы и цифры</string>
     <string name="register">Регистрация</string>
     <string name="username">Ник</string>
     <string name="checking_in_progress">Проверка…</string>

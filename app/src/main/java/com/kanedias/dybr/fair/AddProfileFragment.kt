@@ -38,10 +38,6 @@ import java.util.*
  */
 class AddProfileFragment: Fragment() {
 
-    companion object {
-        const val MAX_NICKNAME_LEN = 20
-    }
-
     @BindView(R.id.prof_nickname)
     lateinit var nicknameInputLayout: TextInputLayout
 
@@ -70,9 +66,10 @@ class AddProfileFragment: Fragment() {
         ButterKnife.bind(this, view)
         activity = context as MainActivity
 
+        val maxNicknameLen = nicknameInputLayout.counterMaxLength
         nicknameCheck = Validation(nicknameInputLayout)
                 .add(NotEmptyRule(R.string.must_be_not_empty))
-                .add(MaxRule(MAX_NICKNAME_LEN, getString(R.string.must_be_no_longer_than, MAX_NICKNAME_LEN)))
+                .add(MaxRule(maxNicknameLen, getString(R.string.must_be_no_longer_than, maxNicknameLen)))
 
         birthdayCheck = Validation(birthdayInputLayout)
                 .add(RegexRule("\\d{4}-\\d{2}-\\d{2}", R.string.must_be_in_iso_form))

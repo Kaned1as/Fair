@@ -10,13 +10,16 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="16dp"
+    android:importantForAutofill="noExcludeDescendants"
     tools:context="AddProfileFragment">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_margin="16dp"
+        android:drawableStart="@drawable/home"
+        android:drawablePadding="4dp"
         android:text="@string/create_blog"
         android:textAppearance="@android:style/TextAppearance.Large"/>
 
@@ -41,13 +44,16 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/blog_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:counterEnabled="true"
+        app:counterMaxLength="30">
 
         <EditText
             android:id="@+id/blog_title_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text|date"
+            android:inputType="text"
+            android:maxLength="30"
             android:nextFocusForward="@id/blog_create_button"
             android:hint="@string/blog_title"/>
 

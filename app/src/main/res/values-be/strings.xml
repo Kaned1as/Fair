@@ -31,7 +31,7 @@
     <string name="passwords_not_match">Паролi не супадаюць. А павiнны</string>
     <string name="invalid_password">Невалiдны / няверны / недапушчальны пароль</string>
     <string name="must_be_not_empty">Павінна быць запоўненым</string>
-    <string name="should_only_contain_alphanumeric">Павiiна ўтрымлiваць толькi a-z і 0-9</string>
+    <string name="must_only_contain_alphanumeric">Павiiна ўтрымлiваць толькi a-z і 0-9</string>
     <string name="register">Рэгiстрацыя</string>
     <string name="username">Нiк</string>
     <string name="checking_in_progress">Праверка</string>

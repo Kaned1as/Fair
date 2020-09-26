@@ -18,6 +18,16 @@
         android:padding="16dp"
         tools:context="AddAccountFragment">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_margin="16dp"
+            android:drawableStart="@drawable/portrait"
+            android:drawablePadding="4dp"
+            android:text="@string/configure_account"
+            android:textAppearance="@android:style/TextAppearance.Large"/>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/acc_email"
             android:layout_width="match_parent"
