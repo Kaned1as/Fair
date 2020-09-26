@@ -91,7 +91,7 @@ class AddAccountFragment : Fragment() {
         activity = context as MainActivity
 
         emailCheck = Validation(emailLayout).add(EmailRule(R.string.email_is_invalid))
-        pwdCheck = Validation(pwdLayout).notEmpty(R.string.should_not_be_empty)
+        pwdCheck = Validation(pwdLayout).notEmpty(R.string.must_be_not_empty)
         pwdConfirmCheck = Validation(confirmPwdLayout).add(PasswordMatchRule(pwdInput, R.string.passwords_not_match))
         tosCheck = Validation("").add(CheckBoxCheckedRule(termsOfServiceSwitch, R.string.tos_not_accepted_error))
         ageCheck = Validation("").add(CheckBoxCheckedRule(isAdultSwitch, R.string.age_not_confirmed_error))

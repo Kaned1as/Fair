@@ -21,9 +21,11 @@
         android:textAppearance="@android:style/TextAppearance.Large"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/prof_nickname"
+        android:id="@+id/blog_slug"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:counterEnabled="true"
+        app:counterMaxLength="20">
 
         <EditText
             android:id="@+id/blog_slug_input"
@@ -31,12 +33,13 @@
             android:layout_height="wrap_content"
             android:inputType="textNoSuggestions"
             android:nextFocusForward="@id/blog_title_input"
+            android:maxLength="20"
             android:hint="@string/blog_address"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/prof_birthday"
+        android:id="@+id/blog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

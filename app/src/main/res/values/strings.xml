@@ -104,7 +104,8 @@
     <string name="invalid_email">Invalid email</string>
     <string name="passwords_not_match">Passwords not match</string>
     <string name="invalid_password">Invalid password</string>
-    <string name="should_not_be_empty">Should not be empty</string>
+    <string name="must_be_not_empty">Must be not empty</string>
+    <string name="must_be_no_longer_than">Must not be longer than %d symbols</string>
     <string name="should_only_contain_alphanumeric">Should only contain a–z or 0–9</string>
     <string name="register">Register</string>
     <string name="username">Username</string>
@@ -145,6 +146,8 @@
     <string name="registered_please_confirm_mail">Registration complete! Please check your email and follow activation instructions.</string>
     <string name="nickname">Nickname</string>
     <string name="birthday_dd_mm">Birthday: YYYY-MM-DD</string>
+    <string name="must_be_in_iso_form">Must be YYYY-MM-DD</string>
+    <string name="must_be_in_the_past">Must be in the past</string>
     <string name="description">Description</string>
     <string name="create">Create</string>
     <string name="create_new">Create new</string>

@@ -13,12 +13,21 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
+import com.google.android.material.textfield.TextInputLayout
 import com.kanedias.dybr.fair.dto.Auth
 import com.kanedias.dybr.fair.dto.ProfileCreateRequest
 import com.kanedias.dybr.fair.dto.ProfileSettings
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
+import io.github.anderscheow.validator.Validation
+import io.github.anderscheow.validator.Validator
+import io.github.anderscheow.validator.rules.common.MaxRule
+import io.github.anderscheow.validator.rules.common.NotEmptyRule
+import io.github.anderscheow.validator.rules.common.PastRule
+import io.github.anderscheow.validator.rules.common.RegexRule
 import kotlinx.coroutines.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Fragment for creating profile for currently logged in account.
@@ -29,8 +38,18 @@ import kotlinx.coroutines.*
  */
 class AddProfileFragment: Fragment() {
 
+    companion object {
+        const val MAX_NICKNAME_LEN = 20
+    }
+
+    @BindView(R.id.prof_nickname)
+    lateinit var nicknameInputLayout: TextInputLayout
+
     @BindView(R.id.prof_nickname_input)
     lateinit var nicknameInput: EditText
+
+    @BindView(R.id.prof_birthday)
+    lateinit var birthdayInputLayout: TextInputLayout
 
     @BindView(R.id.prof_birthday_input)
     lateinit var birthdayInput: EditText
@@ -43,16 +62,36 @@ class AddProfileFragment: Fragment() {
 
     private lateinit var activity: MainActivity
 
+    private lateinit var nicknameCheck: Validation
+    private lateinit var birthdayCheck: Validation
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_create_profile, container, false)
         ButterKnife.bind(this, view)
         activity = context as MainActivity
 
+        nicknameCheck = Validation(nicknameInputLayout)
+                .add(NotEmptyRule(R.string.must_be_not_empty))
+                .add(MaxRule(MAX_NICKNAME_LEN, getString(R.string.must_be_no_longer_than, MAX_NICKNAME_LEN)))
+
+        birthdayCheck = Validation(birthdayInputLayout)
+                .add(RegexRule("\\d{4}-\\d{2}-\\d{2}", R.string.must_be_in_iso_form))
+                .add(PastRule(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()), R.string.must_be_in_the_past))
+
+
         return view
     }
 
     @OnClick(R.id.prof_create_button)
-    fun confirm() {
+    fun confirm(confirmBtn: View) {
+        Validator.with(confirmBtn.context)
+                .setListener(object: Validator.OnValidateListener {
+                    override fun onValidateFailed(errors: List<String>) {}
+                    override fun onValidateSuccess(values: List<String>) { doConfirm() }
+                }).validate(nicknameCheck, birthdayCheck)
+    }
+
+    private fun doConfirm() {
         val profReq = ProfileCreateRequest().apply {
             nickname = nicknameInput.text.toString()
             birthday = birthdayInput.text.toString()

@@ -30,7 +30,7 @@
     <string name="invalid_email">Невалідний / невірний / неприпустимий E-Mail</string>
     <string name="passwords_not_match">Паролі не співпадають. А повинні</string>
     <string name="invalid_password">Невалідний / невірний / неприпустимий пароль</string>
-    <string name="should_not_be_empty">Має бути заповненим</string>
+    <string name="must_be_not_empty">Має бути заповненим</string>
     <string name="should_only_contain_alphanumeric">Має містити лише a-z і 0-9</string>
     <string name="register">Реєстрація</string>
     <string name="username">Нік</string>

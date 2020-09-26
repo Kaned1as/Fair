@@ -343,6 +343,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             val activity = itemView.context as AppCompatActivity
 
             val listItem = ActionListRequest().apply {
+                kind = "profile"
                 action = "hide"
                 scope = "feed"
                 name = reason

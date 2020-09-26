@@ -23,7 +23,9 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/prof_nickname"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:counterEnabled="true"
+        app:counterMaxLength="20">
 
         <EditText
             android:id="@+id/prof_nickname_input"
@@ -31,6 +33,7 @@
             android:layout_height="wrap_content"
             android:inputType="textCapSentences"
             android:nextFocusForward="@id/prof_birthday_input"
+            android:maxLength="20"
             android:hint="@string/nickname"/>
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -38,13 +41,16 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/prof_birthday"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:counterMaxLength="10"
+        app:counterEnabled="true">
 
         <EditText
             android:id="@+id/prof_birthday_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text|date"
+            android:maxLength="10"
             android:nextFocusForward="@id/prof_description_input"
             android:hint="@string/birthday_dd_mm"/>
 
@@ -54,7 +60,8 @@
         android:id="@+id/prof_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:passwordToggleEnabled="true">
+        app:counterEnabled="true"
+        app:counterMaxLength="300">
 
         <EditText
             android:id="@+id/prof_description_input"
@@ -64,6 +71,7 @@
             android:gravity="top"
             android:lines="3"
             android:maxLines="5"
+            android:maxLength="300"
             android:nextFocusForward="@id/prof_create_button"
             android:hint="@string/description"/>
 
@@ -74,6 +82,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
+        android:drawableStart="@drawable/community"
+        android:drawablePadding="4dp"
         android:text="@string/profile_belongs_to_community"/>
 
     <Button

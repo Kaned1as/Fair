@@ -46,7 +46,8 @@
     <string name="invalid_email">Некорректный E-Mail</string>
     <string name="passwords_not_match">Пароли должны совпадать</string>
     <string name="invalid_password">Неверный пароль</string>
-    <string name="should_not_be_empty">Должно быть заполнено</string>
+    <string name="must_be_not_empty">Должно быть заполнено</string>
+    <string name="must_be_no_longer_than">Должно быть не больше %d символов</string>
     <string name="should_only_contain_alphanumeric">Должно содержать только a–z и 0–9</string>
     <string name="register">Регистрация</string>
     <string name="username">Ник</string>
@@ -87,6 +88,8 @@
     <string name="registered_please_confirm_mail">Регистрация завершена! Проверьте почту и следуйте инструкциям по активации.</string>
     <string name="nickname">Никнейм</string>
     <string name="birthday_dd_mm">Дата рождения ГГГГ-ММ-ДД</string>
+    <string name="must_be_in_iso_form">Должно соответствовать ГГГГ-ММ-ДД</string>
+    <string name="must_be_in_the_past">Дата должна быть в прошлом</string>
     <string name="description">Описание</string>
     <string name="create">Создать</string>
     <string name="create_new">Создать новый</string>
