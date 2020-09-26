@@ -678,8 +678,9 @@ class MainActivity : AppCompatActivity() {
                 Auth.user.accessToken = null
                 DbProvider.helper.accDao.update(Auth.user)
 
-                // we deleted current profile, need to become guest
-                becomeGuest()
+                // we deleted current profile
+                Auth.updateCurrentProfile(null)
+                refresh()
             }
         }
     }
