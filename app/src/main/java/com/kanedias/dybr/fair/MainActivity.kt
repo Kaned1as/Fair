@@ -207,6 +207,7 @@ class MainActivity : AppCompatActivity() {
         styleLevel.bind(TOOLBAR, tabs)
         styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutTextAdapter())
         styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutLineAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutDrawableAdapter())
 
         styleLevel.bind(ACCENT, actionButton, BackgroundTintColorAdapter())
         styleLevel.bind(ACCENT_TEXT, actionButton, FabIconAdapter())
@@ -770,7 +771,6 @@ class MainActivity : AppCompatActivity() {
 
         override fun setupIcons() {
             tabs.getTabAt(0)?.setIcon(R.drawable.earth)
-            styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutDrawableAdapter())
         }
     }
 
@@ -794,7 +794,6 @@ class MainActivity : AppCompatActivity() {
             tabs.getTabAt(COMMUNITIES_TAB)?.setIcon(R.drawable.community_big)
             tabs.getTabAt(WORLD_TAB)?.setIcon(R.drawable.earth)
             tabs.getTabAt(NOTIFICATIONS_TAB)?.setIcon(R.drawable.notification)
-            styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutDrawableAdapter())
         }
     }
 

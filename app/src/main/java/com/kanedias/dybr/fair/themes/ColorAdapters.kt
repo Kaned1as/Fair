@@ -574,7 +574,16 @@ class TabLayoutDrawableAdapter: ColorAdapter<TabLayout> {
 
     override fun applyColor(view: TabLayout, color: Int) {
         this.color = color
-        view.tabIconTint = ColorStateList.valueOf(color)
+        view.tabIconTint = ColorStateList(
+                arrayOf(
+                        intArrayOf(-android.R.attr.state_selected),
+                        intArrayOf()
+                ),
+                intArrayOf(
+                        ColorUtils.setAlphaComponent(color, 127),
+                        color
+                )
+        )
     }
 
     override fun getColor(view: TabLayout): Int {
