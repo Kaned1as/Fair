@@ -120,6 +120,9 @@ abstract class UserContentListFragment : Fragment() {
 
             getRibbonView().addOnScrollListener(object: RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy == 0)
+                        return
+
                     val total = layoutMgr.itemCount
                     val lastVisible = layoutMgr.findLastVisibleItemPosition()
                     if (!allLoaded && !getRefresher().isRefreshing && total <= (lastVisible + 1)) {
