@@ -1,5 +1,6 @@
 package com.kanedias.dybr.fair
 
+import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
@@ -78,9 +79,12 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
         val activity = itemView.context as AppCompatActivity
         val parentEntry = comment.entry.get(comment.document)
         val commentEdit = CreateNewCommentFragment().apply {
-            entry = parentEntry
-            editComment = this@CommentViewHolder.comment
-            editMode = true
+            arguments = Bundle().apply {
+                putBoolean(CreateNewCommentFragment.EDIT_MODE, true)
+                putString(CreateNewCommentFragment.ENTRY_ID, parentEntry.id)
+                putString(CreateNewCommentFragment.EDIT_COMMENT_ID, this@CommentViewHolder.comment.id)
+                putString(CreateNewCommentFragment.EDIT_COMMENT_HTML, this@CommentViewHolder.comment.content)
+            }
         }
 
         activity.showFullscreenFragment(commentEdit)

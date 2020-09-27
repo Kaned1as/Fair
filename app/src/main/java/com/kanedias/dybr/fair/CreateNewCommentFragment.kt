@@ -44,9 +44,11 @@ import java.util.*
 class CreateNewCommentFragment : Fragment() {
 
     companion object {
-        const val ENTRY_ARG = "entry"
-
-        const val AUTHOR_LINK = "author-link"
+        const val EDIT_MODE = "edit-mode"
+        const val ENTRY_ID = "entry-id"
+        const val EDIT_COMMENT_ID = "edit-comment-id"
+        const val EDIT_COMMENT_HTML = "edit-comment-text"
+        const val AUTHOR_LINK_TEXT = "author-link-text"
         const val REPLY_TEXT = "reply-text"
     }
 
@@ -76,26 +78,11 @@ class CreateNewCommentFragment : Fragment() {
 
     private lateinit var styleLevel: StyleLevel
 
-    /**
-     * Entry this comment belongs to. Should be always set.
-     */
-    lateinit var entry: Entry
-
-    var editMode = false // create new by default
-
-    /**
-     * Comment that is being edited. Only set if [editMode] is `true`.
-     */
-    lateinit var editComment : Comment
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        savedInstanceState?.getBoolean("editMode")?.let { editMode = it }
-        savedInstanceState?.getSerializable("editComment")?.let { editComment = it as Comment }
-        savedInstanceState?.getSerializable("entry")?.let { entry = it as Entry }
-
         val view = inflater.inflate(R.layout.fragment_create_comment, container, false)
         ButterKnife.bind(this, view)
 
+        val editMode = requireArguments().getBoolean(EDIT_MODE)
         if (editMode) {
             populateUI()
         } else {
@@ -119,22 +106,14 @@ class CreateNewCommentFragment : Fragment() {
         styleLevel.bind(TEXT_LINKS, submitButton, TextViewColorAdapter())
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean("editMode", editMode)
-        when (editMode) {
-            true -> outState.putSerializable("editComment", editComment)
-            false -> outState.putSerializable("entry", entry)
-        }
-    }
-
     /**
      * Populates UI elements from entry that is edited.
      * Call once when fragment is initialized.
      */
     private fun populateUI() {
         // need to convert entry content (html) to Markdown somehow...
-        val markdown = Html2Markdown().parseExtended(editComment.content)
+        val html = requireArguments().getString(EDIT_COMMENT_HTML)!!
+        val markdown = Html2Markdown().parseExtended(html)
         contentInput.setText(markdown)
     }
 
@@ -157,6 +136,9 @@ class CreateNewCommentFragment : Fragment() {
     @Suppress("DEPRECATION") // getColor doesn't work up to API level 23
     @OnClick(R.id.comment_cancel)
     fun cancel() {
+        val entryId = requireArguments().getString(ENTRY_ID)
+        val editMode = requireArguments().getBoolean(EDIT_MODE)
+
         if (editMode || contentInput.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
             parentFragmentManager.popBackStack()
@@ -165,7 +147,7 @@ class CreateNewCommentFragment : Fragment() {
 
         // persist draft
         DbProvider.helper.draftDao.create(OfflineDraft(
-                key = "comment,entry=${entry.id}",
+                key = "comment,entry=${entryId}",
                 base = contentInput.text.toString()
         ))
 
@@ -208,15 +190,16 @@ class CreateNewCommentFragment : Fragment() {
                 val frgPredicate = { it: Fragment -> it is UserContentListFragment }
                 val curFrg = parentFragmentManager.fragments.reversed().find(frgPredicate) as UserContentListFragment?
 
+                val editMode = requireArguments().getBoolean(EDIT_MODE)
                 if (editMode) {
                     // alter existing comment
-                    comment.id = editComment.id
+                    comment.id = requireArguments().getString(EDIT_COMMENT_ID)
                     withContext(Dispatchers.IO) { Network.updateComment(comment) }
                     Toast.makeText(activity, R.string.comment_updated, Toast.LENGTH_SHORT).show()
                     curFrg?.loadMore(reset = true)
                 } else {
                     // create new
-                    comment.entry = HasOne(entry)
+                    comment.entry = HasOne("entries", requireArguments().getString(ENTRY_ID))
                     comment.profile = HasOne(Auth.profile)
                     withContext(Dispatchers.IO) { Network.createComment(comment) }
                     Toast.makeText(activity, R.string.comment_created, Toast.LENGTH_SHORT).show()
@@ -252,10 +235,11 @@ class CreateNewCommentFragment : Fragment() {
      * are applied to content of the editor.
      */
     private fun loadDraft() {
+        val entryId = requireArguments().getString(ENTRY_ID)
         val drafts = DbProvider.helper.draftDao.queryBuilder()
                 .apply {
                     where()
-                            .eq("key", "comment,entry=${entry.id}")
+                            .eq("key", "comment,entry=${entryId}")
                             .or()
                             .isNull("key")
                 }
@@ -309,14 +293,8 @@ class CreateNewCommentFragment : Fragment() {
         }
 
         // handle click on author nickname in comments field
-        arguments?.get(AUTHOR_LINK)?.let {
-            val entity = it as Authored
-            val profile = entity.profile.get(entity.document)
-
-            val withAuthorLink = when(entity) {
-                is Comment -> "${contentInput.text}[${profile.nickname}](#${entity.id}), "
-                else -> "${contentInput.text}[${profile.nickname}](#), "
-            }
+        arguments?.get(AUTHOR_LINK_TEXT)?.let { linkText ->
+            val withAuthorLink = "${contentInput.text}${linkText}"
             contentInput.setText(withAuthorLink)
             contentInput.setSelection(withAuthorLink.length)
         }

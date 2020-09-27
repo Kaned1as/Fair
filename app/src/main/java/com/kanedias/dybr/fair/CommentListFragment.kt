@@ -227,7 +227,9 @@ class CommentListFragment : UserContentListFragment() {
     @OnClick(R.id.add_comment_button)
     fun addComment() {
         val commentAdd = CreateNewCommentFragment().apply {
-            this.entry = this@CommentListFragment.entry // at this point we know we have the entry
+            arguments = Bundle().apply {
+                putString(CreateNewCommentFragment.ENTRY_ID, this@CommentListFragment.entry.id)
+            }
         }
 
         requireActivity().showFullscreenFragment(commentAdd)

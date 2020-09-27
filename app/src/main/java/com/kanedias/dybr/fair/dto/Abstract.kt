@@ -12,7 +12,7 @@ import java.util.*
  *
  * Created on 04.01.19
  */
-open class Dated: Resource() {
+open class Dated: Resource(), Cloneable {
 
     /**
      * Date this entity was created at.

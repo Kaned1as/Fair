@@ -15,6 +15,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.kanedias.dybr.fair.dto.Authored
+import com.kanedias.dybr.fair.dto.Comment
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.misc.getTopFragment
@@ -108,14 +109,25 @@ abstract class UserContentViewHolder<T: Authored>(iv: View, val parentFragment: 
      *
      * @param entity entity to reply to
      */
-    private fun replyWithName(entity: T) {
+    private fun replyWithName(entity: T, replyText: String? = null) {
         val activity = itemView.context as AppCompatActivity
         val commentList = activity.getTopFragment(CommentListFragment::class) ?: return
+        val profile = entity.profile.get(entity.document)
+
+        val authorLinkText = when(entity) {
+            is Comment -> "[${profile.nickname}](#${entity.id}), "
+            else -> "[${profile.nickname}](#), "
+        }
 
         // open create new comment fragment and insert nickname
         val commentAdd = CreateNewCommentFragment().apply {
-            this.entry = commentList.entry
-            arguments = Bundle().apply { putSerializable(CreateNewCommentFragment.AUTHOR_LINK, entity) }
+            arguments = Bundle().apply {
+                putString(CreateNewCommentFragment.ENTRY_ID, commentList.entry.id)
+                putString(CreateNewCommentFragment.AUTHOR_LINK_TEXT, authorLinkText)
+                if (!replyText.isNullOrEmpty()) {
+                    putString(CreateNewCommentFragment.REPLY_TEXT, replyText)
+                }
+            }
         }
         activity.showFullscreenFragment(commentAdd)
     }
@@ -129,18 +141,7 @@ abstract class UserContentViewHolder<T: Authored>(iv: View, val parentFragment: 
 
             when(item.itemId) {
                 R.id.menu_reply -> {
-                    val activity = itemView.context as AppCompatActivity
-                    val commentList = activity.getTopFragment(CommentListFragment::class) ?: return true
-
-                    val commentAdd = CreateNewCommentFragment().apply {
-                        this.entry = commentList.entry
-                        arguments = Bundle().apply {
-                            putSerializable(CreateNewCommentFragment.AUTHOR_LINK, entity)
-                            putSerializable(CreateNewCommentFragment.REPLY_TEXT, text.toString())
-                        }
-                    }
-
-                    activity.showFullscreenFragment(commentAdd)
+                    replyWithName(entity, text.toString())
                     mode.finish()
                     return true
                 }

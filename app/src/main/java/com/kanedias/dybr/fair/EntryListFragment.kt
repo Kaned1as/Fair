@@ -59,7 +59,7 @@ open class EntryListFragment: UserContentListFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (profile == null) {
             // restore only if we are recreating old fragment
-            savedInstanceState?.get("profile")?.let { profile = it as OwnProfile }
+            savedInstanceState?.getSerializable("profile")?.let { profile = it as OwnProfile }
         }
 
         val view = inflater.inflate(layoutToUse(), container, false)
