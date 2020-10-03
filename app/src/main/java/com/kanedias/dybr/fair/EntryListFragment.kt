@@ -175,7 +175,10 @@ open class EntryListFragment: UserContentListFragment() {
      */
     fun addCreateNewEntryForm() {
         val entryAdd = CreateNewEntryFragment().apply {
-            this.profile = this@EntryListFragment.profile!! // at this point we know we have the blog
+            arguments = Bundle().apply {
+                putString(CreateNewEntryFragment.PARENT_BLOG_PROFILE_ID, profile!!.id)
+                putSerializable(CreateNewEntryFragment.PARENT_BLOG_PROFILE_SETTINGS, profile!!.settings)
+            }
         }
 
         requireActivity().showFullscreenFragment(entryAdd)

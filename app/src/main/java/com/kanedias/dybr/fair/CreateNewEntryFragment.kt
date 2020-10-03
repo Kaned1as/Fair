@@ -50,6 +50,24 @@ import java.util.*
  */
 class CreateNewEntryFragment : Fragment() {
 
+    companion object {
+        /// True if edit mode is enabled, false if it's new entry.
+        const val EDIT_MODE = "edit-mode"
+
+        /// Edit entry is set as series of fields instead of one serializable object
+        /// because if passed as serializable it contains JSON-API whole document which can be very big
+        const val EDIT_ENTRY_ID = "edit-entry-id"
+        const val EDIT_ENTRY_TAGS = "edit-entry-tags"
+        const val EDIT_ENTRY_STATE = "edit-entry-state"
+        const val EDIT_ENTRY_TITLE = "edit-entry-title"
+        const val EDIT_ENTRY_SETTINGS = "edit-entry-settings"
+        const val EDIT_ENTRY_CONTENT_HTML = "edit-entry-content-html"
+
+        /// Parent blog profile fields
+        const val PARENT_BLOG_PROFILE_ID = "parent-blog-profile-id"
+        const val PARENT_BLOG_PROFILE_SETTINGS = "parent-blog-profile-settings"
+    }
+
     /**
      * Title of future diary entry
      */
@@ -118,29 +136,14 @@ class CreateNewEntryFragment : Fragment() {
 
     private lateinit var styleLevel: StyleLevel
 
-    var editMode = false // create new by default
-
-    /**
-     * Entry that is being edited. Only set if [editMode] is `true`
-     */
-    lateinit var editEntry: Entry
-
-    /**
-     * Blog this entry belongs to. Should be always set.
-     */
-    lateinit var profile: OwnProfile
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        savedInstanceState?.getBoolean("editMode")?.let { editMode = it }
-        savedInstanceState?.getSerializable("editEntry")?.let { editEntry = it as Entry }
-        savedInstanceState?.getSerializable("profile")?.let { profile = it as OwnProfile }
-
         val view = inflater.inflate(R.layout.fragment_create_entry, container, false)
         ButterKnife.bind(this, view)
 
         setupUI()
         setupTheming(view)
 
+        val editMode = requireArguments().getBoolean(EDIT_MODE, false)
         if (editMode) {
             // we're editing existing entry, populate UI with its contents and settings
             populateEditUI()
@@ -162,9 +165,10 @@ class CreateNewEntryFragment : Fragment() {
         permissionSpinner.setSelection(4) // select "Visible for all" by default
 
         // tags autocompletion
+        val parentProfileId = requireArguments().getString(PARENT_BLOG_PROFILE_ID)!!
         lifecycleScope.launch {
             Network.perform(
-                    networkAction = { Network.loadProfile(profile.id) },
+                    networkAction = { Network.loadProfile(parentProfileId) },
                     uiAction = { prof ->
                         val tags = prof.tags.map { it.name }
                         val adapter = TagsAdapter(requireContext(), tags)
@@ -212,31 +216,28 @@ class CreateNewEntryFragment : Fragment() {
         styleLevel.bind(TEXT_LINKS, submitButton, TextViewColorAdapter())
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        outState.putBoolean("editMode", editMode)
-        when (editMode) {
-            false -> outState.putSerializable("profile", profile)
-            true -> outState.putSerializable("editEntry", editEntry)
-        }
-    }
-
     /**
      * Populates UI elements from entry that is edited.
      * Call once when fragment is initialized.
      */
     private fun populateEditUI() {
-        titleInput.setText(editEntry.title)
-        draftSwitch.isChecked = editEntry.state == "published"
-        pinSwitch.isChecked = profile.settings.pinnedEntries.contains(editEntry.id)
+        val editEntryId = requireArguments().getString(EDIT_ENTRY_ID)!!
+        val editEntryTitle = requireArguments().getString(EDIT_ENTRY_TITLE)
+        val editEntryTags = requireArguments().getStringArray(EDIT_ENTRY_TAGS)!!
+        val editEntryContentHtml = requireArguments().getString(EDIT_ENTRY_CONTENT_HTML)!!
+        val profSettings = requireArguments().getSerializable(PARENT_BLOG_PROFILE_SETTINGS) as ProfileSettings
+        val editEntrySettings = requireArguments().getSerializable(EDIT_ENTRY_SETTINGS) as? RecordSettings
+
+        titleInput.setText(editEntryTitle)
+        draftSwitch.isChecked = requireArguments().getString(EDIT_ENTRY_STATE) == "published"
+        pinSwitch.isChecked = profSettings.pinnedEntries.contains(editEntryId)
         // need to convert entry content (html) to Markdown somehow...
-        val markdown = Html2Markdown().parseExtended(editEntry.content)
+        val markdown = Html2Markdown().parseExtended(editEntryContentHtml)
         contentInput.setText(markdown)
-        tagsInput.setText(editEntry.tags)
+        tagsInput.setText(editEntryTags.asList())
 
         // permission settings, if exist
-        when (editEntry.settings?.permissions?.access?.firstOrNull()) {
+        when (editEntrySettings?.permissions?.access?.firstOrNull()) {
             RecordAccessItem("private") -> permissionSpinner.setSelection(0)
             RecordAccessItem("registered") -> permissionSpinner.setSelection(1)
             RecordAccessItem("favorites") -> permissionSpinner.setSelection(2)
@@ -288,6 +289,7 @@ class CreateNewEntryFragment : Fragment() {
     @Suppress("DEPRECATION") // getColor doesn't work up to API level 23
     @OnClick(R.id.entry_cancel)
     fun cancel() {
+        val editMode = requireArguments().getBoolean(EDIT_MODE, false)
         if (editMode || titleInput.text.isNullOrEmpty() && contentInput.text.isNullOrEmpty() && tagsInput.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
             requireFragmentManager().popBackStack()
@@ -295,8 +297,9 @@ class CreateNewEntryFragment : Fragment() {
         }
 
         // persist draft
+        val parentProfileId = requireArguments().getString(PARENT_BLOG_PROFILE_ID)!!
         DbProvider.helper.draftDao.create(OfflineDraft(
-                key = "entry,blog=${profile.id}",
+                key = "entry,blog=${parentProfileId}",
                 title = titleInput.text.toString(),
                 base = contentInput.text.toString(),
                 tags = tagsInput.chipValues.joinToString()
@@ -339,33 +342,35 @@ class CreateNewEntryFragment : Fragment() {
             progressDialog.showThemed(styleLevel)
 
             try {
+                val parentProfileId = requireArguments().getString(PARENT_BLOG_PROFILE_ID)!!
+                val editMode = requireArguments().getBoolean(EDIT_MODE, false)
                 if (editMode) {
                     // alter existing entry
-                    entry.id = editEntry.id
+                    entry.id = requireArguments().getString(EDIT_ENTRY_ID)!!
                     withContext(Dispatchers.IO) { Network.updateEntry(entry) }
                     Toast.makeText(activity, R.string.entry_updated, Toast.LENGTH_SHORT).show()
                 } else {
                     // create new
                     entry.profile = HasOne(Auth.profile!!)
-                    entry.community = HasOne(this@CreateNewEntryFragment.profile)
+                    entry.community = HasOne("profiles", parentProfileId)
                     entry.id = withContext(Dispatchers.IO) { Network.createEntry(entry) }.id
                     Toast.makeText(activity, R.string.entry_created, Toast.LENGTH_SHORT).show()
                 }
 
                 // pin if needed
-                val settings = profile.settings
+                val settings = requireArguments().getSerializable(PARENT_BLOG_PROFILE_SETTINGS) as ProfileSettings
                 val pinnedAlready = settings.pinnedEntries
                 when {
                     pinSwitch.isChecked && !pinnedAlready.contains(entry.id) -> {
                         val req = ProfileCreateRequest().apply {
-                            this.id = profile.id
+                            this.id = parentProfileId
                             this.settings = settings.copy(pinnedEntries = pinnedAlready.apply { add(entry.id) })
                         }
                         withContext(Dispatchers.IO) { Network.updateProfile(req) }
                     }
                     !pinSwitch.isChecked && pinnedAlready.contains(entry.id) -> {
                         val req = ProfileCreateRequest().apply {
-                            this.id = profile.id
+                            this.id = parentProfileId
                             this.settings = settings.copy(pinnedEntries = pinnedAlready.apply { remove(entry.id) })
                         }
                         withContext(Dispatchers.IO) { Network.updateProfile(req) }
@@ -411,10 +416,11 @@ class CreateNewEntryFragment : Fragment() {
      * are applied to content of the editor.
      */
     private fun loadDraft() {
+        val parentProfileId = requireArguments().getString(PARENT_BLOG_PROFILE_ID)!!
         val drafts = DbProvider.helper.draftDao.queryBuilder()
                 .apply {
                     where()
-                            .eq("key", "entry,blog=${profile.id}")
+                            .eq("key", "entry,blog=${parentProfileId}")
                             .or()
                             .isNull("key")
                 }

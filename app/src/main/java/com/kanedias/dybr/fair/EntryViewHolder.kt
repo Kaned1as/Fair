@@ -188,9 +188,20 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
     fun editEntry() {
         val activity = itemView.context as AppCompatActivity
         val entryEdit = CreateNewEntryFragment().apply {
-            profile = this@EntryViewHolder.profile
-            editMode = true
-            editEntry = this@EntryViewHolder.entry
+            arguments = Bundle().apply {
+                // edit entry
+                putBoolean(CreateNewEntryFragment.EDIT_MODE, true)
+                putString(CreateNewEntryFragment.EDIT_ENTRY_ID, entry.id)
+                putString(CreateNewEntryFragment.EDIT_ENTRY_STATE, entry.state)
+                putString(CreateNewEntryFragment.EDIT_ENTRY_TITLE, entry.title)
+                putSerializable(CreateNewEntryFragment.EDIT_ENTRY_SETTINGS, entry.settings)
+                putStringArray(CreateNewEntryFragment.EDIT_ENTRY_TAGS, entry.tags.toTypedArray())
+                putString(CreateNewEntryFragment.EDIT_ENTRY_CONTENT_HTML, entry.content)
+
+                // parent profile
+                putString(CreateNewEntryFragment.PARENT_BLOG_PROFILE_ID, profile.id)
+                putSerializable(CreateNewEntryFragment.PARENT_BLOG_PROFILE_SETTINGS, profile.settings)
+            }
         }
 
         activity.showFullscreenFragment(entryEdit)
