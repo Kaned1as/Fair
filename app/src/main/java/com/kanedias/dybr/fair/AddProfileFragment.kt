@@ -1,5 +1,6 @@
 package com.kanedias.dybr.fair
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,11 +9,15 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.callbacks.onCancel
+import com.afollestad.materialdialogs.callbacks.onDismiss
+import com.afollestad.materialdialogs.datetime.datePicker
 import com.google.android.material.textfield.TextInputLayout
 import com.kanedias.dybr.fair.dto.Auth
 import com.kanedias.dybr.fair.dto.ProfileCreateRequest
@@ -75,6 +80,27 @@ class AddProfileFragment: Fragment() {
                 .add(RegexRule("\\d{4}-\\d{2}-\\d{2}", R.string.must_be_in_iso_form))
                 .add(PastRule(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()), R.string.must_be_in_the_past))
 
+        val currentDate = Calendar.getInstance()
+        val birthdayDatePicker = MaterialDialog(activity).apply {
+            datePicker(maxDate = currentDate) { dialog, datetime ->
+                val year = currentDate.get(Calendar.YEAR)
+                val month = currentDate.get(Calendar.MONTH) + 1
+                val day = currentDate.get(Calendar.DAY_OF_MONTH)
+                birthdayInput.setText("%04d-%02d-%02d".format(year, month, day))
+            }
+            negativeButton {
+                birthdayInput.isFocusable = true
+                birthdayInput.isFocusableInTouchMode = true
+                birthdayInput.requestFocus()
+            }
+            onCancel {
+                birthdayInput.isFocusable = true
+                birthdayInput.isFocusableInTouchMode = true
+                birthdayInput.requestFocus()
+            }
+        }
+        birthdayInput.setOnClickListener { birthdayDatePicker.show() }
+        birthdayInput.setOnFocusChangeListener { v, hasFocus -> if (!hasFocus) v.isFocusable = false }
 
         return view
     }

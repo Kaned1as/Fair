@@ -53,6 +53,7 @@
             android:layout_height="wrap_content"
             android:inputType="text|date"
             android:maxLength="10"
+            android:focusable="false"
             android:nextFocusForward="@id/prof_description_input"
             android:hint="@string/birthday_dd_mm"/>
 

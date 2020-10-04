@@ -194,7 +194,7 @@ fun postProcessDrawables(spanned: SpannableStringBuilder, ctx: Context) {
                 val overlay = ImageShowOverlay(widget.context)
                 overlay.update(imgSpans[index])
 
-                StfalconImageViewer.Builder<AsyncDrawableSpan>(widget.context, imgSpans) { view, span ->
+                StfalconImageViewer.Builder(widget.context, imgSpans) { view, span ->
                     val resolved = Network.resolve(span.drawable.destination) ?: return@Builder
                     Glide.with(view).load(resolved.toString()).into(view)
                 }
@@ -389,7 +389,7 @@ class ImageShowOverlay(ctx: Context,
             }
 
             // cleanup old images
-            for (oldImg in sharedImgs.listFiles()) {
+            for (oldImg in sharedImgs.listFiles().orEmpty()) {
                 if (!oldImg.delete()) {
                     Log.w("Fair/Markdown", "Couldn't delete old image file! Path $oldImg")
                 }
