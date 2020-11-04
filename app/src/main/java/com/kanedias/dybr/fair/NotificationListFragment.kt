@@ -63,7 +63,7 @@ open class NotificationListFragment: UserContentListFragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        styleLevel.bind(TOOLBAR_TEXT, activity.toolbar, ToolbarMenuIconsAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, activity.binding.toolbar, ToolbarMenuIconsAdapter())
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

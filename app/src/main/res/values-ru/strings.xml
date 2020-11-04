@@ -189,10 +189,7 @@
     <string name="offline_draft_saved">Оффлайн-черновик сохранён</string>
     <string name="offline_draft_loaded">Оффлайн-черновик загружен</string>
     <string name="select_offline_draft">Выбрать оффлайн-черновик</string>
-    <string name="direct_jump">Прямой переход</string>
-    <string name="search_by_substring">Поиск по подстроке</string>
     <string name="from_profile_favorites">Из вашего Избранного</string>
-    <string name="from_saved_searches">Из сохранённых запросов</string>
     <string name="not_found">Не найдено</string>
     <string name="auto_load_images">Автозагрузка изображений</string>
     <string name="auto_load_images_on">Изображения будут загружены немедленно</string>
@@ -267,6 +264,11 @@
     <string name="joined_community">Успешно присоединились к сообществу</string>
     <string name="left_community">Успешно вышли из сообщества</string>
     <string name="community_join_request_sent">Запрос на присоединение к сообществу отправлен на рассмотрение модератору.</string>
-
+    <string name="search_by">Поиск по %s</string>
+    <string name="from_saved_search_by">Сохранённый поиск по %s</string>
+    <string name="dative_case_blog_name">имени блога</string>
+    <string name="dative_case_profile_name">имени профиля</string>
+    <string name="dative_case_tag">тэгу</string>
+    <string name="dative_case_text">тексту поста</string>
 
 </resources>

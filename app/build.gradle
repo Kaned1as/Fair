@@ -13,6 +13,10 @@ android {
     compileSdkVersion 29
     ndkVersion "21.3.6528147"
 
+    buildFeatures {
+        viewBinding true
+    }
+
     lintOptions {
         disable 'MissingTranslation'
         disable 'ExtraTranslation'
@@ -22,8 +26,8 @@ android {
         applicationId "com.kanedias.dybr.fair"
         targetSdkVersion 29 // device you test on
         minSdkVersion 21    // device you allow your users to be on :)
-        versionCode 95
-        versionName "1.21.3"
+        versionCode 96
+        versionName "1.22.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

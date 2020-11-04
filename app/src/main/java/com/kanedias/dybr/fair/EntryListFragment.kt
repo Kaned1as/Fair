@@ -93,14 +93,14 @@ open class EntryListFragment: UserContentListFragment() {
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun showActionButton() {
                 when (isBlogWritable(profile)) {
-                    true -> activity.actionButton.show()
-                    false -> activity.actionButton.hide()
+                    true -> activity.binding.floatingButton.show()
+                    false -> activity.binding.floatingButton.hide()
                 }
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             fun hideActionButton() {
-                activity.actionButton.hide()
+                activity.binding.floatingButton.hide()
             }
         })
     }
@@ -165,7 +165,7 @@ open class EntryListFragment: UserContentListFragment() {
         super.loadMore(reset)
 
         if (isBlogWritable(profile)) {
-            activity.actionButton.show()
+            activity.binding.floatingButton.show()
         }
     }
 

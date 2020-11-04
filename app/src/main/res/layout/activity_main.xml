@@ -8,19 +8,19 @@
     android:layout_height="match_parent">
 
     <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/main_drawer_layout"
+        android:id="@+id/main_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:focusable="true"
         android:clickable="true"
-        tools:context="com.kanedias.dybr.fair.MainActivity">
+        tools:context=".MainActivity">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <com.google.android.material.appbar.AppBarLayout
-                android:id="@+id/header"
+                android:id="@+id/main_appbar"
                 android:fitsSystemWindows="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -44,8 +44,8 @@
 
             </com.google.android.material.appbar.AppBarLayout>
 
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/content_view"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/main_pager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
@@ -66,6 +66,7 @@
             android:layout_height="match_parent"
             android:layout_width="300dp"
             android:layout_gravity="start"
+            android:id="@+id/sidebar_layout"
             layout="@layout/activity_main_sidebar" />
 
     </androidx.drawerlayout.widget.DrawerLayout>

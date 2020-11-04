@@ -16,16 +16,6 @@
         android:textAppearance="@android:style/TextAppearance.Medium"/>
 
     <TextView
-        android:id="@+id/search_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:text="@string/placeholder_short"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:alpha="0.50"/>
-
-    <TextView
         android:id="@+id/search_source"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

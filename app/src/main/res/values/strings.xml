@@ -248,10 +248,7 @@
     <string name="offline_draft_saved">Offline draft saved</string>
     <string name="offline_draft_loaded">Offline draft loaded</string>
     <string name="select_offline_draft">Select offline draft</string>
-    <string name="direct_jump">Direct jump</string>
-    <string name="search_by_substring">Search by substring</string>
     <string name="from_profile_favorites">From profile favorites</string>
-    <string name="from_saved_searches">From saved searches</string>
     <string name="not_found">Not found</string>
     <string name="auto_load_images">Auto-load images</string>
     <string name="auto_load_images_on">Images will be auto-loaded immediately</string>
@@ -346,4 +343,10 @@
     <string name="left_community">Left community successfully</string>
     <string name="community_join_request_sent">Community join request sent. Moderators approval pending.</string>
     <string name="join_community">Join community</string>
+    <string name="search_by">Search by %s</string>
+    <string name="from_saved_search_by">saved search by %s</string>
+    <string name="dative_case_blog_name">blog name</string>
+    <string name="dative_case_profile_name">profile name</string>
+    <string name="dative_case_tag">tag</string>
+    <string name="dative_case_text">post text</string>
 </resources>

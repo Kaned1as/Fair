@@ -19,7 +19,7 @@ class SearchGotoInfo {
         this.name = name
     }
 
-    enum class EntityType { PROFILE, BLOG, TAG }
+    enum class EntityType { PROFILE, BLOG, TAG, TEXT }
 
     /**
      * Inner id in the database, not used

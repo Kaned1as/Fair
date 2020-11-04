@@ -655,8 +655,13 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
                 filters["profile_id"] = this@EntryViewHolder.profile.id
             }
 
+            val searchType = parentFragment.getString(R.string.search_by, parentFragment.getString(R.string.dative_case_tag))
             val searchFragment = EntryListSearchFragmentFull().apply {
-                arguments = Bundle().apply { putSerializable("filters", filters) }
+                arguments = Bundle().apply {
+                    putString("title", "#${tagValue}")
+                    putString("subtitle", searchType)
+                    putSerializable("filters", filters)
+                }
             }
             activity.showFullscreenFragment(searchFragment)
         }

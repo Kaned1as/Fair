@@ -80,7 +80,9 @@ open class ProfileListSearchFragment : UserContentListFragment() {
     }
 
     private fun setupUI() {
-        toolbar.title = getString(R.string.search)
+        toolbar.title = requireArguments().getString("title", getString(R.string.search))
+        toolbar.subtitle = requireArguments().getString("subtitle", "")
+
         toolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
         toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 

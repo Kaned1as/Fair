@@ -21,7 +21,7 @@ class DonateHelper(private val activity: AppCompatActivity) {
         MaterialDialog(activity)
                 .title(R.string.donate)
                 .listItems(items = options, selection = {_, _, text -> when (text) {
-                    "Paypal" -> openLink("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6CFFYXFT6QT46")
+                    "Paypal" -> openLink("https://paypal.me/kaned1as")
                     "Patreon" -> openLink("https://www.patreon.com/kanedias")
                     "Liberapay" -> openLink("https://liberapay.com/Kanedias")
                 }}).show()

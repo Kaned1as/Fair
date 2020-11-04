@@ -427,7 +427,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
             for (i in 0..fragManager.backStackEntryCount) {
                 fragManager.popBackStack()
             }
-            activity.pager.setCurrentItem(0, true)
+            activity.binding.mainPager.setCurrentItem(0, true)
             drawer.closeDrawers()
         }
     }

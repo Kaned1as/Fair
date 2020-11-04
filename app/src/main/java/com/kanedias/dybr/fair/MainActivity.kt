@@ -5,27 +5,20 @@ import android.content.Intent
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.Bundle
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.tabs.TabLayout
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.SearchView
 import android.view.*
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import butterknife.BindView
-import butterknife.OnClick
 import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
@@ -41,10 +34,12 @@ import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.database.entities.SearchGotoInfo
 import com.kanedias.dybr.fair.database.entities.SearchGotoInfo.*
+import com.kanedias.dybr.fair.databinding.ActivityMainBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
@@ -73,43 +68,7 @@ class MainActivity : AppCompatActivity() {
         private const val NOTIFICATIONS_TAB = 4
     }
 
-    /**
-     * Main drawer, i.e. two panes - content and sidebar
-     */
-    @BindView(R.id.main_drawer_layout)
-    lateinit var drawer: DrawerLayout
-
-    /**
-     * AppBar layout with toolbar and tabs
-     */
-    @BindView(R.id.header)
-    lateinit var appBar: AppBarLayout
-
-    /**
-     * Actionbar header (where app title is written)
-     */
-    @BindView(R.id.toolbar)
-    lateinit var toolbar: Toolbar
-
-    @BindView(R.id.content_view)
-    lateinit var pager: ViewPager
-    /**
-     * Tabs with favorites that are placed under actionbar
-     */
-    @BindView(R.id.sliding_tabs)
-    lateinit var tabs: TabLayout
-
-    /**
-     * Top-level sidebar content list view
-     */
-    @BindView(R.id.main_sidebar_area)
-    lateinit var sidebarArea: LinearLayout
-
-    /**
-     * Floating button
-     */
-    @BindView(R.id.floating_button)
-    lateinit var actionButton: FloatingActionButton
+    lateinit var binding: ActivityMainBinding
 
     /**
      * Sidebar that opens from the left (the second part of drawer)
@@ -134,14 +93,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         ButterKnife.bind(this)
 
         // init preferences
         donateHelper = DonateHelper(this)
 
         // set app bar
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         // setup click listeners, adapters etc.
         setupUI()
         // Setup profile themes
@@ -152,25 +114,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUI() {
         // init drawer and sidebar
-        sidebar = Sidebar(drawer, this)
+        sidebar = Sidebar(binding.mainDrawer, this)
 
         // cross-join drawer and menu item in header
-        val drawerToggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.open, R.string.close)
-        drawer.addDrawerListener(drawerToggle)
-        drawer.addDrawerListener(object: DrawerLayout.SimpleDrawerListener() {
+        val drawerToggle = ActionBarDrawerToggle(this, binding.mainDrawer, binding.toolbar, R.string.open, R.string.close)
+        binding.mainDrawer.addDrawerListener(drawerToggle)
+        binding.mainDrawer.addDrawerListener(object: DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View) {
                 // without this buttons are non-clickable after activity layout changes
-                sidebarArea.bringToFront()
+                binding.sidebarLayout.mainSidebarArea.bringToFront()
             }
         })
         drawerToggle.syncState()
 
-        // setup tabs
-        tabs.setupWithViewPager(pager, true)
+        binding.floatingButton.setOnClickListener { addEntry() }
 
         // handle first launch
         if (UserPrefs.firstAppLaunch) {
-            drawer.openDrawer(GravityCompat.START)
+            binding.mainDrawer.openDrawer(GravityCompat.START)
             UserPrefs.firstAppLaunch = false
         }
 
@@ -200,17 +161,17 @@ class MainActivity : AppCompatActivity() {
         styleLevel.bindStatusBar(this, STATUS_BAR)
 
 
-        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
+        styleLevel.bind(TOOLBAR, binding.toolbar, DefaultColorAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, binding.toolbar, ToolbarTextAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, binding.toolbar, ToolbarIconsAdapter())
 
-        styleLevel.bind(TOOLBAR, tabs)
-        styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutTextAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutLineAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, tabs, TabLayoutDrawableAdapter())
+        styleLevel.bind(TOOLBAR, binding.slidingTabs)
+        styleLevel.bind(TOOLBAR_TEXT, binding.slidingTabs, TabLayoutTextAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, binding.slidingTabs, TabLayoutLineAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, binding.slidingTabs, TabLayoutDrawableAdapter())
 
-        styleLevel.bind(ACCENT, actionButton, BackgroundTintColorAdapter())
-        styleLevel.bind(ACCENT_TEXT, actionButton, FabIconAdapter())
+        styleLevel.bind(ACCENT, binding.floatingButton, BackgroundTintColorAdapter())
+        styleLevel.bind(ACCENT_TEXT, binding.floatingButton, FabIconAdapter())
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -223,6 +184,13 @@ class MainActivity : AppCompatActivity() {
         return super.onPrepareOptionsMenu(menu)
     }
 
+    private fun dativeByType(preText: Int, type: EntityType) = getString(preText, when(type) {
+        EntityType.PROFILE -> getString(R.string.dative_case_profile_name)
+        EntityType.BLOG -> getString(R.string.dative_case_blog_name)
+        EntityType.TAG -> getString(R.string.dative_case_tag)
+        EntityType.TEXT -> getString(R.string.dative_case_text)
+    })
+
     private fun setupTopSearch(menu: Menu) {
         val searchItem = menu.findItem(R.id.menu_search)
         val searchView = searchItem.actionView as SearchView
@@ -233,8 +201,8 @@ class MainActivity : AppCompatActivity() {
 
         val initialSuggestions = constructSuggestions("")
         val searchAdapter = SimpleCursorAdapter(this, R.layout.activity_main_search_row, initialSuggestions,
-                arrayOf("name", "type", "source"),
-                intArrayOf(R.id.search_name, R.id.search_type, R.id.search_source), 0)
+                arrayOf("name", "source"),
+                intArrayOf(R.id.search_name, R.id.search_source), 0)
 
         // initialize adapter, text listener and click handler
         searchView.queryHint = getString(R.string.go_to)
@@ -273,32 +241,33 @@ class MainActivity : AppCompatActivity() {
                 // jump to respective blog or profile if they exist
                 lifecycleScope.launch {
                     try {
-                        when (type) {
-                            EntityType.PROFILE -> {
-                                val fragment = ProfileListSearchFragment().apply {
-                                    arguments = Bundle().apply {
-                                        putSerializable("filters", HashMap(mapOf("nickname|contains" to name)))
-                                    }
+                        val fragment = when (type) {
+                            EntityType.PROFILE -> ProfileListSearchFragment().apply {
+                                arguments = Bundle().apply {
+                                    putSerializable("filters", HashMap(mapOf("nickname|contains" to name)))
                                 }
-                                showFullscreenFragment(fragment)
                             }
-                            EntityType.BLOG -> {
-                                val fragment = ProfileListSearchFragment().apply {
-                                    arguments = Bundle().apply {
-                                        putSerializable("filters", HashMap(mapOf("blog-slug|contains" to name)))
-                                    }
+                            EntityType.BLOG -> ProfileListSearchFragment().apply {
+                                arguments = Bundle().apply {
+                                    putSerializable("filters", HashMap(mapOf("blog-title|contains" to name)))
                                 }
-                                showFullscreenFragment(fragment)
                             }
-                            EntityType.TAG -> {
-                                val searchFragment = EntryListSearchFragmentFull().apply {
-                                    arguments = Bundle().apply {
-                                        putSerializable("filters", hashMapOf("tag" to name))
-                                    }
+                            EntityType.TAG -> EntryListSearchFragmentFull().apply {
+                                arguments = Bundle().apply {
+                                    putSerializable("filters", hashMapOf("tag" to name))
                                 }
-                                showFullscreenFragment(searchFragment)
+                            }
+                            EntityType.TEXT -> EntryListSearchFragmentFull().apply {
+                                arguments = Bundle().apply {
+                                    putSerializable("filters", hashMapOf("content|contains" to name))
+                                }
                             }
                         }
+                        fragment.requireArguments().apply {
+                            putString("title", name)
+                            putString("subtitle", dativeByType(R.string.search_by, type))
+                        }
+                        showFullscreenFragment(fragment)
                         persistSearchSuggestion(type, name)
                     } catch (ex: Exception) {
                         Network.reportErrors(this@MainActivity, ex, mapOf(404 to R.string.not_found))
@@ -333,14 +302,17 @@ class MainActivity : AppCompatActivity() {
         val cursor = MatrixCursor(arrayOf("_id", "name", "type", "source"), suitableFavs.size)
         if (prefix.isNotEmpty()) {
             // add two service rows with just prefix
-            cursor.addRow(arrayOf(++counter, prefix, EntityType.BLOG.name, getString(R.string.search_by_substring)))
-            cursor.addRow(arrayOf(++counter, prefix, EntityType.PROFILE.name, getString(R.string.search_by_substring)))
-            cursor.addRow(arrayOf(++counter, prefix, EntityType.TAG.name, getString(R.string.direct_jump)))
+            val searchByType = { type: EntityType -> dativeByType(R.string.search_by, type) }
+            cursor.addRow(arrayOf(++counter, prefix, EntityType.BLOG.name, searchByType(EntityType.BLOG)))
+            cursor.addRow(arrayOf(++counter, prefix, EntityType.PROFILE.name, searchByType(EntityType.PROFILE)))
+            cursor.addRow(arrayOf(++counter, prefix, EntityType.TEXT.name, searchByType(EntityType.TEXT)))
+            cursor.addRow(arrayOf(++counter, prefix, EntityType.TAG.name, searchByType(EntityType.TAG)))
         }
 
         // add suitable addresses from favorites and database
+        val savedByType = { type: EntityType -> dativeByType(R.string.from_saved_search_by, type) }
         suitableFavs.forEach { cursor.addRow(arrayOf(++counter, it.nickname, EntityType.PROFILE.name, getString(R.string.from_profile_favorites))) }
-        suitableSaved.forEach { cursor.addRow(arrayOf(++counter, it.name, it.type, getString(R.string.from_saved_searches))) }
+        suitableSaved.forEach { cursor.addRow(arrayOf(++counter, it.name, it.type, savedByType(it.type))) }
 
         return cursor
     }
@@ -360,8 +332,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         // close drawer if it's open and stop processing further back actions
-        if (drawer.isDrawerOpen(GravityCompat.START) || drawer.isDrawerOpen(GravityCompat.END)) {
-            drawer.closeDrawers()
+        if (binding.mainDrawer.isDrawerOpen(GravityCompat.START) || binding.mainDrawer.isDrawerOpen(GravityCompat.END)) {
+            binding.mainDrawer.closeDrawers()
             return
         }
 
@@ -485,7 +457,7 @@ class MainActivity : AppCompatActivity() {
                         for (i in 0..supportFragmentManager.backStackEntryCount) {
                             supportFragmentManager.popBackStack()
                         }
-                        pager.setCurrentItem(NOTIFICATIONS_TAB, true)
+                        binding.mainPager.setCurrentItem(NOTIFICATIONS_TAB, true)
 
                         // if the fragment is already loaded, try to refresh it
                         val notifFragment = getTopFragment(NotificationListFragment::class)
@@ -585,7 +557,7 @@ class MainActivity : AppCompatActivity() {
 
         if (profiles.isEmpty()) {
             // suggest user to create profile
-            drawer.closeDrawers()
+            binding.mainDrawer.closeDrawers()
             MaterialDialog(this)
                     .title(R.string.switch_profile)
                     .message(R.string.no_profiles_create_one)
@@ -693,7 +665,7 @@ class MainActivity : AppCompatActivity() {
     private fun becomeGuest() {
         Auth.updateCurrentUser(Auth.guest)
         refresh()
-        drawer.openDrawer(GravityCompat.START)
+        binding.mainDrawer.openDrawer(GravityCompat.START)
     }
 
     /**
@@ -721,36 +693,41 @@ class MainActivity : AppCompatActivity() {
         // can't move this code to EntryListFragments because context
         // is not attached when their user visible hint is set
         when (Auth.profile?.blogSlug) {
-            null -> actionButton.hide()
-            else -> actionButton.show()
+            null -> binding.floatingButton.hide()
+            else -> binding.floatingButton.show()
         }
 
         when {
             // browsing as guest
-            Auth.user === Auth.guest -> pager.adapter = GuestTabAdapter()
+            Auth.user === Auth.guest -> binding.mainPager.adapter = GuestTabAdapter()
 
             // profile not yet created
-            Auth.profile === null -> pager.adapter = GuestTabAdapter()
+            Auth.profile === null -> binding.mainPager.adapter = GuestTabAdapter()
 
             // have account and profile
-            else -> pager.adapter = TabAdapter(Auth.profile)
+            else -> binding.mainPager.adapter = TabAdapter(Auth.profile)
         }
 
-        (pager.adapter as IconAwareTabAdapter).setupIcons()
+        // setup tabs, use dummy configurer as we only have icons
+        TabLayoutMediator(binding.slidingTabs, binding.mainPager) { _, _ -> }.attach()
+        (binding.mainPager.adapter as IconAwareTabAdapter).setupIcons()
     }
 
     /**
      * Add entry handler. Shows header view for adding diary entry.
      * @see Entry
      */
-    @OnClick(R.id.floating_button)
-    fun addEntry() {
+    private fun addEntry() {
         // use `instantiate` here because getItem returns new item with each invocation
         // we know that fragment is already present so it will return cached one
-        val currFragment = pager.adapter!!.instantiateItem(pager, pager.currentItem) as? EntryListFragment ?: return
+        val currFragment = supportFragmentManager.findFragmentByTag("f${binding.mainPager.currentItem}")
+        if (currFragment !is EntryListFragment) {
+            // notification tab, can't add anything there
+            return
+        }
 
         if (currFragment.ribbonRefresher.isRefreshing) {
-            // diary is not loaded yet
+            // blog is not loaded yet
             Toast.makeText(this, R.string.still_loading, Toast.LENGTH_SHORT).show()
             return
         }
@@ -762,24 +739,22 @@ class MainActivity : AppCompatActivity() {
         fun setupIcons()
     }
 
-    inner class GuestTabAdapter: FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT),
-            IconAwareTabAdapter {
+    inner class GuestTabAdapter: FragmentStateAdapter(supportFragmentManager, lifecycle), IconAwareTabAdapter {
 
-        override fun getCount() = 1 // only world
+        override fun getItemCount() = 1 // only world
 
-        override fun getItem(position: Int) = EntryListFragment().apply { profile = Auth.worldMarker }
+        override fun createFragment(position: Int) = EntryListFragment().apply { profile = Auth.worldMarker }
 
         override fun setupIcons() {
-            tabs.getTabAt(0)?.setIcon(R.drawable.earth)
+            binding.slidingTabs.getTabAt(0)?.setIcon(R.drawable.earth)
         }
     }
 
-    inner class TabAdapter(private val self: OwnProfile?): FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT),
-            IconAwareTabAdapter {
+    inner class TabAdapter(val self: OwnProfile?): FragmentStateAdapter(supportFragmentManager, lifecycle), IconAwareTabAdapter {
 
-        override fun getCount() = 5 // own blog, favorites, communities, world and notifications
+        override fun getItemCount() = 5 // own blog, favorites, communities, world and notifications
 
-        override fun getItem(position: Int) = when(position) {
+        override fun createFragment(position: Int) = when(position) {
             MY_DIARY_TAB -> EntryListFragment().apply { profile = this@TabAdapter.self }
             FAV_TAB  -> EntryListFragment().apply { profile = Auth.favoritesMarker }
             COMMUNITIES_TAB -> EntryListFragment().apply { profile = Auth.communitiesMarker }
@@ -789,11 +764,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun setupIcons() {
-            tabs.getTabAt(MY_DIARY_TAB)?.setIcon(R.drawable.home)
-            tabs.getTabAt(FAV_TAB)?.setIcon(R.drawable.star_filled)
-            tabs.getTabAt(COMMUNITIES_TAB)?.setIcon(R.drawable.community_big)
-            tabs.getTabAt(WORLD_TAB)?.setIcon(R.drawable.earth)
-            tabs.getTabAt(NOTIFICATIONS_TAB)?.setIcon(R.drawable.notification)
+            binding.slidingTabs.getTabAt(MY_DIARY_TAB)?.setIcon(R.drawable.home)
+            binding.slidingTabs.getTabAt(FAV_TAB)?.setIcon(R.drawable.star_filled)
+            binding.slidingTabs.getTabAt(COMMUNITIES_TAB)?.setIcon(R.drawable.community_big)
+            binding.slidingTabs.getTabAt(WORLD_TAB)?.setIcon(R.drawable.earth)
+            binding.slidingTabs.getTabAt(NOTIFICATIONS_TAB)?.setIcon(R.drawable.notification)
         }
     }
 
