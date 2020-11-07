@@ -107,7 +107,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:padding="4dp"
+                        android:padding="8dp"
                         android:textAppearance="@android:style/TextAppearance.Medium" />
 
                 </ViewSwitcher>
@@ -122,30 +122,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <Button
+            <ImageView
                 style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/entry_cancel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.3"
-                android:text="@android:string/cancel"
-                android:textColor="@color/md_red_900"/>
+                android:padding="8dp"
+                android:foreground="?android:selectableItemBackground"
+                android:src="@drawable/cancel"
+                android:contentDescription="@android:string/cancel"
+                app:tint="@color/md_red_900"/>
 
-            <Button
+            <ImageView
                 style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/entry_preview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.3"
-                android:text="@string/preview"/>
+                android:padding="8dp"
+                android:foreground="?android:selectableItemBackground"
+                android:src="@drawable/post_preview"
+                android:contentDescription="@string/preview"/>
 
-            <Button
+            <ImageView
                 style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/entry_submit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.3"
-                android:text="@string/submit"/>
+                android:padding="8dp"
+                android:foreground="?android:selectableItemBackground"
+                android:src="@drawable/post_send"
+                android:contentDescription="@string/submit"/>
 
         </LinearLayout>
 

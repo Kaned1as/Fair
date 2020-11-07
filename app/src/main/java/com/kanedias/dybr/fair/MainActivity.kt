@@ -9,16 +9,13 @@ import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.SearchView
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cursoradapter.widget.SimpleCursorAdapter
+import androidx.cursoradapter.widget.CursorAdapter
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import butterknife.BindView
 import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
@@ -40,6 +37,8 @@ import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.database.entities.SearchGotoInfo
 import com.kanedias.dybr.fair.database.entities.SearchGotoInfo.*
 import com.kanedias.dybr.fair.databinding.ActivityMainBinding
+import com.kanedias.dybr.fair.databinding.ActivityMainProfileSelectionRowBinding
+import com.kanedias.dybr.fair.databinding.ActivityMainSearchRowBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
@@ -200,9 +199,7 @@ class MainActivity : AppCompatActivity() {
         styleLevel.bind(TOOLBAR_TEXT, searchView, SearchTextAdapter())
 
         val initialSuggestions = constructSuggestions("")
-        val searchAdapter = SimpleCursorAdapter(this, R.layout.activity_main_search_row, initialSuggestions,
-                arrayOf("name", "source"),
-                intArrayOf(R.id.search_name, R.id.search_source), 0)
+        val searchAdapter = SearchItemAdapter(this, initialSuggestions)
 
         // initialize adapter, text listener and click handler
         searchView.queryHint = getString(R.string.go_to)
@@ -604,6 +601,11 @@ class MainActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) { Network.login(Auth.user, prof.id) }
                 val fullProf = withContext(Dispatchers.IO) { Network.loadProfile(prof.id) }
                 Auth.updateCurrentProfile(fullProf)
+
+                // hide notifications as they may belong to another profile
+                SyncNotificationsWorker.hideNotifications(applicationContext)
+
+                // refresh ui with new profile
                 refresh()
             } catch (ex: Exception) {
                 Network.reportErrors(this@MainActivity, ex)
@@ -735,6 +737,24 @@ class MainActivity : AppCompatActivity() {
         currFragment.addCreateNewEntryForm()
     }
 
+    inner class SearchItemAdapter(ctx: Context, cursor: Cursor): CursorAdapter(ctx, cursor, 0) {
+
+        override fun newView(ctx: Context, cursor: Cursor, parent: ViewGroup?): View {
+            return LayoutInflater.from(ctx).inflate(R.layout.activity_main_search_row, parent, false)
+        }
+
+        override fun bindView(view: View, ctx: Context, cursor: Cursor) {
+            val searchItem = ActivityMainSearchRowBinding.bind(view)
+
+            styleLevel.bind(BACKGROUND, searchItem.root)
+            styleLevel.bind(TEXT, searchItem.searchName, TextViewColorAdapter())
+            styleLevel.bind(TEXT_OFFTOP, searchItem.searchSource, TextViewColorAdapter())
+
+            searchItem.searchName.text = cursor.getString(cursor.getColumnIndex("name"))
+            searchItem.searchSource.text = cursor.getString(cursor.getColumnIndex("source"))
+        }
+    }
+
     interface IconAwareTabAdapter {
         fun setupIcons()
     }
@@ -794,24 +814,18 @@ class MainActivity : AppCompatActivity() {
 
         inner class ProfileViewHolder(v: View): RecyclerView.ViewHolder(v) {
 
-            @BindView(R.id.profile_name)
-            lateinit var profileName: TextView
-
-            @BindView(R.id.profile_remove)
-            lateinit var profileRemove: ImageView
+            private val profileItem = ActivityMainProfileSelectionRowBinding.bind(v)
 
             init {
-                ButterKnife.bind(this, v)
-
-                styleLevel.bind(TEXT, profileName, TextViewColorAdapter())
-                styleLevel.bind(TEXT_LINKS, profileRemove, ImageViewColorAdapter())
+                styleLevel.bind(TEXT, profileItem.profileName, TextViewColorAdapter())
+                styleLevel.bind(TEXT_LINKS, profileItem.profileRemove, ImageViewColorAdapter())
             }
 
             fun setup(pos: Int) {
                 val prof = profiles[pos]
-                profileName.text = prof.nickname
+                profileItem.profileName.text = prof.nickname
 
-                profileRemove.setOnClickListener {
+                profileItem.profileRemove.setOnClickListener {
                     MaterialDialog(this@MainActivity)
                             .title(R.string.confirm_action)
                             .message(text = getString(R.string.confirm_profile_deletion).format(prof.nickname))

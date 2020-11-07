@@ -19,6 +19,7 @@ import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.appbar.MaterialToolbar
+import com.kanedias.dybr.fair.databinding.FragmentProfileListItemBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
@@ -133,29 +134,20 @@ open class ProfileListSearchFragment : UserContentListFragment() {
      * @author Kanedias
      */
     class ProfileViewHolder(iv: View, private val parentFragment: UserContentListFragment) : RecyclerView.ViewHolder(iv) {
-        @BindView(R.id.profile_avatar)
-        lateinit var profileAvatar: ImageView
 
-        @BindView(R.id.profile_name)
-        lateinit var profileName: TextView
-
-        @BindView(R.id.profile_registration_date)
-        lateinit var registrationDate: TextView
-
-        @BindView(R.id.profile_community_join_action)
-        lateinit var communityJoinBtn: ImageView
+        private val profileItem = FragmentProfileListItemBinding.bind(iv)
 
         init {
-            ButterKnife.bind(this, iv)
             setupTheming()
         }
 
         fun setupTheming() {
             parentFragment.styleLevel.bind(TEXT_BLOCK, itemView, CardViewColorAdapter())
-            parentFragment.styleLevel.bind(TEXT, profileName, TextViewColorAdapter())
-            parentFragment.styleLevel.bind(TEXT, profileName, TextViewDrawableAdapter())
-            parentFragment.styleLevel.bind(TEXT, registrationDate, TextViewColorAdapter())
-            parentFragment.styleLevel.bind(TEXT_LINKS, communityJoinBtn, ImageViewColorAdapter())
+            parentFragment.styleLevel.bind(TEXT, profileItem.profileName, TextViewColorAdapter())
+            parentFragment.styleLevel.bind(TEXT, profileItem.profileName, TextViewDrawableAdapter())
+            parentFragment.styleLevel.bind(TEXT, profileItem.profileRegistrationDateLabel, TextViewColorAdapter())
+            parentFragment.styleLevel.bind(TEXT, profileItem.profileRegistrationDate, TextViewColorAdapter())
+            parentFragment.styleLevel.bind(TEXT_LINKS, profileItem.communityJoinButton, ImageViewColorAdapter())
         }
 
         private fun showProfile(profile: OwnProfile) {
@@ -169,33 +161,33 @@ open class ProfileListSearchFragment : UserContentListFragment() {
         }
 
         fun setup(profile: OwnProfile) {
-            profileAvatar.setOnClickListener { showProfile(profile) }
+            profileItem.profileAvatar.setOnClickListener { showProfile(profile) }
             itemView.setOnClickListener { showBlog(profile) }
 
-            profileName.text = profile.nickname
+            profileItem.profileName.text = profile.nickname
             when (profile.isCommunity) {
-                true -> profileName.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.community, 0, 0, 0)
-                false -> profileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+                true -> profileItem.profileName.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.community, 0, 0, 0)
+                false -> profileItem.profileName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
             }
-            registrationDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(profile.createdAt)
+            profileItem.profileRegistrationDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(profile.createdAt)
 
             // set avatar
             val avatar = Network.resolve(profile.settings.avatar) ?: Network.defaultAvatar()
-            Glide.with(profileAvatar)
+            Glide.with(profileItem.profileAvatar)
                     .load(avatar.toString())
                     .apply(RequestOptions().centerInside().circleCrop())
-                    .into(profileAvatar)
+                    .into(profileItem.profileAvatar)
 
             // setup community join button
             if (Auth.profile != null && profile.isCommunity) {
                 // check if logged in profile has this community in "my-communities"
-                communityJoinBtn.visibility = View.VISIBLE
+                profileItem.communityJoinButton.visibility = View.VISIBLE
                 val isParticipant = Auth.profile!!.communities.any { it.idMatches(profile) }
                 when (isParticipant) {
-                    true -> communityJoinBtn.setImageResource(R.drawable.community_leave)
-                    false -> communityJoinBtn.setImageResource(R.drawable.community_join)
+                    true -> profileItem.communityJoinButton.setImageResource(R.drawable.community_leave)
+                    false -> profileItem.communityJoinButton.setImageResource(R.drawable.community_join)
                 }
-                communityJoinBtn.setOnClickListener { handleCommunityJoin(profile) }
+                profileItem.communityJoinButton.setOnClickListener { handleCommunityJoin(profile) }
             }
         }
 
@@ -204,7 +196,7 @@ open class ProfileListSearchFragment : UserContentListFragment() {
 
             parentFragment.lifecycleScope.launch {
 
-                communityJoinBtn.setImageResource(R.drawable.wait)
+                profileItem.communityJoinButton.setImageResource(R.drawable.wait)
                 when(shouldJoin) {
                     true -> Network.perform(
                             networkAction = { Network.communityJoin(communityProf) },
@@ -212,27 +204,27 @@ open class ProfileListSearchFragment : UserContentListFragment() {
                                 when (answer.state) {
                                     "approved" -> {
                                         // this is an auto-join community
-                                        communityJoinBtn.setImageResource(R.drawable.community_joined)
+                                        profileItem.communityJoinButton.setImageResource(R.drawable.community_joined)
                                         Auth.profile!!.communities.add(communityProf)
-                                        showToastAtView(communityJoinBtn, R.string.joined_community)
+                                        showToastAtView(profileItem.communityJoinButton, R.string.joined_community)
                                     }
                                     "pending" -> {
                                         // this is a pre-moderated community
-                                        showToastAtView(communityJoinBtn, R.string.community_join_request_sent)
+                                        showToastAtView(profileItem.communityJoinButton, R.string.community_join_request_sent)
                                     }
                                 }
 
                             },
-                            errorAction = { communityJoinBtn.setImageResource(R.drawable.community_join) }
+                            errorAction = { profileItem.communityJoinButton.setImageResource(R.drawable.community_join) }
                     )
                     false -> Network.perform(
                             networkAction = { Network.communityLeave(communityProf) },
                             uiAction = {
-                                communityJoinBtn.setImageResource(R.drawable.community_left)
+                                profileItem.communityJoinButton.setImageResource(R.drawable.community_left)
                                 Auth.profile!!.communities.remove(communityProf)
-                                showToastAtView(communityJoinBtn, R.string.left_community)
+                                showToastAtView(profileItem.communityJoinButton, R.string.left_community)
                             },
-                            errorAction = { communityJoinBtn.setImageResource(R.drawable.community_leave) }
+                            errorAction = { profileItem.communityJoinButton.setImageResource(R.drawable.community_leave) }
                     )
                 }
 

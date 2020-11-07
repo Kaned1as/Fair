@@ -18,9 +18,11 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.customListAdapter
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.OfflineDraft
+import com.kanedias.dybr.fair.databinding.FragmentEditFormDraftSelectionRowBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.EditorViews
@@ -71,10 +73,10 @@ class CreateNewCommentFragment : Fragment() {
     lateinit var previewSwitcher: ViewSwitcher
 
     @BindView(R.id.comment_preview)
-    lateinit var previewButton: Button
+    lateinit var previewButton: ImageView
 
     @BindView(R.id.comment_submit)
-    lateinit var submitButton: Button
+    lateinit var submitButton: ImageView
 
     private lateinit var styleLevel: StyleLevel
 
@@ -102,8 +104,8 @@ class CreateNewCommentFragment : Fragment() {
         styleLevel.bind(TEXT_BLOCK, view, BackgroundNoAlphaAdapter())
         styleLevel.bind(TEXT, preview, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, preview, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, previewButton, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, submitButton, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, previewButton, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, submitButton, ImageViewColorAdapter())
     }
 
     /**
@@ -123,8 +125,8 @@ class CreateNewCommentFragment : Fragment() {
     @OnClick(R.id.comment_preview)
     fun togglePreview() {
         if (previewSwitcher.displayedChild == 0) {
-            preview.handleMarkdownRaw(contentInput.text.toString())
             previewSwitcher.displayedChild = 1
+            preview.handleMarkdownRaw(contentInput.text.toString())
         } else {
             previewSwitcher.displayedChild = 0
         }
@@ -337,23 +339,15 @@ class CreateNewCommentFragment : Fragment() {
             private var pos: Int = 0
             private lateinit var draft: OfflineDraft
 
-            @BindView(R.id.draft_date)
-            lateinit var draftDate: TextView
-
-            @BindView(R.id.draft_delete)
-            lateinit var draftDelete: ImageView
-
-            @BindView(R.id.draft_content)
-            lateinit var draftContent: TextView
+            private val draftItem = FragmentEditFormDraftSelectionRowBinding.bind(v)
 
             init {
-                ButterKnife.bind(this, v)
                 v.setOnClickListener {
                     popDraftUI(draft)
                     toDismiss.dismiss()
                 }
 
-                draftDelete.setOnClickListener {
+                draftItem.draftDelete.setOnClickListener {
                     DbProvider.helper.draftDao.deleteById(draft.id)
                     Toast.makeText(context, R.string.offline_draft_deleted, Toast.LENGTH_SHORT).show()
                     removeItem(pos)
@@ -363,8 +357,8 @@ class CreateNewCommentFragment : Fragment() {
             fun setup(position: Int) {
                 pos = position
                 draft = drafts[position]
-                draftDate.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(draft.createdAt)
-                draftContent.text = draft.content
+                draftItem.draftDate.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(draft.createdAt)
+                draftItem.draftContent.text = draft.content
             }
         }
     }

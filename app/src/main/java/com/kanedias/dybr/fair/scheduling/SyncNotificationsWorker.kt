@@ -11,7 +11,6 @@ import android.content.Intent
 import androidx.core.app.Person
 import androidx.core.graphics.drawable.IconCompat
 import android.util.Log
-import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -166,7 +165,7 @@ class SyncNotificationsWorker(val ctx: Context, params: WorkerParameters): Worke
     }
 
     private fun loadAvatar(prof: OwnProfile): IconCompat? {
-        if (prof.settings?.avatar == null)
+        if (prof.settings.avatar == null)
             return null
 
         return try {
@@ -279,6 +278,8 @@ class SyncNotificationsWorker(val ctx: Context, params: WorkerParameters): Worke
 
             val nm = NotificationManagerCompat.from(ctx)
             nm.cancel(NEW_COMMENTS_NOTIFICATION_SUMMARY_TAG, NEW_COMMENTS_NOTIFICATION)
+
+            currentlyShown.clear()
         }
     }
 }

@@ -53,7 +53,7 @@
             android:text="@string/placeholder_short"/>
 
         <ImageView
-            android:id="@+id/profile_community_join_action"
+            android:id="@+id/community_join_button"
             android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

@@ -21,6 +21,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.customListAdapter
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
+import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.ftinc.scoop.util.Utils
 import com.google.android.material.textfield.TextInputLayout
@@ -126,13 +127,13 @@ class CreateNewEntryFragment : Fragment() {
      * Switch between input and preview
      */
     @BindView(R.id.entry_preview)
-    lateinit var previewButton: Button
+    lateinit var previewButton: ImageView
 
     /**
      * Submit new/edited entry
      */
     @BindView(R.id.entry_submit)
-    lateinit var submitButton: Button
+    lateinit var submitButton: ImageView
 
     private lateinit var styleLevel: StyleLevel
 
@@ -212,8 +213,8 @@ class CreateNewEntryFragment : Fragment() {
         styleLevel.bind(TEXT, pinSwitch, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, pinSwitch, CheckBoxAdapter())
 
-        styleLevel.bind(TEXT_LINKS, previewButton, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, submitButton, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, previewButton, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, submitButton, ImageViewColorAdapter())
     }
 
     /**
@@ -252,8 +253,8 @@ class CreateNewEntryFragment : Fragment() {
     @OnClick(R.id.entry_preview)
     fun togglePreview() {
         if (previewSwitcher.displayedChild == 0) {
-            preview.handleMarkdownRaw(contentInput.text.toString())
             previewSwitcher.displayedChild = 1
+            preview.handleMarkdownRaw(contentInput.text.toString())
         } else {
             previewSwitcher.displayedChild = 0
         }

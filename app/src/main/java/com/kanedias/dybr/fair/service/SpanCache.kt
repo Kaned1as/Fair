@@ -28,7 +28,7 @@ object SpanCache {
         }
     }
 
-    fun forMessageId(hash: Int, slowConverter: () -> Spanned): Spanned? {
+    fun forMessageId(hash: Int, slowConverter: () -> Spanned): Spanned {
         val cached = spanCache[hash]
         if (cached != null) {
             return cached

@@ -115,15 +115,16 @@ class OfftopSpanHandler : SimpleTagHandler() {
 infix fun TextView.handleMarkdown(html: String) {
     setSpannableFactory(NoCopySpannableFactory())
 
+    val renderer = mdRendererFrom(context)
     val converter = {
         val mdContent = Html2Markdown().parseExtended(html)
-        val spanned = mdRendererFrom(context).toMarkdown(mdContent) as SpannableStringBuilder
+        val spanned = renderer.toMarkdown(mdContent) as SpannableStringBuilder
         postProcessSpans(spanned, context)
 
         spanned
     }
 
-    text = SpanCache.forMessageId(html.hashCode(), converter)
+    val cachedMd = SpanCache.forMessageId(html.hashCode(), converter)
 
     // FIXME: see https://github.com/noties/Markwon/issues/120
     addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
@@ -137,7 +138,7 @@ infix fun TextView.handleMarkdown(html: String) {
 
     })
 
-    AsyncDrawableScheduler.schedule(this)
+    renderer.setParsedMarkdown(this, cachedMd)
 }
 
 const val MORE_START_PATTERN = "\\[MORE=(.+?)]"
@@ -263,10 +264,11 @@ fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
  * @see handleMarkdown
  */
 infix fun TextView.handleMarkdownRaw(markdown: String) {
-    val spanned = mdRendererFrom(context).toMarkdown(markdown) as SpannableStringBuilder
+    val renderer = mdRendererFrom(context)
+    val spanned = renderer.toMarkdown(markdown) as SpannableStringBuilder
     postProcessSpans(spanned, context)
 
-    this.text = spanned
+    renderer.setParsedMarkdown(this, spanned)
 }
 
 /**
