@@ -104,7 +104,7 @@ class EditorViews : Fragment() {
     @OnClick(
             R.id.edit_quick_bold, R.id.edit_quick_italic, R.id.edit_quick_underlined, R.id.edit_quick_strikethrough,
             R.id.edit_quick_code, R.id.edit_quick_quote, R.id.edit_quick_number_list, R.id.edit_quick_bullet_list,
-            R.id.edit_quick_link, R.id.edit_quick_more
+            R.id.edit_quick_link, R.id.edit_quick_more, R.id.edit_quick_offtopic
     )
     fun editSelection(clicked: View) {
         val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -135,6 +135,7 @@ class EditorViews : Fragment() {
             R.id.edit_quick_link -> insertInCursorPosition("<a href=\"$paste\">", paste, "</a>")
             R.id.edit_quick_image -> insertInCursorPosition("<img src='", paste, "' />")
             R.id.edit_quick_more -> insertInCursorPosition("[MORE=$moreTxt]", paste, "[/MORE]")
+            R.id.edit_quick_offtopic -> insertInCursorPosition("<span class='offtop'>", paste, "</span>")
         }
 
         clipboardSwitch.isChecked = false
