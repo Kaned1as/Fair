@@ -30,11 +30,11 @@
                 android:inAnimation="@android:anim/slide_in_left"
                 android:outAnimation="@android:anim/slide_out_right">
 
-                <fragment
+                <include
+                    layout="@layout/fragment_edit_form"
                     android:id="@+id/comment_editor"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:name="com.kanedias.dybr.fair.ui.EditorViews" />
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/comment_markdown_preview"

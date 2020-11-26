@@ -10,10 +10,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
-import butterknife.OnLongClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.customListAdapter
 import com.ftinc.scoop.Scoop
@@ -22,6 +18,7 @@ import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.OfflineDraft
+import com.kanedias.dybr.fair.databinding.FragmentCreateCommentBinding
 import com.kanedias.dybr.fair.databinding.FragmentEditFormDraftSelectionRowBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.themes.*
@@ -54,35 +51,18 @@ class CreateNewCommentFragment : Fragment() {
         const val REPLY_TEXT = "reply-text"
     }
 
-    /**
-     * Content of comment
-     */
-    @BindView(R.id.source_text)
-    lateinit var contentInput: EditText
-
-    /**
-     * Markdown preview
-     */
-    @BindView(R.id.comment_markdown_preview)
-    lateinit var preview: TextView
-
-    /**
-     * View switcher between preview and editor
-     */
-    @BindView(R.id.comment_preview_switcher)
-    lateinit var previewSwitcher: ViewSwitcher
-
-    @BindView(R.id.comment_preview)
-    lateinit var previewButton: ImageView
-
-    @BindView(R.id.comment_submit)
-    lateinit var submitButton: ImageView
-
     private lateinit var styleLevel: StyleLevel
+    private lateinit var binding: FragmentCreateCommentBinding
+    private lateinit var editor: EditorViews
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = inflater.inflate(R.layout.fragment_create_comment, container, false)
-        ButterKnife.bind(this, view)
+        binding = FragmentCreateCommentBinding.inflate(inflater, container, false)
+        editor = EditorViews(this, binding.commentEditor)
+
+        binding.commentPreview.setOnClickListener { togglePreview() }
+        binding.commentCancel.setOnClickListener { cancel() }
+        binding.commentCancel.setOnLongClickListener { forceCancel() }
+        binding.commentSubmit.setOnClickListener { submit() }
 
         val editMode = requireArguments().getBoolean(EDIT_MODE)
         if (editMode) {
@@ -92,9 +72,8 @@ class CreateNewCommentFragment : Fragment() {
             handleMisc()
         }
 
-        setupTheming(view)
-
-        return view
+        setupTheming(binding.root)
+        return binding.root
     }
 
     private fun setupTheming(view: View) {
@@ -102,10 +81,10 @@ class CreateNewCommentFragment : Fragment() {
         lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(TEXT_BLOCK, view, BackgroundNoAlphaAdapter())
-        styleLevel.bind(TEXT, preview, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, preview, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, previewButton, ImageViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, submitButton, ImageViewColorAdapter())
+        styleLevel.bind(TEXT, binding.commentMarkdownPreview, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.commentMarkdownPreview, TextViewLinksAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.commentPreview, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.commentSubmit, ImageViewColorAdapter())
     }
 
     /**
@@ -116,32 +95,29 @@ class CreateNewCommentFragment : Fragment() {
         // need to convert entry content (html) to Markdown somehow...
         val html = requireArguments().getString(EDIT_COMMENT_HTML)!!
         val markdown = Html2Markdown().parseExtended(html)
-        contentInput.setText(markdown)
+        binding.commentEditor.sourceText.setText(markdown)
     }
 
     /**
      * Handler for clicking on "Preview" button
      */
-    @OnClick(R.id.comment_preview)
     fun togglePreview() {
-        if (previewSwitcher.displayedChild == 0) {
-            previewSwitcher.displayedChild = 1
-            preview.handleMarkdownRaw(contentInput.text.toString())
+        if (binding.commentPreviewSwitcher.displayedChild == 0) {
+            binding.commentPreviewSwitcher.displayedChild = 1
+            binding.commentMarkdownPreview.handleMarkdownRaw(binding.commentEditor.sourceText.text.toString())
         } else {
-            previewSwitcher.displayedChild = 0
+            binding.commentPreviewSwitcher.displayedChild = 0
         }
     }
 
     /**
      * Cancel this item editing (with confirmation)
      */
-    @Suppress("DEPRECATION") // getColor doesn't work up to API level 23
-    @OnClick(R.id.comment_cancel)
     fun cancel() {
         val entryId = requireArguments().getString(ENTRY_ID)
         val editMode = requireArguments().getBoolean(EDIT_MODE)
 
-        if (editMode || contentInput.text.isNullOrEmpty()) {
+        if (editMode || binding.commentEditor.sourceText.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
             parentFragmentManager.popBackStack()
             return
@@ -150,7 +126,7 @@ class CreateNewCommentFragment : Fragment() {
         // persist draft
         DbProvider.helper.draftDao.create(OfflineDraft(
                 key = "comment,entry=${entryId}",
-                base = contentInput.text.toString()
+                base = binding.commentEditor.sourceText.text.toString()
         ))
 
         Toast.makeText(requireContext(), R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
@@ -162,7 +138,6 @@ class CreateNewCommentFragment : Fragment() {
      * Cancels dialog and doesn't create any offline draft.
      * @return always true
      */
-    @OnLongClick(R.id.comment_cancel)
     fun forceCancel(): Boolean {
         parentFragmentManager.popBackStack()
         return true
@@ -171,13 +146,14 @@ class CreateNewCommentFragment : Fragment() {
     /**
      * Assemble comment creation request and submit it to the server
      */
-    @OnClick(R.id.comment_submit)
     fun submit() {
         // hide keyboard
         val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(requireView().windowToken, 0)
 
-        val comment = CreateCommentRequest().apply { content = markdownToHtml(contentInput.text.toString()) }
+        val comment = CreateCommentRequest().apply {
+            content = markdownToHtml(binding.commentEditor.sourceText.text.toString())
+        }
 
         val progressDialog = MaterialDialog(requireContext())
                 .title(R.string.please_wait)
@@ -220,14 +196,14 @@ class CreateNewCommentFragment : Fragment() {
     }
 
     fun saveDraft() {
-        if (contentInput.text.isNullOrEmpty())
+        if (binding.commentEditor.sourceText.text.isNullOrEmpty())
             return
 
         // persist new draft
-        DbProvider.helper.draftDao.create(OfflineDraft(base = contentInput.text.toString()))
+        DbProvider.helper.draftDao.create(OfflineDraft(base = binding.commentEditor.sourceText.text.toString()))
 
         // clear the context and show notification
-        contentInput.setText("")
+        binding.commentEditor.sourceText.setText("")
         Toast.makeText(context, R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
     }
 
@@ -271,7 +247,7 @@ class CreateNewCommentFragment : Fragment() {
      * @param draft draft to load into UI forms and delete
      */
     private fun popDraftUI(draft: OfflineDraft) {
-        contentInput.setText(draft.content)
+        binding.commentEditor.sourceText.setText(draft.content)
         Toast.makeText(context, R.string.offline_draft_loaded, Toast.LENGTH_SHORT).show()
 
         DbProvider.helper.draftDao.deleteById(draft.id)
@@ -288,17 +264,17 @@ class CreateNewCommentFragment : Fragment() {
         arguments?.get(REPLY_TEXT)?.let {
             val selectedText = it as String
             val replyQuoted = selectedText.replace(EditorViews.LINE_START, "> ")
-            val withQuote = "${contentInput.text}$replyQuoted\n\n"
+            val withQuote = "${binding.commentEditor.sourceText.text}$replyQuoted\n\n"
 
-            contentInput.setText(withQuote)
-            contentInput.setSelection(withQuote.length)
+            binding.commentEditor.sourceText.setText(withQuote)
+            binding.commentEditor.sourceText.setSelection(withQuote.length)
         }
 
         // handle click on author nickname in comments field
         arguments?.get(AUTHOR_LINK_TEXT)?.let { linkText ->
-            val withAuthorLink = "${contentInput.text}${linkText}"
-            contentInput.setText(withAuthorLink)
-            contentInput.setSelection(withAuthorLink.length)
+            val withAuthorLink = "${binding.commentEditor.sourceText.text}${linkText}"
+            binding.commentEditor.sourceText.setText(withAuthorLink)
+            binding.commentEditor.sourceText.setSelection(withAuthorLink.length)
         }
     }
 

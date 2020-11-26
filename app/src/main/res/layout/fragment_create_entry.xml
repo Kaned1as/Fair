@@ -55,11 +55,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <fragment
+                        <include
+                            layout="@layout/fragment_edit_form"
                             android:id="@+id/entry_editor"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:name="com.kanedias.dybr.fair.ui.EditorViews" />
+                            android:layout_height="wrap_content" />
 
                         <com.hootsuite.nachos.NachoTextView
                             android:id="@+id/tags_text"

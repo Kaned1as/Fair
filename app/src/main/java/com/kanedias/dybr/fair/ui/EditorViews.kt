@@ -1,33 +1,24 @@
 package com.kanedias.dybr.fair.ui
 
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
-import androidx.appcompat.app.AppCompatActivity
-import android.text.Html
 import android.text.method.LinkMovementMethod
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.*
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.core.text.HtmlCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
-import com.google.android.material.textfield.TextInputLayout
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.R
+import com.kanedias.dybr.fair.databinding.FragmentEditFormBinding
 import com.kanedias.dybr.fair.misc.styleLevel
 import com.kanedias.dybr.fair.themes.*
 import kotlinx.coroutines.*
@@ -39,89 +30,88 @@ import kotlinx.coroutines.*
  *
  * Created on 07.04.18
  */
-class EditorViews : Fragment() {
+class EditorViews(private val parent: Fragment, private val binding: FragmentEditFormBinding) {
 
     companion object {
-        const val ACTIVITY_REQUEST_IMAGE_UPLOAD = 0
-        const val PERMISSION_REQUEST_STORAGE_FOR_IMAGE_UPLOAD = 0
-
         val LINE_START = Regex("^", RegexOption.MULTILINE)
     }
 
-    @BindView(R.id.source_text)
-    lateinit var contentInput: EditText
+    private val ctx = binding.root.context
 
-    @BindView(R.id.source_text_layout)
-    lateinit var contentInputLayout: TextInputLayout
+    private val permissionCall = parent.registerForActivityResult(RequestPermission()) { granted ->
+        if (granted) {
+            uploadImage(binding.editQuickImage)
+        } else {
+            showToastAtView(binding.editQuickImage, R.string.no_permissions)
+        }
+    }
 
-    @BindView(R.id.edit_insert_from_clipboard)
-    lateinit var clipboardSwitch: CheckBox
+    private val selectImageCall = parent.registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        requestImageUpload(uri)
+    }
 
-    @BindView(R.id.edit_formatting_helper_label)
-    lateinit var mdLabel: TextView
+    init {
+        binding.editFormattingHelperLabel.text = HtmlCompat.fromHtml(ctx.getString(R.string.markdown_basics), 0)
+        binding.editFormattingHelperLabel.movementMethod = LinkMovementMethod.getInstance()
 
-    @BindView(R.id.edit_quick_image)
-    lateinit var imageUpload: ImageView
+        binding.editQuickImage.setOnClickListener { uploadImage(binding.editQuickImage) }
+        listOf(
+                binding.editQuickBold,
+                binding.editQuickItalic,
+                binding.editQuickUnderlined,
+                binding.editQuickStrikethrough,
+                binding.editQuickCode,
+                binding.editQuickQuote,
+                binding.editQuickNumberList,
+                binding.editQuickBulletList,
+                binding.editQuickLink,
+                binding.editQuickMore,
+                binding.editQuickOfftopic,
 
-    @BindView(R.id.edit_quick_button_area)
-    lateinit var buttonArea: GridLayout
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_edit_form, container, false)
-        ButterKnife.bind(this, view)
-
-        @Suppress("DEPRECATION") // we need to support API < 24
-        mdLabel.text = Html.fromHtml(getString(R.string.markdown_basics))
-        mdLabel.movementMethod = LinkMovementMethod.getInstance()
+        ).forEach { it.setOnClickListener { view -> editSelection(view) } }
 
         // start editing content right away
-        contentInput.requestFocus()
+        binding.sourceText.requestFocus()
 
-        setupTheming(view)
+        setupTheming(binding.root)
 
-        return view
     }
 
     private fun setupTheming(view: View) {
         val styleLevel = view.styleLevel ?: return
 
-        for (idx in 0 until buttonArea.childCount) {
-            styleLevel.bind(TEXT_LINKS, buttonArea.getChildAt(idx), ImageViewColorAdapter())
+        for (idx in 0 until binding.editQuickButtonArea.childCount) {
+            styleLevel.bind(TEXT_LINKS, binding.editQuickButtonArea.getChildAt(idx), ImageViewColorAdapter())
         }
-        styleLevel.bind(TEXT, clipboardSwitch, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, clipboardSwitch, CheckBoxAdapter())
-        styleLevel.bind(TEXT, contentInput, EditTextAdapter())
-        styleLevel.bind(TEXT_LINKS, contentInput, EditTextLineAdapter())
-        styleLevel.bind(TEXT_LINKS, contentInputLayout, EditTextLayoutBoxStrokeAdapter())
-        styleLevel.bind(TEXT, contentInputLayout, EditTextLayoutHintAdapter())
-        styleLevel.bind(TEXT, mdLabel, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, mdLabel, TextViewLinksAdapter())
+        styleLevel.bind(TEXT, binding.editInsertFromClipboard, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.editInsertFromClipboard, CheckBoxAdapter())
+        styleLevel.bind(TEXT, binding.sourceText, EditTextAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.sourceText, EditTextLineAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.sourceTextLayout, EditTextLayoutBoxStrokeAdapter())
+        styleLevel.bind(TEXT, binding.sourceTextLayout, EditTextLayoutHintAdapter())
+        styleLevel.bind(TEXT, binding.editFormattingHelperLabel, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.editFormattingHelperLabel, TextViewLinksAdapter())
     }
 
     /**
      * Handler of all small editing buttons above content input.
      */
-    @OnClick(
-            R.id.edit_quick_bold, R.id.edit_quick_italic, R.id.edit_quick_underlined, R.id.edit_quick_strikethrough,
-            R.id.edit_quick_code, R.id.edit_quick_quote, R.id.edit_quick_number_list, R.id.edit_quick_bullet_list,
-            R.id.edit_quick_link, R.id.edit_quick_more, R.id.edit_quick_offtopic
-    )
     fun editSelection(clicked: View) {
-        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        var paste = if (clipboardSwitch.isChecked && clipboard.hasPrimaryClip() && clipboard.primaryClip!!.itemCount > 0) {
+        val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        var paste = if (binding.editInsertFromClipboard.isChecked && clipboard.hasPrimaryClip() && clipboard.primaryClip!!.itemCount > 0) {
             clipboard.primaryClip!!.getItemAt(0).text.toString()
         } else {
             ""
         }
 
         // check whether we have text selected in content input
-        if (paste.isEmpty() && contentInput.hasSelection()) {
+        if (paste.isEmpty() && binding.sourceText.hasSelection()) {
             // delete selection
-            paste = contentInput.text.substring(contentInput.selectionStart until contentInput.selectionEnd)
-            contentInput.text.delete(contentInput.selectionStart, contentInput.selectionEnd)
+            paste = binding.sourceText.text!!.substring(binding.sourceText.selectionStart until binding.sourceText.selectionEnd)
+            binding.sourceText.text!!.delete(binding.sourceText.selectionStart, binding.sourceText.selectionEnd)
         }
 
-        val moreTxt = requireContext().getString(R.string.more_tag_default)
+        val moreTxt = ctx.getString(R.string.more_tag_default)
 
         when (clicked.id) {
             R.id.edit_quick_bold -> insertInCursorPosition("<b>", paste, "</b>")
@@ -138,78 +128,36 @@ class EditorViews : Fragment() {
             R.id.edit_quick_offtopic -> insertInCursorPosition("<span class='offtop'>", paste, "</span>")
         }
 
-        clipboardSwitch.isChecked = false
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (permissions.isEmpty()) {
-            return // request cancelled
-        }
-
-        // Return from the permission request we sent in [uploadImage]
-        if (requestCode == PERMISSION_REQUEST_STORAGE_FOR_IMAGE_UPLOAD) {
-            val result = permissions.filterIndexed { idx, pm -> pm == WRITE_EXTERNAL_STORAGE && grantResults[idx] == PERMISSION_GRANTED }
-            when (result.any()) {
-                true -> uploadImage(imageUpload)
-                false -> Toast.makeText(requireContext(), R.string.no_permissions, Toast.LENGTH_SHORT).show()
-            }
-        }
+        binding.editInsertFromClipboard.isChecked = false
     }
 
     /**
      * Image upload button requires special handling
      */
-    @OnClick(R.id.edit_quick_image)
     fun uploadImage(clicked: View) {
         // sometimes we need SD-card access to load the image
-        if (ContextCompat.checkSelfPermission(requireContext(), WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_STORAGE_FOR_IMAGE_UPLOAD)
+        if (ContextCompat.checkSelfPermission(ctx, WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
+            permissionCall.launch(WRITE_EXTERNAL_STORAGE)
             return
         }
 
-        if (clipboardSwitch.isChecked) {
+        if (binding.editInsertFromClipboard.isChecked) {
             // delegate to just paste image link from clipboard
             editSelection(clicked)
             return
         }
 
         // not from clipboard, show upload dialog
-        val ctx = context as AppCompatActivity
-        try {
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "image/*"
-                addCategory(Intent.CATEGORY_OPENABLE)
-            }
-            val chooser = Intent.createChooser(intent, getString(R.string.select_image_to_upload))
-            startActivityForResult(chooser, ACTIVITY_REQUEST_IMAGE_UPLOAD)
-        } catch (ex: ActivityNotFoundException) {
-            Toast.makeText(ctx, getString(R.string.no_file_manager_found), Toast.LENGTH_SHORT).show()
-        }
+        selectImageCall.launch("image/*")
     }
 
-    /**
-     * Called when activity called to select image/file to upload has finished executing
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode != Activity.RESULT_OK) {
-            super.onActivityResult(requestCode, resultCode, data)
-            return
-        }
-
-        when (requestCode) {
-            ACTIVITY_REQUEST_IMAGE_UPLOAD -> requestImageUpload(data)
-        }
-    }
-
-    private fun requestImageUpload(intent: Intent?) {
-        if (intent?.data == null)
+    private fun requestImageUpload(uri: Uri?) {
+        if (uri == null)
             return
 
-        val stream = activity?.contentResolver?.openInputStream(intent.data as Uri) ?: return
+        val stream = parent.activity?.contentResolver?.openInputStream(uri) ?: return
 
-        val dialog = MaterialDialog(requireContext())
+        val dialog = MaterialDialog(ctx)
                 .title(R.string.please_wait)
                 .message(R.string.uploading)
 
@@ -218,7 +166,7 @@ class EditorViews : Fragment() {
 
             try {
                 val link = withContext(Dispatchers.IO) { Network.uploadImage(stream.readBytes()) }
-                MaterialDialog(requireContext())
+                MaterialDialog(ctx)
                         .title(R.string.insert_image)
                         .message(R.string.select_image_width)
                         .listItems(res = R.array.image_sizes, selection = {_, index, _ ->
@@ -233,7 +181,7 @@ class EditorViews : Fragment() {
                             insertInCursorPosition("<img width='$spec' height='auto' src='", link, "' />")
                         }).show()
             } catch (ex: Exception) {
-                Network.reportErrors(context, ex)
+                Network.reportErrors(ctx, ex)
             }
 
             dialog.dismiss()
@@ -250,18 +198,18 @@ class EditorViews : Fragment() {
      *          not empty.
      */
     private fun insertInCursorPosition(prefix: String, what: String, suffix: String = "") {
-        var cursorPos = contentInput.selectionStart
+        var cursorPos = binding.sourceText.selectionStart
         if (cursorPos == -1)
-            cursorPos = contentInput.text.length
+            cursorPos = binding.sourceText.text!!.length
 
-        val beforeCursor = contentInput.text.substring(0, cursorPos)
-        val afterCursor = contentInput.text.substring(cursorPos, contentInput.text.length)
+        val beforeCursor = binding.sourceText.text!!.substring(0, cursorPos)
+        val afterCursor = binding.sourceText.text!!.substring(cursorPos, binding.sourceText.text!!.length)
 
         val beforeCursorWithPrefix = beforeCursor + prefix
         val suffixWithAfterCursor = suffix + afterCursor
         val result = beforeCursorWithPrefix + what + suffixWithAfterCursor
-        contentInput.setText(result)
+        binding.sourceText.setText(result)
 
-        contentInput.setSelection(cursorPos + prefix.length, cursorPos + prefix.length + what.length)
+        binding.sourceText.setSelection(cursorPos + prefix.length, cursorPos + prefix.length + what.length)
     }
 }

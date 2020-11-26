@@ -7,16 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.appcompat.widget.AppCompatSpinner
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnCheckedChanged
-import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.customListAdapter
 import com.ftinc.scoop.Scoop
@@ -24,16 +20,17 @@ import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.ftinc.scoop.util.Utils
-import com.google.android.material.textfield.TextInputLayout
-import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.OfflineDraft
+import com.kanedias.dybr.fair.databinding.FragmentCreateEntryBinding
+import com.kanedias.dybr.fair.databinding.FragmentEditFormDraftSelectionRowBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.markdown.handleMarkdownRaw
 import com.kanedias.dybr.fair.markdown.markdownToHtml
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
+import com.kanedias.dybr.fair.ui.EditorViews
 import com.kanedias.html2md.Html2Markdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
@@ -69,80 +66,16 @@ class CreateNewEntryFragment : Fragment() {
         const val PARENT_BLOG_PROFILE_SETTINGS = "parent-blog-profile-settings"
     }
 
-    /**
-     * Title of future diary entry
-     */
-    @BindView(R.id.entry_title_text)
-    lateinit var titleInput: EditText
-
-    @BindView(R.id.entry_title_text_layout)
-    lateinit var titleInputLayout: TextInputLayout
-
-    /**
-     * Content of entry
-     */
-    @BindView(R.id.source_text)
-    lateinit var contentInput: EditText
-
-    /**
-     * Entry tag editor
-     */
-    @BindView(R.id.tags_text)
-    lateinit var tagsInput: NachoTextView
-
-    /**
-     * Permission type of an entry: visible for all, for registered
-     * or something else.
-     */
-    @BindView(R.id.entry_permission_selector)
-    lateinit var permissionSpinner: AppCompatSpinner
-
-    /**
-     * Markdown preview
-     */
-    @BindView(R.id.entry_markdown_preview)
-    lateinit var preview: TextView
-
-    /**
-     * View switcher between preview and editor
-     */
-    @BindView(R.id.entry_preview_switcher)
-    lateinit var previewSwitcher: ViewSwitcher
-
-    /**
-     * Switch between publication and draft.
-     * Draft entries are only visible to the owner and have "draft" attribute set.
-     */
-    @BindView(R.id.entry_draft_switch)
-    lateinit var draftSwitch: CheckBox
-
-    /**
-     * Switch between "pinned" and "unpinned" state of entry.
-     * Pinned entries are always on top of the blog.
-     */
-    @BindView(R.id.entry_pinned_switch)
-    lateinit var pinSwitch: CheckBox
-
-    /**
-     * Switch between input and preview
-     */
-    @BindView(R.id.entry_preview)
-    lateinit var previewButton: ImageView
-
-    /**
-     * Submit new/edited entry
-     */
-    @BindView(R.id.entry_submit)
-    lateinit var submitButton: ImageView
-
+    private lateinit var binding: FragmentCreateEntryBinding
+    private lateinit var editor: EditorViews
     private lateinit var styleLevel: StyleLevel
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_create_entry, container, false)
-        ButterKnife.bind(this, view)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentCreateEntryBinding.inflate(inflater, container, false)
+        editor = EditorViews(this, binding.entryEditor)
 
         setupUI()
-        setupTheming(view)
+        setupTheming(binding.root)
 
         val editMode = requireArguments().getBoolean(EDIT_MODE, false)
         if (editMode) {
@@ -153,17 +86,23 @@ class CreateNewEntryFragment : Fragment() {
             loadDraft()
         }
 
-        return view
+        return binding.root
     }
 
     private fun setupUI() {
-        permissionSpinner.adapter = PermissionSpinnerAdapter(listOf(
+        binding.entryPreview.setOnClickListener { togglePreview() }
+        binding.entryDraftSwitch.setOnCheckedChangeListener { _, publish ->  toggleDraftState(publish) }
+        binding.entryPinnedSwitch.setOnCheckedChangeListener { _, pin ->  togglePinnedState(pin) }
+        binding.entryCancel.setOnClickListener { cancel() }
+        binding.entrySubmit.setOnClickListener { submit() }
+
+        binding.entryPermissionSelector.adapter = PermissionSpinnerAdapter(listOf(
                 RecordAccessItem("private"),
                 RecordAccessItem("registered"),
                 RecordAccessItem("favorites"),
                 RecordAccessItem("subscribers"),
                 null /* visible for all */))
-        permissionSpinner.setSelection(4) // select "Visible for all" by default
+        binding.entryPermissionSelector.setSelection(4) // select "Visible for all" by default
 
         // tags autocompletion
         val parentProfileId = requireArguments().getString(PARENT_BLOG_PROFILE_ID)!!
@@ -173,14 +112,14 @@ class CreateNewEntryFragment : Fragment() {
                     uiAction = { prof ->
                         val tags = prof.tags.map { it.name }
                         val adapter = TagsAdapter(requireContext(), tags)
-                        tagsInput.setAdapter(adapter)
+                        binding.tagsText.setAdapter(adapter)
                     })
         }
-        tagsInput.addChipTerminator('\n', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
-        tagsInput.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
-        tagsInput.onFocusChangeListener = View.OnFocusChangeListener { _, focused ->
-            if (focused && tagsInput.text.isNullOrBlank()) {
-                tagsInput.showDropDown()
+        binding.tagsText.addChipTerminator('\n', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
+        binding.tagsText.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
+        binding.tagsText.onFocusChangeListener = View.OnFocusChangeListener { _, focused ->
+            if (focused && binding.tagsText.text.isNullOrBlank()) {
+                binding.tagsText.showDropDown()
             }
         }
     }
@@ -190,31 +129,31 @@ class CreateNewEntryFragment : Fragment() {
         lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(TEXT_BLOCK, view, BackgroundNoAlphaAdapter())
-        styleLevel.bind(TEXT, titleInput, EditTextAdapter())
-        styleLevel.bind(TEXT_LINKS, titleInput, EditTextLineAdapter())
-        styleLevel.bind(TEXT, titleInputLayout, EditTextLayoutHintAdapter())
-        styleLevel.bind(TEXT_LINKS, titleInputLayout, EditTextLayoutBoxStrokeAdapter())
+        styleLevel.bind(TEXT, binding.entryTitleText, EditTextAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryTitleText, EditTextLineAdapter())
+        styleLevel.bind(TEXT, binding.entryTitleTextLayout, EditTextLayoutHintAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryTitleTextLayout, EditTextLayoutBoxStrokeAdapter())
 
-        styleLevel.bind(TEXT, tagsInput, EditTextAdapter())
-        styleLevel.bind(TEXT_LINKS, tagsInput, EditTextLineAdapter())
-        styleLevel.bind(TEXT_BLOCK, tagsInput, AutocompleteDropdownNoAlphaAdapter())
-        styleLevel.bind(ACCENT_TEXT, tagsInput, NachosChipTextColorAdapter())
-        styleLevel.bind(ACCENT, tagsInput, NachosChipBgColorAdapter())
+        styleLevel.bind(TEXT, binding.tagsText, EditTextAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.tagsText, EditTextLineAdapter())
+        styleLevel.bind(TEXT_BLOCK, binding.tagsText, AutocompleteDropdownNoAlphaAdapter())
+        styleLevel.bind(ACCENT_TEXT, binding.tagsText, NachosChipTextColorAdapter())
+        styleLevel.bind(ACCENT, binding.tagsText, NachosChipBgColorAdapter())
 
-        styleLevel.bind(TEXT, preview, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, preview, TextViewLinksAdapter())
+        styleLevel.bind(TEXT, binding.entryMarkdownPreview, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryMarkdownPreview, TextViewLinksAdapter())
 
-        styleLevel.bind(TEXT_LINKS, permissionSpinner, SpinnerDropdownColorAdapter())
-        styleLevel.bind(TEXT_BLOCK, permissionSpinner, SpinnerDropdownBackgroundColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryPermissionSelector, SpinnerDropdownColorAdapter())
+        styleLevel.bind(TEXT_BLOCK, binding.entryPermissionSelector, SpinnerDropdownBackgroundColorAdapter())
 
-        styleLevel.bind(TEXT, draftSwitch, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, draftSwitch, CheckBoxAdapter())
+        styleLevel.bind(TEXT, binding.entryDraftSwitch, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryDraftSwitch, CheckBoxAdapter())
 
-        styleLevel.bind(TEXT, pinSwitch, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, pinSwitch, CheckBoxAdapter())
+        styleLevel.bind(TEXT, binding.entryPinnedSwitch, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryPinnedSwitch, CheckBoxAdapter())
 
-        styleLevel.bind(TEXT_LINKS, previewButton, ImageViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, submitButton, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryPreview, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entrySubmit, ImageViewColorAdapter())
     }
 
     /**
@@ -229,71 +168,69 @@ class CreateNewEntryFragment : Fragment() {
         val profSettings = requireArguments().getSerializable(PARENT_BLOG_PROFILE_SETTINGS) as ProfileSettings
         val editEntrySettings = requireArguments().getSerializable(EDIT_ENTRY_SETTINGS) as? RecordSettings
 
-        titleInput.setText(editEntryTitle)
-        draftSwitch.isChecked = requireArguments().getString(EDIT_ENTRY_STATE) == "published"
-        pinSwitch.isChecked = profSettings.pinnedEntries.contains(editEntryId)
+        binding.entryTitleText.setText(editEntryTitle)
+        binding.entryDraftSwitch.isChecked = requireArguments().getString(EDIT_ENTRY_STATE) == "published"
+        binding.entryPinnedSwitch.isChecked = profSettings.pinnedEntries.contains(editEntryId)
         // need to convert entry content (html) to Markdown somehow...
         val markdown = Html2Markdown().parseExtended(editEntryContentHtml)
-        contentInput.setText(markdown)
-        tagsInput.setText(editEntryTags.asList())
+        binding.entryEditor.sourceText.setText(markdown)
+        binding.tagsText.setText(editEntryTags.asList())
 
         // permission settings, if exist
         when (editEntrySettings?.permissions?.access?.firstOrNull()) {
-            RecordAccessItem("private") -> permissionSpinner.setSelection(0)
-            RecordAccessItem("registered") -> permissionSpinner.setSelection(1)
-            RecordAccessItem("favorites") -> permissionSpinner.setSelection(2)
-            RecordAccessItem("subscribers") -> permissionSpinner.setSelection(3)
-            else -> permissionSpinner.setSelection(4) // visible for all
+            RecordAccessItem("private") -> binding.entryPermissionSelector.setSelection(0)
+            RecordAccessItem("registered") -> binding.entryPermissionSelector.setSelection(1)
+            RecordAccessItem("favorites") -> binding.entryPermissionSelector.setSelection(2)
+            RecordAccessItem("subscribers") -> binding.entryPermissionSelector.setSelection(3)
+            else -> binding.entryPermissionSelector.setSelection(4) // visible for all
         }
     }
 
     /**
      * Handler for clicking on "Preview" button
      */
-    @OnClick(R.id.entry_preview)
     fun togglePreview() {
-        if (previewSwitcher.displayedChild == 0) {
-            previewSwitcher.displayedChild = 1
-            preview.handleMarkdownRaw(contentInput.text.toString())
+        if (binding.entryPreviewSwitcher.displayedChild == 0) {
+            binding.entryPreviewSwitcher.displayedChild = 1
+            binding.entryMarkdownPreview.handleMarkdownRaw(binding.entryEditor.sourceText.text.toString())
         } else {
-            previewSwitcher.displayedChild = 0
+            binding.entryPreviewSwitcher.displayedChild = 0
         }
     }
 
     /**
      * Change text on draft-publish checkbox based on what's currently selected
      */
-    @OnCheckedChanged(R.id.entry_draft_switch)
     fun toggleDraftState(publish: Boolean) {
         if (publish) {
-            draftSwitch.setText(R.string.publish_entry)
+            binding.entryDraftSwitch.setText(R.string.publish_entry)
         } else {
-            draftSwitch.setText(R.string.make_draft_entry)
+            binding.entryDraftSwitch.setText(R.string.make_draft_entry)
         }
     }
 
     /**
      * Change text on pin-unpin checkbox based on what's currently selected
      */
-    @OnCheckedChanged(R.id.entry_pinned_switch)
     fun togglePinnedState(pinned: Boolean) {
         if (pinned) {
-            pinSwitch.setText(R.string.pinned_entry)
+            binding.entryPinnedSwitch.setText(R.string.pinned_entry)
         } else {
-            pinSwitch.setText(R.string.non_pinned_entry)
+            binding.entryPinnedSwitch.setText(R.string.non_pinned_entry)
         }
     }
 
     /**
      * Cancel this item editing (with confirmation)
      */
-    @Suppress("DEPRECATION") // getColor doesn't work up to API level 23
-    @OnClick(R.id.entry_cancel)
     fun cancel() {
         val editMode = requireArguments().getBoolean(EDIT_MODE, false)
-        if (editMode || titleInput.text.isNullOrEmpty() && contentInput.text.isNullOrEmpty() && tagsInput.text.isNullOrEmpty()) {
+        if (editMode ||
+                binding.entryTitleText.text.isNullOrEmpty() &&
+                binding.entryEditor.sourceText.text.isNullOrEmpty() &&
+                binding.tagsText.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
-            requireFragmentManager().popBackStack()
+            parentFragmentManager.popBackStack()
             return
         }
 
@@ -301,24 +238,23 @@ class CreateNewEntryFragment : Fragment() {
         val parentProfileId = requireArguments().getString(PARENT_BLOG_PROFILE_ID)!!
         DbProvider.helper.draftDao.create(OfflineDraft(
                 key = "entry,blog=${parentProfileId}",
-                title = titleInput.text.toString(),
-                base = contentInput.text.toString(),
-                tags = tagsInput.chipValues.joinToString()
+                title = binding.entryTitleText.text.toString(),
+                base = binding.entryEditor.sourceText.text.toString(),
+                tags = binding.tagsText.chipValues.joinToString()
         ))
         Toast.makeText(activity, R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
-        requireFragmentManager().popBackStack()
+        parentFragmentManager.popBackStack()
     }
 
     /**
      * Assemble entry creation request and submit it to the server
      */
-    @OnClick(R.id.entry_submit)
     fun submit() {
         // hide keyboard
         val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(requireView().windowToken, 0)
 
-        val access = when(permissionSpinner.selectedItemPosition) {
+        val access = when(binding.entryPermissionSelector.selectedItemPosition) {
             0 -> RecordAccessItem("private")
             1 -> RecordAccessItem("registered")
             2 -> RecordAccessItem("favorites")
@@ -327,10 +263,10 @@ class CreateNewEntryFragment : Fragment() {
         }
 
         val entry = EntryCreateRequest().apply {
-            title = titleInput.text.toString()
-            state = if (draftSwitch.isChecked) { "published" } else { "draft" }
-            content = markdownToHtml(contentInput.text.toString())
-            tags = tagsInput.chipValues
+            title = binding.entryTitleText.text.toString()
+            state = if (binding.entryDraftSwitch.isChecked) { "published" } else { "draft" }
+            content = markdownToHtml(binding.entryEditor.sourceText.text.toString())
+            tags = binding.tagsText.chipValues
             settings = RecordSettings(permissions = RecordPermissions(listOfNotNull(access)))
         }
 
@@ -362,14 +298,14 @@ class CreateNewEntryFragment : Fragment() {
                 val settings = requireArguments().getSerializable(PARENT_BLOG_PROFILE_SETTINGS) as ProfileSettings
                 val pinnedAlready = settings.pinnedEntries
                 when {
-                    pinSwitch.isChecked && !pinnedAlready.contains(entry.id) -> {
+                    binding.entryPinnedSwitch.isChecked && !pinnedAlready.contains(entry.id) -> {
                         val req = ProfileCreateRequest().apply {
                             this.id = parentProfileId
                             this.settings = settings.copy(pinnedEntries = pinnedAlready.apply { add(entry.id) })
                         }
                         withContext(Dispatchers.IO) { Network.updateProfile(req) }
                     }
-                    !pinSwitch.isChecked && pinnedAlready.contains(entry.id) -> {
+                    !binding.entryPinnedSwitch.isChecked && pinnedAlready.contains(entry.id) -> {
                         val req = ProfileCreateRequest().apply {
                             this.id = parentProfileId
                             this.settings = settings.copy(pinnedEntries = pinnedAlready.apply { remove(entry.id) })
@@ -395,19 +331,19 @@ class CreateNewEntryFragment : Fragment() {
     }
 
     fun saveDraft() {
-        if (titleInput.text.isNullOrEmpty() && contentInput.text.isNullOrEmpty())
+        if (binding.entryTitleText.text.isNullOrEmpty() && binding.entryEditor.sourceText.text.isNullOrEmpty())
             return
 
         // persist new draft
         DbProvider.helper.draftDao.create(OfflineDraft(
-                title = titleInput.text.toString(),
-                base = contentInput.text.toString(),
-                tags = tagsInput.chipValues.joinToString()
+                title = binding.entryTitleText.text.toString(),
+                base = binding.entryEditor.sourceText.text.toString(),
+                tags = binding.tagsText.chipValues.joinToString()
         ))
 
         // clear the context and show notification
-        titleInput.setText("")
-        contentInput.setText("")
+        binding.entryTitleText.setText("")
+        binding.entryEditor.sourceText.setText("")
         Toast.makeText(context, R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
     }
 
@@ -450,9 +386,9 @@ class CreateNewEntryFragment : Fragment() {
      * @param draft draft to load into UI forms and delete
      */
     private fun popDraftUI(draft: OfflineDraft) {
-        titleInput.setText(draft.title)
-        contentInput.setText(draft.content)
-        tagsInput.setText(draft.tags?.split(Regex(",\\s+")))
+        binding.entryTitleText.setText(draft.title)
+        binding.entryEditor.sourceText.setText(draft.content)
+        binding.tagsText.setText(draft.tags?.split(Regex(",\\s+")))
         Toast.makeText(context, R.string.offline_draft_loaded, Toast.LENGTH_SHORT).show()
 
         DbProvider.helper.draftDao.deleteById(draft.id)
@@ -470,8 +406,8 @@ class CreateNewEntryFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DraftEntryViewHolder {
             val inflater = LayoutInflater.from(context)
-            val v = inflater.inflate(R.layout.fragment_edit_form_draft_selection_row, parent, false)
-            return DraftEntryViewHolder(v)
+            val itemBinding = FragmentEditFormDraftSelectionRowBinding.inflate(inflater, parent, false)
+            return DraftEntryViewHolder(itemBinding)
         }
 
         override fun getItemCount() = drafts.size
@@ -490,31 +426,19 @@ class CreateNewEntryFragment : Fragment() {
         /**
          * View holder to show one draft as a recycler view item
          */
-        inner class DraftEntryViewHolder(v: View): RecyclerView.ViewHolder(v) {
+        inner class DraftEntryViewHolder(private val itemBinding: FragmentEditFormDraftSelectionRowBinding)
+            : RecyclerView.ViewHolder(itemBinding.root) {
 
             private var pos: Int = 0
             private lateinit var draft: OfflineDraft
 
-            @BindView(R.id.draft_date)
-            lateinit var draftDate: TextView
-
-            @BindView(R.id.draft_delete)
-            lateinit var draftDelete: ImageView
-
-            @BindView(R.id.draft_title)
-            lateinit var draftTitle: TextView
-
-            @BindView(R.id.draft_content)
-            lateinit var draftContent: TextView
-
             init {
-                ButterKnife.bind(this, v)
-                v.setOnClickListener {
+                itemBinding.root.setOnClickListener {
                     popDraftUI(draft)
                     toDismiss.dismiss()
                 }
 
-                draftDelete.setOnClickListener {
+                itemBinding.draftDelete.setOnClickListener {
                     DbProvider.helper.draftDao.deleteById(draft.id)
                     Toast.makeText(context, R.string.offline_draft_deleted, Toast.LENGTH_SHORT).show()
                     removeItem(pos)
@@ -524,17 +448,15 @@ class CreateNewEntryFragment : Fragment() {
             fun setup(position: Int) {
                 pos = position
                 draft = drafts[position]
-                draftDate.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(draft.createdAt)
-                draftContent.text = draft.content
-                draftTitle.text = draft.title
+                itemBinding.draftDate.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(draft.createdAt)
+                itemBinding.draftContent.text = draft.content
+                itemBinding.draftTitle.text = draft.title
             }
         }
     }
 
-    inner class TagsAdapter : ArrayAdapter<String> {
-
-        constructor(context: Context, objects: List<String>)
-                : super(context, R.layout.fragment_edit_form_tags_item, R.id.tag_text_label, objects)
+    inner class TagsAdapter(context: Context, objects: List<String>)
+        : ArrayAdapter<String>(context, R.layout.fragment_edit_form_tags_item, R.id.tag_text_label, objects) {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = convertView ?: layoutInflater.inflate(R.layout.fragment_edit_form_tags_item, parent, false)
@@ -574,8 +496,7 @@ class CreateNewEntryFragment : Fragment() {
                     else -> R.drawable.earth
                 }
 
-                @Suppress("DEPRECATION") // minSDK == 14 for now
-                val accessDrawable = DrawableCompat.wrap(it.context.resources.getDrawable(accessDrawableRes))
+                val accessDrawable = DrawableCompat.wrap(ResourcesCompat.getDrawable(context.resources, accessDrawableRes, null)!!)
                 it.setCompoundDrawablesWithIntrinsicBounds(accessDrawable, null, null, null)
                 it.compoundDrawablePadding = Utils.dpToPx(it.context, 4F).toInt()
                 it.text = item.toDescription(it.context)
