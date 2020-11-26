@@ -31,8 +31,8 @@ class EntryListSearchFragmentFull: EntryListFragmentFull() {
     override fun onStart() {
         super.onStart()
 
-        toolbar.title = requireArguments().getString("title", getString(R.string.search))
-        toolbar.subtitle = requireArguments().getString("subtitle", "")
+        fullscreenBinding.entryListToolbar.title = requireArguments().getString("title", getString(R.string.search))
+        fullscreenBinding.entryListToolbar.subtitle = requireArguments().getString("subtitle", "")
     }
 
     override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<Entry> = {

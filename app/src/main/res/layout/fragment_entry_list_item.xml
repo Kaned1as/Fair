@@ -42,16 +42,16 @@
                 android:text="@string/draft"/>
 
             <ImageView
-                android:id="@+id/entry_pinned"
+                android:id="@+id/entry_pin_icon"
                 android:layout_height="28dp"
                 android:layout_width="28dp"
-                android:layout_toEndOf="@+id/entry_permissions"
+                android:layout_toEndOf="@+id/entry_lock_icon"
                 android:padding="8dp"
                 android:src="@drawable/pin"
                 android:contentDescription="@string/entry_pinned_status"/>
 
             <ImageView
-                android:id="@+id/entry_permissions"
+                android:id="@+id/entry_lock_icon"
                 android:layout_height="28dp"
                 android:layout_width="28dp"
                 android:layout_toEndOf="@+id/entry_draft_state"
@@ -182,7 +182,7 @@
             android:textStyle="bold"/>
 
         <LinearLayout
-            android:id="@+id/entry_reactions"
+            android:id="@+id/entry_reactions_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -192,7 +192,7 @@
             android:id="@+id/entry_meta_divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_below="@id/entry_reactions"
+            android:layout_below="@id/entry_reactions_row"
             android:alpha="0.3"
             android:background="@android:color/white"/>
 
@@ -215,7 +215,7 @@
                 android:contentDescription="@string/participants_number_indicator"/>
 
             <TextView
-                android:id="@+id/entry_participants_text"
+                android:id="@+id/entry_participants_indicator_text"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
@@ -232,7 +232,7 @@
                 android:contentDescription="@string/participants_number_indicator"/>
 
             <TextView
-                android:id="@+id/entry_comments_text"
+                android:id="@+id/entry_comments_indicator_text"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"

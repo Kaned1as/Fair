@@ -1,12 +1,14 @@
 package com.kanedias.dybr.fair
 
+import android.view.LayoutInflater
 import android.view.View
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import android.view.ViewGroup
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
-import butterknife.BindView
+import androidx.viewbinding.ViewBinding
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
-import com.google.android.material.appbar.MaterialToolbar
+import com.kanedias.dybr.fair.databinding.FragmentEntryListBinding
+import com.kanedias.dybr.fair.databinding.FragmentEntryListFullscreenBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.themes.*
 
@@ -21,26 +23,26 @@ import com.kanedias.dybr.fair.themes.*
  */
 open class EntryListFragmentFull: EntryListFragment() {
 
-    @BindView(R.id.add_entry_button)
-    lateinit var addEntryButton: FloatingActionButton
+    protected lateinit var fullscreenBinding: FragmentEntryListFullscreenBinding
 
-    @BindView(R.id.entry_list_toolbar)
-    lateinit var toolbar: MaterialToolbar
-
-    override fun layoutToUse() = R.layout.fragment_entry_list_fullscreen
+    override fun bindLayout(inflater: LayoutInflater, container: ViewGroup?): FragmentEntryListFullscreenBinding {
+        return FragmentEntryListFullscreenBinding.inflate(inflater, container, false)
+    }
 
     override fun setupUI() {
         super.setupUI()
 
+        fullscreenBinding = binding as FragmentEntryListFullscreenBinding
+
         // setup toolbar
-        toolbar.title = profile?.blogTitle
-        toolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
-        toolbar.setNavigationOnClickListener { fragmentManager?.popBackStack() }
+        fullscreenBinding.entryListToolbar.title = profile?.blogTitle
+        fullscreenBinding.entryListToolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
+        fullscreenBinding.entryListToolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 
         // setup FAB
         if (isBlogWritable(profile)) {
-            addEntryButton.show()
-            addEntryButton.setOnClickListener { addCreateNewEntryForm() }
+            fullscreenBinding.addEntryButton.show()
+            fullscreenBinding.addEntryButton.setOnClickListener { addCreateNewEntryForm() }
         }
     }
 
@@ -48,21 +50,21 @@ open class EntryListFragmentFull: EntryListFragment() {
         // this is a fullscreen fragment, add new style
         styleLevel = Scoop.getInstance().addStyleLevel()
 
-        styleLevel.bind(BACKGROUND, entryRibbon, DefaultColorAdapter())
+        styleLevel.bind(BACKGROUND, fullscreenBinding.entryRibbon, DefaultColorAdapter())
 
-        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
+        styleLevel.bind(TOOLBAR, fullscreenBinding.entryListToolbar, DefaultColorAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, fullscreenBinding.entryListToolbar, ToolbarTextAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, fullscreenBinding.entryListToolbar, ToolbarIconsAdapter())
 
-        styleLevel.bind(ACCENT, addEntryButton, BackgroundTintColorAdapter())
-        styleLevel.bind(ACCENT_TEXT, addEntryButton, FabIconAdapter())
+        styleLevel.bind(ACCENT, fullscreenBinding.addEntryButton, BackgroundTintColorAdapter())
+        styleLevel.bind(ACCENT_TEXT, fullscreenBinding.addEntryButton, FabIconAdapter())
 
-        styleLevel.bind(ACCENT, fastJumpButton, BackgroundTintColorAdapter())
-        styleLevel.bind(ACCENT_TEXT, fastJumpButton, FabIconAdapter())
+        styleLevel.bind(ACCENT, fullscreenBinding.fastJumpButton, BackgroundTintColorAdapter())
+        styleLevel.bind(ACCENT_TEXT, fullscreenBinding.fastJumpButton, FabIconAdapter())
 
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
-        val backgrounds = mapOf<View, Int>(entryRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
+        val backgrounds = mapOf<View, Int>(fullscreenBinding.entryRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
         profile?.let { applyTheme(activity, it, styleLevel, backgrounds) }
     }
 }

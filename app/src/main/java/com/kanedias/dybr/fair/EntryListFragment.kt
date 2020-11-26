@@ -8,13 +8,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.lifecycleScope
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import butterknife.ButterKnife
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewbinding.ViewBinding
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.kanedias.dybr.fair.databinding.FragmentEntryListBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.setMaxFlingVelocity
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
@@ -35,43 +35,46 @@ import moe.banana.jsonapi2.ArrayDocument
  */
 open class EntryListFragment: UserContentListFragment() {
 
-    @BindView(R.id.entry_ribbon)
-    lateinit var entryRibbon: RecyclerView
-
-    @BindView(R.id.fast_jump_button)
-    lateinit var fastJumpButton: FloatingActionButton
-
-    @BindView(R.id.entry_list_area)
-    lateinit var ribbonRefresher: SwipeRefreshLayout
-
     override fun getRibbonView() = entryRibbon
-    override fun getRefresher() = ribbonRefresher
+    override fun getRefresher() = entryRibbonRefresher
     override fun getRibbonAdapter() = entryAdapter
     override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<Entry> = {
         Network.loadEntries(prof = this.profile, pageNum = pageNum, starter = starter)
     }
 
+    open fun bindLayout(inflater: LayoutInflater, container: ViewGroup?): ViewBinding {
+        return FragmentEntryListBinding.inflate(inflater, container, false)
+    }
+
     var profile: OwnProfile? = null
 
     private lateinit var entryAdapter: LoadMoreAdapter
+
+    protected lateinit var binding: ViewBinding
     protected lateinit var activity: MainActivity
+
+    protected lateinit var entryRibbon: RecyclerView
+    protected lateinit var entryRibbonRefresher: SwipeRefreshLayout
+    protected lateinit var fastJumpButton: FloatingActionButton
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (profile == null) {
             // restore only if we are recreating old fragment
             savedInstanceState?.getSerializable("profile")?.let { profile = it as OwnProfile }
         }
+        binding = bindLayout(inflater, container)
+        entryRibbon = binding.root.findViewById(R.id.entry_ribbon)
+        entryRibbonRefresher = binding.root.findViewById(R.id.entry_ribbon_refresher)
+        fastJumpButton = binding.root.findViewById(R.id.fast_jump_button)
 
-        val view = inflater.inflate(layoutToUse(), container, false)
         activity = context as MainActivity
         entryAdapter = EntryListAdapter()
 
-        ButterKnife.bind(this, view)
         setupUI()
         setupTheming()
         loadMore()
 
-        return view
+        return binding.root
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -79,10 +82,8 @@ open class EntryListFragment: UserContentListFragment() {
         outState.putSerializable("profile", profile)
     }
 
-    open fun layoutToUse() = R.layout.fragment_entry_list
-
     open fun setupUI() {
-        ribbonRefresher.setOnRefreshListener { loadMore(reset = true) }
+        entryRibbonRefresher.setOnRefreshListener { loadMore(reset = true) }
         entryRibbon.onFlingListener = FastJumpListener()
         entryRibbon.setMaxFlingVelocity(100_000)
         entryRibbon.adapter = entryAdapter
@@ -123,7 +124,7 @@ open class EntryListFragment: UserContentListFragment() {
      */
     override fun handleLoadSkip(): Boolean {
         if (profile == null) { // we don't have a blog, just show empty list
-            ribbonRefresher.isRefreshing = false
+            entryRibbonRefresher.isRefreshing = false
             return true
         }
 
@@ -131,7 +132,7 @@ open class EntryListFragment: UserContentListFragment() {
             // profile doesn't have a blog yet, ask to create
             entryRibbon.adapter = EmptyBlogAdapter()
             allLoaded = true
-            ribbonRefresher.isRefreshing = false
+            entryRibbonRefresher.isRefreshing = false
             return true
         }
 
@@ -145,7 +146,7 @@ open class EntryListFragment: UserContentListFragment() {
             // profile doesn't have any communities yet, ask to join
             entryRibbon.adapter = EmptyCommunitiesAdapter()
             allLoaded = true
-            ribbonRefresher.isRefreshing = false
+            entryRibbonRefresher.isRefreshing = false
             return true
         }
 

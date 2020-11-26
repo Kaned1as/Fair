@@ -5,10 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
-import butterknife.BindView
-import butterknife.BindViews
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.kanedias.dybr.fair.markdown.handleMarkdown
 import android.os.Bundle
@@ -31,6 +27,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.kanedias.dybr.fair.databinding.FragmentEntryListItemBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.onClickSingleOnly
@@ -52,75 +49,6 @@ import kotlinx.coroutines.*
 class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private val allowSelection: Boolean = false)
     : UserContentViewHolder<Entry>(iv, parentFragment) {
 
-    @BindView(R.id.top_indicators_row)
-    lateinit var topIndicatorsArea: RelativeLayout
-
-    @BindView(R.id.community_row)
-    lateinit var communityProfileArea: RelativeLayout
-
-    @BindView(R.id.entry_community_avatar)
-    lateinit var communityAvatarView: ImageView
-
-    @BindView(R.id.entry_community_profile)
-    lateinit var communityView: TextView
-
-    @BindView(R.id.entry_community_profile_subtext)
-    lateinit var communitySubtextView: TextView
-
-    @BindView(R.id.profile_row)
-    lateinit var profileRowArea: RelativeLayout
-
-    @BindView(R.id.entry_avatar)
-    lateinit var avatarView: ImageView
-
-    @BindView(R.id.entry_author)
-    lateinit var authorView: TextView
-
-    @BindView(R.id.entry_author_subtext)
-    lateinit var authorSubtextView: TextView
-
-    @BindView(R.id.entry_date)
-    lateinit var dateView: TextView
-
-    @BindView(R.id.entry_title)
-    lateinit var titleView: TextView
-
-    @BindView(R.id.entry_message)
-    lateinit var bodyView: TextView
-
-    @BindView(R.id.entry_tags)
-    lateinit var tagsView: TextView
-
-    @BindView(R.id.entry_meta_divider)
-    lateinit var metaDivider: View
-
-    @BindView(R.id.entry_draft_state)
-    lateinit var draftStateView: TextView
-
-    @BindViews(
-            R.id.entry_bookmark, R.id.entry_watch, R.id.entry_edit,
-            R.id.entry_delete, R.id.entry_more_options, R.id.entry_add_reaction
-    )
-    lateinit var buttons: List<@JvmSuppressWildcards ImageView>
-
-    @BindViews(R.id.entry_participants_indicator, R.id.entry_comments_indicator)
-    lateinit var indicators: List<@JvmSuppressWildcards ImageView>
-
-    @BindView(R.id.entry_comments_text)
-    lateinit var comments: TextView
-
-    @BindView(R.id.entry_participants_text)
-    lateinit var participants: TextView
-
-    @BindView(R.id.entry_permissions)
-    lateinit var permissionIcon: ImageView
-
-    @BindView(R.id.entry_pinned)
-    lateinit var pinIcon: ImageView
-
-    @BindView(R.id.entry_reactions)
-    lateinit var reactionArea: LinearLayout
-
     /**
      * Entry that this holder represents
      */
@@ -138,10 +66,10 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
     private lateinit var profile: OwnProfile
     private var community: OwnProfile? = null
 
-    override fun getCreationDateView() = dateView
-    override fun getProfileAvatarView() = avatarView
-    override fun getAuthorNameView() = authorView
-    override fun getContentView() = bodyView
+    override fun getCreationDateView() = binding.entryDate
+    override fun getProfileAvatarView() = binding.entryAvatar
+    override fun getAuthorNameView() = binding.entryAuthor
+    override fun getContentView() = binding.entryMessage
 
     /**
      * Listener to show comments of this entry
@@ -154,37 +82,62 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         activity.showFullscreenFragment(commentsPage)
     }
 
+    private val binding: FragmentEntryListItemBinding = FragmentEntryListItemBinding.bind(iv)
+
+    private val buttons = listOf(
+            binding.entryBookmark,
+            binding.entryWatch,
+            binding.entryEdit,
+            binding.entryDelete,
+            binding.entryMoreOptions,
+            binding.entryAddReaction
+    )
+
+    private val indicatorImages = listOf(
+            binding.entryCommentsIndicator,
+            binding.entryParticipantsIndicator
+    )
+
+    private val indicatorTexts = listOf(
+            binding.entryCommentsIndicatorText,
+            binding.entryParticipantsIndicatorText
+    )
+
     init {
-        ButterKnife.bind(this, iv)
         setupTheming()
 
-        tagsView.movementMethod = LinkMovementMethod()
-        iv.setOnClickListener(commentShow)
+        binding.root.setOnClickListener(commentShow)
+        binding.entryTags.movementMethod = LinkMovementMethod()
+        binding.entryEdit.setOnClickListener { editEntry() }
+        binding.entryDelete.setOnClickListener { deleteEntry() }
+        binding.entryMoreOptions.setOnClickListener { showOverflowMenu() }
+        binding.entryWatch.setOnClickListener { subscribeToEntry(binding.entryWatch) }
+        binding.entryBookmark.setOnClickListener { bookmarkEntry(binding.entryBookmark) }
+        binding.entryAddReaction.setOnClickListener { openReactionMenu(binding.entryAddReaction) }
     }
 
     private fun setupTheming() {
         val styleLevel = parentFragment.styleLevel
 
         styleLevel.bind(TEXT_BLOCK, itemView, CardViewColorAdapter())
-        styleLevel.bind(TEXT_HEADERS, titleView, TextViewColorAdapter())
-        styleLevel.bind(TEXT, dateView, TextViewColorAdapter())
-        styleLevel.bind(TEXT, authorView, TextViewColorAdapter())
-        styleLevel.bind(TEXT, authorSubtextView, TextViewColorAdapter())
-        styleLevel.bind(TEXT, communityView, TextViewColorAdapter())
-        styleLevel.bind(TEXT, communityView, TextViewDrawableAdapter())
-        styleLevel.bind(TEXT, communitySubtextView, TextViewColorAdapter())
-        styleLevel.bind(TEXT, bodyView, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, bodyView, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, tagsView, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, permissionIcon, ImageViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, pinIcon, ImageViewColorAdapter())
-        styleLevel.bind(DIVIDER, metaDivider, DefaultColorAdapter())
+        styleLevel.bind(TEXT_HEADERS, binding.entryTitle, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.entryDate, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.entryAuthor, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.entryAuthorSubtext, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.entryCommunityProfile, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.entryCommunityProfile, TextViewDrawableAdapter())
+        styleLevel.bind(TEXT, binding.entryCommunityProfileSubtext, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.entryMessage, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryMessage, TextViewLinksAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryTags, TextViewLinksAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryLockIcon, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.entryPinIcon, ImageViewColorAdapter())
+        styleLevel.bind(DIVIDER, binding.entryMetaDivider, DefaultColorAdapter())
 
-        (buttons + indicators).forEach { styleLevel.bind(TEXT_LINKS, it, ImageViewColorAdapter()) }
-        listOf(participants, comments).forEach { styleLevel.bind(TEXT_LINKS, it, TextViewColorAdapter()) }
+        (buttons + indicatorImages).forEach { styleLevel.bind(TEXT_LINKS, it, ImageViewColorAdapter()) }
+        indicatorTexts.forEach { styleLevel.bind(TEXT_LINKS, it, TextViewColorAdapter()) }
     }
 
-    @OnClick(R.id.entry_edit)
     fun editEntry() {
         val activity = itemView.context as AppCompatActivity
         val entryEdit = CreateNewEntryFragment().apply {
@@ -207,7 +160,6 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         activity.showFullscreenFragment(entryEdit)
     }
 
-    @OnClick(R.id.entry_watch)
     fun subscribeToEntry(subButton: ImageView) {
         val subscribe = !(metadata?.subscribed ?: false)
 
@@ -232,7 +184,6 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         }
     }
 
-    @OnClick(R.id.entry_bookmark)
     fun bookmarkEntry(button: ImageView) {
         val bookmark = !(metadata?.bookmark ?: false)
 
@@ -254,7 +205,6 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         }
     }
 
-    @OnClick(R.id.entry_add_reaction)
     fun openReactionMenu(button: ImageView) {
         parentFragment.lifecycleScope.launch {
             try {
@@ -294,7 +244,6 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         pw.showAsDropDown(view, 0, 0, Gravity.TOP)
     }
 
-    @OnClick(R.id.entry_delete)
     fun deleteEntry() {
         val activity = itemView.context as AppCompatActivity
 
@@ -322,7 +271,6 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
                 .showThemed(parentFragment.styleLevel)
     }
 
-    @OnClick(R.id.entry_more_options)
     fun showOverflowMenu() {
         val ctx = itemView.context
         val items = mutableListOf(
@@ -459,62 +407,62 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         this.reactions = entity.reactions?.get(entity.document) ?: mutableListOf()
 
         // setup profile info
-        authorSubtextView.text = profile.settings.subtext
+        binding.entryAuthorSubtext.text = profile.settings.subtext
 
         // setup community info
         if (community == null || community!!.idMatches(profile)) {
             // default, no community row
-            communityProfileArea.visibility = View.GONE
+            binding.communityRow.visibility = View.GONE
         } else {
             // community exists
-            communityProfileArea.visibility = View.VISIBLE
-            communityView.text = community!!.nickname
-            communityView.setOnClickListener { showProfile(community!!) }
+            binding.communityRow.visibility = View.VISIBLE
+            binding.entryCommunityProfile.text = community!!.nickname
+            binding.entryCommunityProfile.setOnClickListener { showProfile(community!!) }
 
             val avatar = Network.resolve(community?.settings?.avatar) ?: Network.defaultAvatar()
-            Glide.with(communityAvatarView).load(avatar.toString())
+            Glide.with(binding.entryCommunityAvatar).load(avatar.toString())
                     .apply(RequestOptions().centerInside().circleCrop())
-                    .into(communityAvatarView)
-            communityAvatarView.setOnClickListener { showProfile(community!!) }
+                    .into(binding.entryCommunityAvatar)
+            binding.entryCommunityAvatar.setOnClickListener { showProfile(community!!) }
 
             val communitySubtext = community!!.settings.subtext
             if (communitySubtext.isNullOrEmpty()) {
-                communitySubtextView.visibility = View.GONE
+                binding.entryCommunityProfileSubtext.visibility = View.GONE
             } else {
-                communitySubtextView.visibility = View.VISIBLE
-                communitySubtextView.text = communitySubtext
+                binding.entryCommunityProfileSubtext.visibility = View.VISIBLE
+                binding.entryCommunityProfileSubtext.text = communitySubtext
             }
         }
 
         // setup text views from entry data
-        titleView.text = entry.title
-        titleView.visibility = if (entry.title.isNullOrEmpty()) { View.GONE } else { View.VISIBLE }
-        draftStateView.visibility = if (entry.state == "published") { View.GONE } else { View.VISIBLE }
+        binding.entryTitle.text = entry.title
+        binding.entryTitle.visibility = if (entry.title.isNullOrEmpty()) { View.GONE } else { View.VISIBLE }
+        binding.entryDraftState.visibility = if (entry.state == "published") { View.GONE } else { View.VISIBLE }
 
         // setup permission icon
         val accessItem = entry.settings?.permissions?.access?.firstOrNull()
         if (accessItem == null) {
-            permissionIcon.visibility = View.GONE
+            binding.entryLockIcon.visibility = View.GONE
         } else {
-            permissionIcon.visibility = View.VISIBLE
-            permissionIcon.setOnClickListener { showToastAtView(permissionIcon, accessItem.toDescription(it.context)) }
+            binding.entryLockIcon.visibility = View.VISIBLE
+            binding.entryLockIcon.setOnClickListener { showToastAtView(binding.entryLockIcon, accessItem.toDescription(it.context)) }
         }
 
         // setup pin icon
         val pinned = profile.settings.pinnedEntries.contains(entry.id)
         if (pinned) {
-            pinIcon.visibility = View.VISIBLE
-            pinIcon.setOnClickListener { showToastAtView(pinIcon, it.context.getString(R.string.pinned_entry)) }
+            binding.entryPinIcon.visibility = View.VISIBLE
+            binding.entryPinIcon.setOnClickListener { showToastAtView(binding.entryPinIcon, it.context.getString(R.string.pinned_entry)) }
         } else {
-            pinIcon.visibility = View.GONE
+            binding.entryPinIcon.visibility = View.GONE
         }
 
         // show tags if they are present
         setupTags(entry)
 
         // setup bottom row of metadata buttons
-        metadata?.let { comments.text = it.comments.toString() }
-        metadata?.let { participants.text = it.commenters.toString() }
+        metadata?.let { binding.entryCommentsIndicatorText.text = it.comments.toString() }
+        metadata?.let { binding.entryParticipantsIndicatorText.text = it.commenters.toString() }
 
         // setup bottom row of buttons
         setupButtons()
@@ -529,14 +477,14 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             buttons.first { it.id == R.id.entry_bookmark }.visibility = View.GONE
         }
 
-        bodyView.handleMarkdown(entry.content)
+        binding.entryMessage.handleMarkdown(entry.content)
 
         if (allowSelection) {
             // make text selectable
             // XXX: this is MAGIC: see https://stackoverflow.com/a/56224791/1696844
-            bodyView.setTextIsSelectable(false)
-            bodyView.measure(-1, -1)
-            bodyView.setTextIsSelectable(true)
+            binding.entryMessage.setTextIsSelectable(false)
+            binding.entryMessage.measure(-1, -1)
+            binding.entryMessage.setTextIsSelectable(true)
         }
     }
 
@@ -544,17 +492,17 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
      * Setup reactions row, to show reactions which were attached to this entry
      */
     private fun setupReactions() {
-        reactionArea.removeAllViews()
+        binding.entryReactionsRow.removeAllViews()
 
         val reactionsDisabled = Auth.profile?.settings?.reactions?.disable == true
         val reactionsDisabledInThisBlog = profile.settings.reactions.disableInBlog
 
         if (reactions.isEmpty() || reactionsDisabled || reactionsDisabledInThisBlog) {
             // no reactions for this entry or reactions disabled
-            reactionArea.visibility = View.GONE
+            binding.entryReactionsRow.visibility = View.GONE
             return
         } else {
-            reactionArea.visibility = View.VISIBLE
+            binding.entryReactionsRow.visibility = View.VISIBLE
         }
 
         // there are some reactions, display them
@@ -567,7 +515,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             val postedWithThisType = counts[reactionTypeId] ?: continue
             val includingMe = postedWithThisType.any { Auth.profile?.idMatches(it.author.get()) == true }
 
-            val reactionView = LayoutInflater.from(itemView.context).inflate(R.layout.view_reaction, reactionArea, false)
+            val reactionView = LayoutInflater.from(itemView.context).inflate(R.layout.view_reaction, binding.entryReactionsRow, false)
 
             reactionView.onClickSingleOnly { toggleReaction(it, reactionType) }
             if (includingMe) {
@@ -583,7 +531,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             styleLevel.bind(TEXT_LINKS, reactionView, BackgroundTintColorAdapter())
             styleLevel.bind(TEXT, emojiCount, TextViewColorAdapter())
 
-            reactionArea.addView(reactionView)
+            binding.entryReactionsRow.addView(reactionView)
         }
     }
 
@@ -624,9 +572,9 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
      */
     private fun setupTags(entry: Entry) {
         if (entry.tags.isEmpty()) {
-            tagsView.visibility = View.GONE
+            binding.entryTags.visibility = View.GONE
         } else {
-            tagsView.visibility = View.VISIBLE
+            binding.entryTags.visibility = View.VISIBLE
 
             val clickTags = SpannableStringBuilder()
             for (tag in entry.tags) {
@@ -634,7 +582,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
                 clickTags.setSpan(ClickableTag(tag), clickTags.length - 1 - tag.length, clickTags.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 clickTags.append(" ")
             }
-            tagsView.text = clickTags
+            binding.entryTags.text = clickTags
         }
     }
 

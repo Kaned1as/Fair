@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/entry_list_area"
+    android:id="@+id/entry_ribbon_refresher"
     android:layout_marginStart="4dp"
     android:layout_marginLeft="4dp"
     android:layout_width="match_parent"

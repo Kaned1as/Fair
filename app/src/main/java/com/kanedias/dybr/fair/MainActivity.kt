@@ -720,7 +720,6 @@ class MainActivity : AppCompatActivity() {
      * @see Entry
      */
     private fun addEntry() {
-        // use `instantiate` here because getItem returns new item with each invocation
         // we know that fragment is already present so it will return cached one
         val currFragment = supportFragmentManager.findFragmentByTag("f${binding.mainPager.currentItem}")
         if (currFragment !is EntryListFragment) {
@@ -728,7 +727,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        if (currFragment.ribbonRefresher.isRefreshing) {
+        if (currFragment.getRefresher().isRefreshing) {
             // blog is not loaded yet
             Toast.makeText(this, R.string.still_loading, Toast.LENGTH_SHORT).show()
             return
