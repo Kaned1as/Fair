@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
+import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.dto.ActionList
@@ -119,7 +120,7 @@ class ProfileFragment: DialogFragment() {
         val dialogTitle = dialog.view.titleLayout.findViewById(R.id.md_text_title) as TextView
         val okButton = dialog.view.buttonsLayout!!.findViewById(R.id.md_button_positive) as DialogActionButton
 
-        styleLevel.bind(TEXT_BLOCK, dialog.view, BackgroundNoAlphaAdapter())
+        styleLevel.bind(TEXT_BLOCK, dialog.view, DefaultColorAdapter())
         styleLevel.bind(TEXT_HEADERS, dialogTitle, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, okButton, MaterialDialogButtonAdapter())
 

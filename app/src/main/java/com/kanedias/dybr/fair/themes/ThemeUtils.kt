@@ -3,10 +3,10 @@ package com.kanedias.dybr.fair.themes
 import android.content.Context
 import android.view.View
 import android.graphics.Color
-import android.preference.PreferenceManager
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import android.util.Log
+import androidx.preference.PreferenceManager
 import com.ftinc.scoop.StyleLevel
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.dto.Design
@@ -116,8 +116,8 @@ fun updateColorBindings(design: Design, level: StyleLevel) {
         if (ColorUtils.calculateContrast(tbText, tbBackground) < 7) {
             val luminance = ColorUtils.calculateLuminance(tbBackground)
             tbText = when {
-                luminance < 0.5 -> ColorUtils.blendARGB(tbText, Color.WHITE, 0.5f)
-                else -> ColorUtils.blendARGB(tbText, Color.BLACK, 0.5f)
+                luminance < 0.5 -> ColorUtils.blendARGB(tbText, Color.WHITE, 0.8f)
+                else -> ColorUtils.blendARGB(tbText, Color.BLACK, 0.8f)
             }
         }
 

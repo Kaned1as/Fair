@@ -110,7 +110,7 @@ open class EntryListFragment: UserContentListFragment() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(BACKGROUND, entryRibbon, DefaultColorAdapter())
+        styleLevel.bind(BACKGROUND, entryRibbon, NoRewriteBgPicAdapter())
 
         styleLevel.bind(ACCENT, fastJumpButton, BackgroundTintColorAdapter())
         styleLevel.bind(ACCENT_TEXT, fastJumpButton, FabIconAdapter())

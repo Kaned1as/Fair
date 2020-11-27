@@ -107,11 +107,10 @@ class CommentListFragment : UserContentListFragment() {
         styleLevel.bind(ACCENT, addCommentButton, BackgroundTintColorAdapter())
         styleLevel.bind(ACCENT_TEXT, addCommentButton, FabIconAdapter())
 
-        styleLevel.bind(BACKGROUND, commentRibbon, DefaultColorAdapter())
+        styleLevel.bind(BACKGROUND, commentRibbon, NoRewriteBgPicAdapter())
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
         val backgrounds = mapOf<View, Int>(commentRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
-
         (entry.community ?: entry.profile).get(entry.document)?.let { applyTheme(activity, it, styleLevel, backgrounds) }
     }
 

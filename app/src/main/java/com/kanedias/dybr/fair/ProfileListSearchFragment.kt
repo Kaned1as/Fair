@@ -100,7 +100,7 @@ open class ProfileListSearchFragment : UserContentListFragment() {
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
         styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
 
-        styleLevel.bind(BACKGROUND, profileRibbon, DefaultColorAdapter())
+        styleLevel.bind(BACKGROUND, profileRibbon, NoRewriteBgPicAdapter())
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
         val backgrounds = mapOf<View, Int>(profileRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)

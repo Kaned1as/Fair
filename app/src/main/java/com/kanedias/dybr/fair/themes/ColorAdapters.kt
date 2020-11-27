@@ -28,6 +28,7 @@ import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.DrawableCrossFadeTransition
 import com.bumptech.glide.request.transition.Transition
 import com.ftinc.scoop.adapters.ColorAdapter
+import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputLayout
@@ -35,7 +36,6 @@ import com.hootsuite.nachos.NachoTextView
 import com.kanedias.dybr.fair.service.Network
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -55,6 +55,17 @@ class TabUnderlineAdapter: ColorAdapter<TabLayout> {
     override fun applyColor(view: TabLayout, @ColorInt color: Int) {
         this.color = color
         view.setSelectedTabIndicatorColor(color)
+    }
+}
+
+class NoRewriteBgPicAdapter: DefaultColorAdapter() {
+
+    override fun applyColor(view: View, color: Int) {
+        // skip rewrite of color in case background is already applied
+        if (view.background is BitmapDrawable || view.background is TransitionDrawable)
+            return
+
+        super.applyColor(view, color)
     }
 }
 
@@ -81,12 +92,11 @@ class BackgroundDelayedAdapter(private val url: String): ColorAdapter<View> {
 
     inner class BgDrawableTarget(view: View): CustomViewTarget<View, Drawable>(view) {
 
-        private val cf = DrawableCrossFadeTransition(300, true)
+        private val cf = DrawableCrossFadeTransition(100, true)
 
         override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
             resource.setBounds(0, 0, resource.intrinsicWidth, resource.intrinsicHeight)
             GlobalScope.launch(Dispatchers.Main) {
-                delay(600)
                 cf.transition(resource, BgAdapter(view))
             }
         }

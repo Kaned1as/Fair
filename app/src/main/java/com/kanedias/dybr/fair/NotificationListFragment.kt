@@ -111,7 +111,8 @@ open class NotificationListFragment: UserContentListFragment() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(BACKGROUND, notifRibbon)
+        styleLevel.bind(BACKGROUND, notifRibbon, NoRewriteBgPicAdapter())
+
         val backgrounds = mapOf<View, Int>(notifRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
         Auth.profile?.let { applyTheme(activity, it, styleLevel, backgrounds) }
     }

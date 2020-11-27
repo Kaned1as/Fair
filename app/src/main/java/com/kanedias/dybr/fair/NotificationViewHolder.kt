@@ -66,7 +66,7 @@ class NotificationViewHolder(iv: View, val parentFragment: UserContentListFragme
     /**
      * Listener to show comments of this entry
      */
-    private val commentShow  = View.OnClickListener {
+    private val commentShow = View.OnClickListener {
         val activity = it.context as AppCompatActivity
 
         parentFragment.lifecycleScope.launch {
@@ -87,7 +87,6 @@ class NotificationViewHolder(iv: View, val parentFragment: UserContentListFragme
                 }
             )
         }
-
     }
 
     init {

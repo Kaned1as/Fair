@@ -49,8 +49,9 @@ open class EntryListFragmentFull: EntryListFragment() {
     override fun setupTheming() {
         // this is a fullscreen fragment, add new style
         styleLevel = Scoop.getInstance().addStyleLevel()
+        lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(BACKGROUND, fullscreenBinding.entryRibbon, DefaultColorAdapter())
+        styleLevel.bind(BACKGROUND, fullscreenBinding.entryRibbon, NoRewriteBgPicAdapter())
 
         styleLevel.bind(TOOLBAR, fullscreenBinding.entryListToolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, fullscreenBinding.entryListToolbar, ToolbarTextAdapter())
