@@ -26,8 +26,8 @@ android {
         applicationId "com.kanedias.dybr.fair"
         targetSdkVersion 29 // device you test on
         minSdkVersion 21    // device you allow your users to be on :)
-        versionCode 96
-        versionName "1.22.0"
+        versionCode 97
+        versionName "1.23.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -129,7 +129,7 @@ dependencies {
     implementation "android.arch.work:work-runtime-ktx:1.0.1"                   // job scheduler
     implementation 'com.jakewharton:butterknife:10.2.0'                         // Annotation processor
     implementation 'com.j256.ormlite:ormlite-android:5.1'                       // ORM for local storage
-    implementation 'com.squareup.okhttp3:okhttp:3.14.0'                         // android http client
+    implementation 'com.squareup.okhttp3:okhttp:3.14.2'                         // android http client
     implementation 'com.afollestad.material-dialogs:core:3.3.0'                 // material design for dialogs
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
     implementation 'com.afollestad.material-dialogs:datetime:3.3.0'
