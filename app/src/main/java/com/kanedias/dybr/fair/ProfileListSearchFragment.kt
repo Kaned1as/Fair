@@ -87,10 +87,10 @@ open class ProfileListSearchFragment : UserContentListFragment() {
         styleLevel.bind(TOOLBAR_TEXT, binding.profileListToolbar, ToolbarIconsAdapter())
 
         styleLevel.bind(BACKGROUND, binding.profileRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, binding.profileRibbon)
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
-        val backgrounds = mapOf<View, Int>(binding.profileRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
-        Auth.profile?.let { applyTheme(activity, it, styleLevel, backgrounds) }
+        Auth.profile?.let { applyTheme(activity, it, styleLevel) }
     }
 
     /**

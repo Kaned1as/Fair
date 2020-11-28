@@ -3,10 +3,15 @@ package com.kanedias.dybr.fair.themes
 import android.content.Context
 import android.view.View
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import android.util.Log
 import androidx.preference.PreferenceManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.ftinc.scoop.StyleLevel
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.dto.Design
@@ -80,9 +85,7 @@ fun applyTheme(ctx: Context, profile: OwnProfile, level: StyleLevel, withDrawabl
     GlobalScope.launch(Dispatchers.Main) {
         try {
             val design = withContext(Dispatchers.IO) { Network.loadProfileDesign(profile) } ?: return@launch
-            rebindIfRequired(level, design, withDrawables)
-
-            updateColorBindings(design, level)
+            updateColorBindings(ctx, design, level)
         } catch (ex: Exception) {
             // do nothing - themes are optional
             Log.e("ThemeEngine", "Couldn't apply theme", ex)
@@ -90,17 +93,7 @@ fun applyTheme(ctx: Context, profile: OwnProfile, level: StyleLevel, withDrawabl
     }
 }
 
-fun rebindIfRequired(level: StyleLevel, design: Design, withDrawables: Map<View, Int>) {
-    design.data.background?.url?.let {
-        for (entry in withDrawables.entries) {
-            if (entry.value == BACKGROUND) {
-                level.bind(BACKGROUND, entry.key, BackgroundDelayedAdapter(it))
-            }
-        }
-    }
-}
-
-fun updateColorBindings(design: Design, level: StyleLevel) {
+fun updateColorBindings(ctx: Context, design: Design, level: StyleLevel) {
     // toolbar colors
     design.data.header?.let {
         var tbBackground = it.background?.colorFromCss() ?: return@let
@@ -139,6 +132,18 @@ fun updateColorBindings(design: Design, level: StyleLevel) {
         level.update(BACKGROUND, it)
     }
 
+    // background drawable
+    design.data.background?.url?.let {
+        val resolved = Network.resolve(it) ?: return@let
+
+        Glide.with(ctx)
+                .load(resolved.toString())
+                .apply(RequestOptions()
+                        .override(ctx.resources.displayMetrics.widthPixels, ctx.resources.displayMetrics.heightPixels)
+                        .centerCrop())
+                .into(DrawableUpdater(level))
+    }
+
     // color of text cards
     design.data.colors?.blocks?.colorFromCss()?.let { level.update(TEXT_BLOCK, it) }
 
@@ -162,4 +167,13 @@ fun updateColorBindings(design: Design, level: StyleLevel) {
 
     // text on accent-colored views
     design.data.colors?.elements?.colorFromCss()?.let { level.update(ACCENT_TEXT, it) }
+}
+
+private class DrawableUpdater(private val level: StyleLevel) : SimpleTarget<Drawable>() {
+
+    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+        resource.setBounds(0, 0, resource.intrinsicWidth, resource.intrinsicHeight)
+        level.updateDrawable(BACKGROUND, resource)
+    }
+
 }

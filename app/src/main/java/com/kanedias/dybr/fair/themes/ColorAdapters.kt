@@ -440,24 +440,6 @@ class EditTextHintAdapter: ColorAdapter<EditText> {
     }
 }
 
-/**
- * Don't make background transparent!
- */
-class BackgroundNoAlphaAdapter: ColorAdapter<View> {
-
-    override fun applyColor(view: View, color: Int) {
-        when {
-            Color.alpha(color) < 255 -> view.setBackgroundColor(ColorUtils.setAlphaComponent(color, 255))
-            else -> view.setBackgroundColor(color)
-        }
-    }
-
-    override fun getColor(view: View): Int {
-        val bg = view.background
-        return (bg as? ColorDrawable)?.color ?: Color.TRANSPARENT
-    }
-}
-
 class SwitchDrawableColorAdapter: ColorAdapter<SwitchCompat> {
 
     override fun applyColor(view: SwitchCompat, color: Int) {

@@ -73,15 +73,19 @@ class CreateNewCommentFragment : Fragment() {
             handleMisc()
         }
 
-        setupTheming(binding.root)
+        setupTheming()
         return binding.root
     }
 
-    private fun setupTheming(view: View) {
+    private fun setupTheming() {
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
+        //lifecycle.addObserver(styleLevel) // only auto-bind without animations
 
-        styleLevel.bind(TEXT_BLOCK, view, BackgroundNoAlphaAdapter())
+        styleLevel.bind(BACKGROUND, binding.dialogArea, NoRewriteBgPicAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, binding.dialogArea)
+
+        styleLevel.bind(TEXT_BLOCK, binding.commentAddArea, DefaultColorAdapter())
+
         styleLevel.bind(TEXT, binding.commentMarkdownPreview, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, binding.commentMarkdownPreview, TextViewLinksAdapter())
         styleLevel.bind(TEXT_LINKS, binding.commentPreview, ImageViewColorAdapter())

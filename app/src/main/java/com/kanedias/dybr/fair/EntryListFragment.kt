@@ -110,12 +110,12 @@ open class EntryListFragment: UserContentListFragment() {
         lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(BACKGROUND, entryRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, entryRibbon)
 
         styleLevel.bind(ACCENT, fastJumpButton, BackgroundTintColorAdapter())
         styleLevel.bind(ACCENT_TEXT, fastJumpButton, FabIconAdapter())
 
-        val backgrounds = mapOf<View, Int>(entryRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
-        Auth.profile?.let { applyTheme(activity, it, styleLevel, backgrounds) }
+        Auth.profile?.let { applyTheme(activity, it, styleLevel) }
     }
 
     /**

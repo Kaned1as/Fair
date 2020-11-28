@@ -119,7 +119,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
     private fun setupTheming() {
         val styleLevel = parentFragment.styleLevel
 
-        styleLevel.bind(TEXT_BLOCK, itemView, CardViewColorAdapter())
+        styleLevel.bind(TEXT_BLOCK, binding.root, CardViewColorAdapter())
         styleLevel.bind(TEXT_HEADERS, binding.entryTitle, TextViewColorAdapter())
         styleLevel.bind(TEXT, binding.entryDate, TextViewColorAdapter())
         styleLevel.bind(TEXT, binding.entryAuthor, TextViewColorAdapter())

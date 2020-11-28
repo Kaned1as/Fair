@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -132,22 +133,36 @@ class MainActivity : AppCompatActivity() {
         }
 
         // hack: resume fragment that is activated on tapping "back"
-        supportFragmentManager.addOnBackStackChangedListener {
-            val backStackEntryCount = supportFragmentManager.backStackEntryCount
-            if (backStackEntryCount == 0) {
-                // we're in the main activity
-                Scoop.getInstance().setLastLevel(styleLevel)
-                styleLevel.rebind()
-                return@addOnBackStackChangedListener
+        supportFragmentManager.addOnBackStackChangedListener(object: FragmentManager.OnBackStackChangedListener {
+
+            private var prevEntryCount = 0
+
+            override fun onBackStackChanged() {
+                val backStackEntryCount = supportFragmentManager.backStackEntryCount
+                if (backStackEntryCount == 0) {
+                    // we're in the main activity
+                    Scoop.getInstance().setLastLevel(styleLevel)
+                    styleLevel.rebind()
+                    return
+                }
+
+                if (backStackEntryCount - prevEntryCount > 0) {
+                    // fragment was added, style will be applied by its lifecycle
+                    prevEntryCount = backStackEntryCount
+                    return
+                }
+
+
+                // fragment was removed, rebind style levels on top
+                prevEntryCount = backStackEntryCount
+                val top = supportFragmentManager.fragments.findLast { it is UserContentListFragment }
+                (top as? UserContentListFragment)?.styleLevel?.apply {
+                    Scoop.getInstance().setLastLevel(this)
+                    this.rebind()
+                }
             }
 
-            // rebind style levels on top
-            val top = supportFragmentManager.fragments.findLast { it is UserContentListFragment }
-            (top as? UserContentListFragment)?.styleLevel?.apply {
-                Scoop.getInstance().setLastLevel(this)
-                this.rebind()
-            }
-        }
+        })
     }
 
     private fun setupTheming() {
@@ -742,7 +757,7 @@ class MainActivity : AppCompatActivity() {
         override fun bindView(view: View, ctx: Context, cursor: Cursor) {
             val searchItem = ActivityMainSearchRowBinding.bind(view)
 
-            styleLevel.bind(BACKGROUND, searchItem.root)
+            styleLevel.bind(TEXT_BLOCK, searchItem.root)
             styleLevel.bind(TEXT, searchItem.searchName, TextViewColorAdapter())
             styleLevel.bind(TEXT_OFFTOP, searchItem.searchSource, TextViewColorAdapter())
 

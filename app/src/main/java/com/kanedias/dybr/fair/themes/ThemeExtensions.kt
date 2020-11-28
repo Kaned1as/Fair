@@ -24,7 +24,7 @@ fun MaterialDialog.showThemed(styleLevel: StyleLevel) {
     val checkBox = this.view.buttonsLayout?.findViewById(R.id.md_checkbox_prompt) as? CheckBox
     val textInput = this.view.contentLayout.findViewById(R.id.md_input_message) as? EditText
 
-    styleLevel.bind(TEXT_BLOCK, this.view, BackgroundNoAlphaAdapter())
+    styleLevel.bind(TEXT_BLOCK, this.view, NoRewriteBgPicAdapter())
     styleLevel.bind(TEXT_HEADERS, dialogTitle, TextViewColorAdapter())
     styleLevel.bind(TEXT, dialogMessage, TextViewColorAdapter())
 

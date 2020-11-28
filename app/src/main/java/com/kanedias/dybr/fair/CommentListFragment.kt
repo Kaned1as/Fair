@@ -13,6 +13,7 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
+import com.ftinc.scoop.binding.ViewDrawableBinding
 import com.kanedias.dybr.fair.databinding.FragmentCommentListBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
@@ -91,10 +92,11 @@ class CommentListFragment : UserContentListFragment() {
         styleLevel.bind(ACCENT_TEXT, binding.addCommentButton, FabIconAdapter())
 
         styleLevel.bind(BACKGROUND, binding.commentsRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, binding.commentsRibbon)
+
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
-        val backgrounds = mapOf<View, Int>(binding.commentsRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
-        (entry.community ?: entry.profile).get(entry.document)?.let { applyTheme(activity, it, styleLevel, backgrounds) }
+        (entry.community ?: entry.profile).get(entry.document)?.let { applyTheme(activity, it, styleLevel) }
     }
 
     /**

@@ -17,6 +17,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.customListAdapter
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
+import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.ftinc.scoop.util.Utils
@@ -75,7 +76,7 @@ class CreateNewEntryFragment : Fragment() {
         editor = EditorViews(this, binding.entryEditor)
 
         setupUI()
-        setupTheming(binding.root)
+        setupTheming()
 
         val editMode = requireArguments().getBoolean(EDIT_MODE, false)
         if (editMode) {
@@ -124,11 +125,15 @@ class CreateNewEntryFragment : Fragment() {
         }
     }
 
-    private fun setupTheming(view: View) {
+    private fun setupTheming() {
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
+        //lifecycle.addObserver(styleLevel) // only auto-bind without animations
 
-        styleLevel.bind(TEXT_BLOCK, view, BackgroundNoAlphaAdapter())
+        styleLevel.bind(BACKGROUND, binding.dialogArea, NoRewriteBgPicAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, binding.dialogArea)
+
+        styleLevel.bind(TEXT_BLOCK, binding.entryAddArea, DefaultColorAdapter())
+
         styleLevel.bind(TEXT, binding.entryTitleText, EditTextAdapter())
         styleLevel.bind(TEXT_LINKS, binding.entryTitleText, EditTextLineAdapter())
         styleLevel.bind(TEXT, binding.entryTitleTextLayout, EditTextLayoutHintAdapter())
@@ -388,7 +393,7 @@ class CreateNewEntryFragment : Fragment() {
     private fun popDraftUI(draft: OfflineDraft) {
         binding.entryTitleText.setText(draft.title)
         binding.entryEditor.sourceText.setText(draft.content)
-        binding.tagsText.setText(draft.tags?.split(Regex(",\\s+")))
+        binding.tagsText.setText(draft.tags?.split(Regex(",\\s+")).orEmpty().filterNot { it.isBlank() })
         Toast.makeText(context, R.string.offline_draft_loaded, Toast.LENGTH_SHORT).show()
 
         DbProvider.helper.draftDao.deleteById(draft.id)

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.StyleLevel
+import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.databinding.FragmentProfilePreferencesBinding
 import com.kanedias.dybr.fair.dto.OwnProfile
@@ -65,16 +66,19 @@ class ProfilePreferencesFragment: Fragment() {
 
 
         setupUI()
-        setupTheming(binding.root)
+        setupTheming()
 
         return binding.root
     }
 
-    private fun setupTheming(view: View) {
+    private fun setupTheming() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(TEXT_BLOCK, view, BackgroundNoAlphaAdapter())
+        styleLevel.bind(BACKGROUND, binding.root, NoRewriteBgPicAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, binding.root)
+
+        styleLevel.bind(TEXT_BLOCK, binding.profilePreferencesSwitchesArea, DefaultColorAdapter())
 
         styleLevel.bind(TOOLBAR, binding.profilePreferencesToolbar)
         styleLevel.bind(TOOLBAR_TEXT, binding.profilePreferencesToolbar, ToolbarTextAdapter())

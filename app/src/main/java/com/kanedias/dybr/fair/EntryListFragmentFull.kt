@@ -50,6 +50,7 @@ open class EntryListFragmentFull: EntryListFragment() {
         lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(BACKGROUND, fullscreenBinding.entryRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, fullscreenBinding.entryRibbon)
 
         styleLevel.bind(TOOLBAR, fullscreenBinding.entryListToolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, fullscreenBinding.entryListToolbar, ToolbarTextAdapter())
@@ -63,7 +64,6 @@ open class EntryListFragmentFull: EntryListFragment() {
 
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
-        val backgrounds = mapOf<View, Int>(fullscreenBinding.entryRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
-        profile?.let { applyTheme(activity, it, styleLevel, backgrounds) }
+        profile?.let { applyTheme(activity, it, styleLevel) }
     }
 }

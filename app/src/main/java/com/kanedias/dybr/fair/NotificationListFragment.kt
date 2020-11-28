@@ -104,9 +104,9 @@ open class NotificationListFragment: UserContentListFragment() {
         lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(BACKGROUND, binding.notifRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, binding.notifRibbon)
 
-        val backgrounds = mapOf<View, Int>(binding.notifRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
-        Auth.profile?.let { applyTheme(activity, it, styleLevel, backgrounds) }
+        Auth.profile?.let { applyTheme(activity, it, styleLevel) }
     }
 
     /**
