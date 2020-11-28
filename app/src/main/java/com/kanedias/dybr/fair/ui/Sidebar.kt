@@ -154,7 +154,9 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         val authenticated = Auth.profile ?: return
         val frag = ProfileListBannedFragment().apply {
             // not needed here but kept for consistency
-            arguments = Bundle().apply { putSerializable("filters", HashMap(mapOf("profileId" to authenticated.id))) }
+            arguments = Bundle().apply {
+                putSerializable("filters", HashMap(mapOf("profileId" to authenticated.id)))
+            }
         }
 
         drawer.closeDrawers()

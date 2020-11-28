@@ -45,7 +45,7 @@ open class NotificationListFragment: UserContentListFragment() {
         setupTheming()
         loadMore()
 
-        return view
+        return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

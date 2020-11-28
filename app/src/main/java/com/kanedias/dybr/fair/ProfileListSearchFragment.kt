@@ -63,7 +63,7 @@ open class ProfileListSearchFragment : UserContentListFragment() {
         setupTheming()
         loadMore()
 
-        return view
+        return binding.root
     }
 
     private fun setupUI() {
