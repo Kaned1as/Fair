@@ -138,7 +138,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         indicatorTexts.forEach { styleLevel.bind(TEXT_LINKS, it, TextViewColorAdapter()) }
     }
 
-    fun editEntry() {
+    private fun editEntry() {
         val activity = itemView.context as AppCompatActivity
         val entryEdit = CreateNewEntryFragment().apply {
             arguments = Bundle().apply {
@@ -160,7 +160,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         activity.showFullscreenFragment(entryEdit)
     }
 
-    fun subscribeToEntry(subButton: ImageView) {
+    private fun subscribeToEntry(subButton: ImageView) {
         val subscribe = !(metadata?.subscribed ?: false)
 
         val toastText = when (subscribe) {
@@ -184,7 +184,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         }
     }
 
-    fun bookmarkEntry(button: ImageView) {
+    private fun bookmarkEntry(button: ImageView) {
         val bookmark = !(metadata?.bookmark ?: false)
 
         val toastText = when (bookmark) {
@@ -205,7 +205,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         }
     }
 
-    fun openReactionMenu(button: ImageView) {
+    private fun openReactionMenu(button: ImageView) {
         parentFragment.lifecycleScope.launch {
             try {
                 val reactionSets = withContext(Dispatchers.IO) { Network.loadReactionSets() }
@@ -244,7 +244,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         pw.showAsDropDown(view, 0, 0, Gravity.TOP)
     }
 
-    fun deleteEntry() {
+    private fun deleteEntry() {
         val activity = itemView.context as AppCompatActivity
 
         // delete callback
@@ -271,7 +271,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
                 .showThemed(parentFragment.styleLevel)
     }
 
-    fun showOverflowMenu() {
+    private fun showOverflowMenu() {
         val ctx = itemView.context
         val items = mutableListOf(
                 ctx.getString(R.string.open_in_browser),

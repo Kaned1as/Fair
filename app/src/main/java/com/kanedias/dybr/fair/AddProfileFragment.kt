@@ -1,24 +1,16 @@
 package com.kanedias.dybr.fair
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.EditText
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onCancel
-import com.afollestad.materialdialogs.callbacks.onDismiss
 import com.afollestad.materialdialogs.datetime.datePicker
-import com.google.android.material.textfield.TextInputLayout
+import com.kanedias.dybr.fair.databinding.FragmentCreateProfileBinding
 import com.kanedias.dybr.fair.dto.Auth
 import com.kanedias.dybr.fair.dto.ProfileCreateRequest
 import com.kanedias.dybr.fair.dto.ProfileSettings
@@ -43,69 +35,51 @@ import java.util.*
  */
 class AddProfileFragment: Fragment() {
 
-    @BindView(R.id.prof_nickname)
-    lateinit var nicknameInputLayout: TextInputLayout
-
-    @BindView(R.id.prof_nickname_input)
-    lateinit var nicknameInput: EditText
-
-    @BindView(R.id.prof_birthday)
-    lateinit var birthdayInputLayout: TextInputLayout
-
-    @BindView(R.id.prof_birthday_input)
-    lateinit var birthdayInput: EditText
-
-    @BindView(R.id.prof_description_input)
-    lateinit var descInput: EditText
-
-    @BindView(R.id.prof_community_marker)
-    lateinit var communityMarker: CheckBox
-
+    private lateinit var binding: FragmentCreateProfileBinding
     private lateinit var activity: MainActivity
 
     private lateinit var nicknameCheck: Validation
     private lateinit var birthdayCheck: Validation
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = inflater.inflate(R.layout.fragment_create_profile, container, false)
-        ButterKnife.bind(this, view)
+        binding = FragmentCreateProfileBinding.inflate(inflater, container, false)
         activity = context as MainActivity
 
-        val maxNicknameLen = nicknameInputLayout.counterMaxLength
-        nicknameCheck = Validation(nicknameInputLayout)
+        val maxNicknameLen = binding.profNickname.counterMaxLength
+        nicknameCheck = Validation(binding.profNickname)
                 .add(NotEmptyRule(R.string.must_be_not_empty))
                 .add(MaxRule(maxNicknameLen, getString(R.string.must_be_no_longer_than, maxNicknameLen)))
 
-        birthdayCheck = Validation(birthdayInputLayout)
+        birthdayCheck = Validation(binding.profBirthday)
                 .add(RegexRule("\\d{4}-\\d{2}-\\d{2}", R.string.must_be_in_iso_form))
                 .add(PastRule(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()), R.string.must_be_in_the_past))
 
         val currentDate = Calendar.getInstance()
         val birthdayDatePicker = MaterialDialog(activity).apply {
-            datePicker(maxDate = currentDate) { dialog, datetime ->
+            datePicker(maxDate = currentDate) { _, _ ->
                 val year = currentDate.get(Calendar.YEAR)
                 val month = currentDate.get(Calendar.MONTH) + 1
                 val day = currentDate.get(Calendar.DAY_OF_MONTH)
-                birthdayInput.setText("%04d-%02d-%02d".format(year, month, day))
+                binding.profBirthdayInput.setText("%04d-%02d-%02d".format(year, month, day))
             }
             negativeButton {
-                birthdayInput.isFocusable = true
-                birthdayInput.isFocusableInTouchMode = true
-                birthdayInput.requestFocus()
+                binding.profBirthdayInput.isFocusable = true
+                binding.profBirthdayInput.isFocusableInTouchMode = true
+                binding.profBirthdayInput.requestFocus()
             }
             onCancel {
-                birthdayInput.isFocusable = true
-                birthdayInput.isFocusableInTouchMode = true
-                birthdayInput.requestFocus()
+                binding.profBirthdayInput.isFocusable = true
+                binding.profBirthdayInput.isFocusableInTouchMode = true
+                binding.profBirthdayInput.requestFocus()
             }
         }
-        birthdayInput.setOnClickListener { birthdayDatePicker.show() }
-        birthdayInput.setOnFocusChangeListener { v, hasFocus -> if (!hasFocus) v.isFocusable = false }
+        binding.profBirthdayInput.setOnClickListener { birthdayDatePicker.show() }
+        binding.profBirthdayInput.setOnFocusChangeListener { v, hasFocus -> if (!hasFocus) v.isFocusable = false }
+        binding.profCreateButton.setOnClickListener { confirm(it) }
 
-        return view
+        return binding.root
     }
 
-    @OnClick(R.id.prof_create_button)
     fun confirm(confirmBtn: View) {
         Validator.with(confirmBtn.context)
                 .setListener(object: Validator.OnValidateListener {
@@ -116,10 +90,10 @@ class AddProfileFragment: Fragment() {
 
     private fun doConfirm() {
         val profReq = ProfileCreateRequest().apply {
-            nickname = nicknameInput.text.toString()
-            birthday = birthdayInput.text.toString()
-            description = descInput.text.toString()
-            isCommunity = communityMarker.isChecked
+            nickname = binding.profNicknameInput.text.toString()
+            birthday = binding.profBirthdayInput.text.toString()
+            description = binding.profDescriptionInput.text.toString()
+            isCommunity = binding.profCommunityMarker.isChecked
         }
 
         if (profReq.isCommunity) {

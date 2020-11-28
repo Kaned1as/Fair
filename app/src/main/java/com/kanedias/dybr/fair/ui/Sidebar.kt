@@ -10,10 +10,6 @@ import android.view.View
 import android.widget.*
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.BindViews
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.kanedias.dybr.fair.*
 import com.kanedias.dybr.fair.database.DbProvider
@@ -39,45 +35,27 @@ import moe.banana.jsonapi2.ArrayDocument
 class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivity) {
 
     private val fragManager = activity.supportFragmentManager
-
-    /**
-     * Sidebar header up/down image (to the right of welcome text)
-     */
-    @BindView(R.id.header_flip)
-    lateinit var headerFlip: ImageView
-
-    /**
-     * Sidebar accounts area (bottom of header)
-     */
-    @BindView(R.id.accounts_area)
-    lateinit var accountsArea: LinearLayout
-
-    /**
-     * "My Profile" row
-     */
-    @BindView(R.id.profile_area)
-    lateinit var profileArea: RelativeLayout
-
-    /**
-     * "My Blog" row
-     */
-    @BindView(R.id.blog_area)
-    lateinit var blogArea: RelativeLayout
-
-    /**
-     * "My bookmarks", "My favorites", "My readers", "My banned", "My communities" rows
-     */
-    @BindViews(R.id.my_bookmarks, R.id.my_favorites, R.id.my_readers, R.id.my_banned, R.id.my_communities)
-    lateinit var profileListRows: List<@JvmSuppressWildcards TextView>
-
-    /**
-     * Label that shows current username near welcome text
-     */
-    @BindView(R.id.current_user_name)
-    lateinit var currentUsername: TextView
+    private val binding = activity.binding.sidebarLayout
+    private val profileListRows = listOf(
+            binding.myBookmarks,
+            binding.myFavorites,
+            binding.myReaders,
+            binding.myBanned,
+            binding.myCommunities
+    )
 
     init {
-        ButterKnife.bind(this, activity)
+        binding.sidebarHeaderArea.setOnClickListener { toggleHeader() }
+        binding.addAccountRow.setOnClickListener { addAccount() }
+        binding.myBookmarks.setOnClickListener { goToBookmarks() }
+        binding.myFavorites.setOnClickListener { goToFavorites() }
+        binding.myReaders.setOnClickListener { goToReaders() }
+        binding.myBanned.setOnClickListener { goToBanned() }
+        binding.mySettings.setOnClickListener { goToSettings() }
+        binding.myProfile.setOnClickListener { goToProfile() }
+        binding.myCommunities.setOnClickListener { goToCommunities(it) }
+        binding.joinCommunity.setOnClickListener { searchNewCommunities() }
+
         updateSidebar()
     }
 
@@ -85,42 +63,38 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
      * Hides/shows add-account button and list of saved accounts
      * Positioned just below the header of the sidebar
      */
-    @OnClick(R.id.sidebar_header_area)
-    fun toggleHeader() {
-        if (accountsArea.visibility == View.GONE) {
+    private fun toggleHeader() {
+        if (binding.accountsArea.visibility == View.GONE) {
             showHeader()
         } else {
             hideHeader()
         }
     }
 
-    fun showHeader() {
-        expand(accountsArea)
-        flipAnimator(false, headerFlip).start()
+    private fun showHeader() {
+        expand(binding.accountsArea)
+        flipAnimator(false, binding.headerFlip).start()
     }
 
-    fun hideHeader() {
-        collapse(accountsArea)
-        flipAnimator(true, headerFlip).start()
+    private fun hideHeader() {
+        collapse(binding.accountsArea)
+        flipAnimator(true, binding.headerFlip).start()
     }
 
     /**
      * Shows add-account fragment instead of main view
      */
-    @OnClick(R.id.add_account_row)
-    fun addAccount() {
+    private fun addAccount() {
         drawer.closeDrawers()
         activity.showFullscreenFragment(AddAccountFragment())
     }
 
-    @OnClick(R.id.my_bookmarks)
-    fun goToBookmarks() {
+    private fun goToBookmarks() {
         drawer.closeDrawers()
         activity.showFullscreenFragment(BookmarkListFragmentFull())
     }
 
-    @OnClick(R.id.my_favorites)
-    fun goToFavorites() {
+    private fun goToFavorites() {
         class ProfileListFavFragment: ProfileListSearchFragment() {
 
             override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
@@ -141,8 +115,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         activity.showFullscreenFragment(frag)
     }
 
-    @OnClick(R.id.my_readers)
-    fun goToReaders() {
+    private fun goToReaders() {
         class ProfileListReadersFragment: ProfileListSearchFragment() {
 
             override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
@@ -163,8 +136,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         activity.showFullscreenFragment(frag)
     }
 
-    @OnClick(R.id.my_banned)
-    fun goToBanned() {
+    private fun goToBanned() {
         class ProfileListBannedFragment: ProfileListSearchFragment() {
 
             override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
@@ -189,14 +161,12 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         activity.showFullscreenFragment(frag)
     }
 
-    @OnClick(R.id.my_settings)
-    fun goToSettings() {
+    private fun goToSettings() {
         drawer.closeDrawers()
         activity.startActivity(Intent(activity, SettingsActivity::class.java))
     }
 
-    @OnClick(R.id.my_profile)
-    fun goToProfile() {
+    private fun goToProfile() {
         if (Auth.profile == null)
             return
 
@@ -220,8 +190,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         }
     }
 
-    @OnClick(R.id.my_communities)
-    fun goToCommunities(row: View) {
+    private fun goToCommunities(row: View) {
         val myCommunities = Auth.profile?.communities
         if (myCommunities == null || myCommunities.size() == 0) {
             showToastAtView(row, R.string.no_communities_yet)
@@ -238,8 +207,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         activity.showFullscreenFragment(fragment)
     }
 
-    @OnClick(R.id.join_community)
-    fun searchNewCommunities() {
+    private fun searchNewCommunities() {
         drawer.closeDrawers()
         val fragment = ProfileListSearchFragment().apply {
             arguments = Bundle().apply {
@@ -266,16 +234,16 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         val inflater = activity.layoutInflater
 
         // set welcome message to current user nickname
-        currentUsername.text = Auth.profile?.nickname ?: Auth.user.email
+        binding.currentUserName.text = Auth.profile?.nickname ?: Auth.user.email
 
         // update account area views
         // remove previous accounts, they may be invalid
-        accountsArea.removeViews(1, accountsArea.childCount - 1)
+        binding.accountsArea.removeViews(1, binding.accountsArea.childCount - 1)
 
         // populate account list
         val allAccs = DbProvider.helper.accDao.queryForAll()
         for (acc in allAccs) {
-            val view = inflater.inflate(R.layout.activity_main_sidebar_account_row, accountsArea, false)
+            val view = inflater.inflate(R.layout.activity_main_sidebar_account_row, binding.accountsArea, false)
             val accName = view.findViewById<TextView>(R.id.account_name)
             val accRemove = view.findViewById<ImageView>(R.id.account_remove)
 
@@ -306,11 +274,11 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
             }
 
             // add finished account row to the layout
-            accountsArea.addView(view)
+            binding.accountsArea.addView(view)
         }
 
         // special setup item - inflate guest account row
-        val guestRow = inflater.inflate(R.layout.activity_main_sidebar_account_row, accountsArea, false)
+        val guestRow = inflater.inflate(R.layout.activity_main_sidebar_account_row, binding.accountsArea, false)
         guestRow.findViewById<ImageView>(R.id.account_remove).visibility = View.GONE
         val guestName = guestRow.findViewById<TextView>(R.id.account_name)
         guestName.text = activity.getString(R.string.guest)
@@ -321,7 +289,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
             drawer.closeDrawers()
             activity.performLogin(Auth.guest)
         }
-        accountsArea.addView(guestRow)
+        binding.accountsArea.addView(guestRow)
 
         // if we are logged in there's no point in showing accounts row
         // unless we are specifically asked to
@@ -334,22 +302,18 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
      * update "My Profile" row
      */
     private fun updateProfileRow() {
-        val profName = profileArea.findViewById<TextView>(R.id.my_profile)
-        val profSwap = profileArea.findViewById<ImageView>(R.id.switch_profile)
-        val profAdd = profileArea.findViewById<ImageView>(R.id.add_profile)
-        val profSetup = profileArea.findViewById<ImageView>(R.id.setup_profile)
 
         if (Auth.profile == null) {
             // no profile, set to disabled
-            profName.isEnabled = false
-            profSwap.visibility = View.GONE
-            profAdd.visibility = View.GONE
-            profSetup.visibility = View.GONE
+            binding.myProfile.isEnabled = false
+            binding.switchProfile.visibility = View.GONE
+            binding.addProfile.visibility = View.GONE
+            binding.setupProfile.visibility = View.GONE
 
             // if account is present, enable "add-profile" button
             if (Auth.user !== Auth.guest) {
-                profAdd.visibility = View.VISIBLE
-                profAdd.setOnClickListener {
+                binding.addProfile.visibility = View.VISIBLE
+                binding.addProfile.setOnClickListener {
                     activity.addProfile()
                     drawer.closeDrawers()
                 }
@@ -358,17 +322,17 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         }
 
         // We have a profile, then
-        profName.isEnabled = true
-        profAdd.visibility = View.GONE
-        profSwap.visibility = View.VISIBLE
-        profSetup.visibility = View.VISIBLE
+        binding.myProfile.isEnabled = true
+        binding.addProfile.visibility = View.GONE
+        binding.switchProfile.visibility = View.VISIBLE
+        binding.setupProfile.visibility = View.VISIBLE
 
         // handle click on profile change button
         // we need to ignore subsequent clicks if profiles are already loading
-        profSwap.onClickSingleOnly {
+        binding.switchProfile.onClickSingleOnly {
             val swapAnim = ValueAnimator.ofFloat(1f, -1f, 1f)
             swapAnim.interpolator = FastOutSlowInInterpolator()
-            swapAnim.addUpdateListener { profSwap.scaleX = swapAnim.animatedValue as Float }
+            swapAnim.addUpdateListener { binding.addProfile.scaleX = swapAnim.animatedValue as Float }
             swapAnim.duration = 1_000
             swapAnim.repeatCount = ValueAnimator.INFINITE
             swapAnim.start()
@@ -384,7 +348,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
             swapAnim.repeatCount = 0 // stop gracefully
         }
 
-        profSetup.setOnClickListener {
+        binding.setupProfile.setOnClickListener {
             activity.showProfilePreferences()
             drawer.closeDrawers()
         }
@@ -395,23 +359,21 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
      * @see [Auth.profile]
      */
     private fun updateBlogRow() {
-        val blogName = blogArea.findViewById<TextView>(R.id.my_blog)
-        val blogAdd = blogArea.findViewById<ImageView>(R.id.add_blog)
 
         if (Auth.profile == null) {
             // no profile yet, disable everything
-            blogName.isEnabled = false
-            blogName.setText(R.string.my_blog)
-            blogAdd.visibility = View.GONE
+            binding.myBlog.isEnabled = false
+            binding.myBlog.setText(R.string.my_blog)
+            binding.addBlog.visibility = View.GONE
             return
         }
 
         if (Auth.profile?.blogSlug == null) {
             // no blog yet, disable click, show "Add blog" button
-            blogName.isEnabled = false
-            blogName.setText(R.string.my_blog)
-            blogAdd.visibility = View.VISIBLE
-            blogAdd.setOnClickListener {
+            binding.myBlog.isEnabled = false
+            binding.myBlog.setText(R.string.my_blog)
+            binding.addBlog.visibility = View.VISIBLE
+            binding.addBlog.setOnClickListener {
                 activity.createBlog()
                 drawer.closeDrawers()
             }
@@ -419,11 +381,11 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         }
 
         // we have a blog, show it
-        blogName.isEnabled = true
-        blogName.hint = activity.getString(R.string.my_blog)
-        blogName.text = Auth.profile?.blogTitle
-        blogAdd.visibility = View.GONE
-        blogName.setOnClickListener {
+        binding.myBlog.isEnabled = true
+        binding.myBlog.hint = activity.getString(R.string.my_blog)
+        binding.myBlog.text = Auth.profile?.blogTitle
+        binding.addBlog.visibility = View.GONE
+        binding.myBlog.setOnClickListener {
             for (i in 0..fragManager.backStackEntryCount) {
                 fragManager.popBackStack()
             }

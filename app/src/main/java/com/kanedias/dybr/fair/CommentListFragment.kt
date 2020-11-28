@@ -4,8 +4,6 @@ import android.animation.ValueAnimator
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -13,12 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
-import com.google.android.material.appbar.MaterialToolbar
+import com.kanedias.dybr.fair.databinding.FragmentCommentListBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
@@ -42,20 +37,8 @@ class CommentListFragment : UserContentListFragment() {
         const val COMMENT_ID_ARG = "comment"
     }
 
-    @BindView(R.id.comments_toolbar)
-    lateinit var toolbar: MaterialToolbar
-
-    @BindView(R.id.comments_list_area)
-    lateinit var ribbonRefresher: SwipeRefreshLayout
-
-    @BindView(R.id.comments_ribbon)
-    lateinit var commentRibbon: RecyclerView
-
-    @BindView(R.id.add_comment_button)
-    lateinit var addCommentButton: FloatingActionButton
-
-    override fun getRibbonView() = commentRibbon
-    override fun getRefresher() = ribbonRefresher
+    override fun getRibbonView() = binding.commentsRibbon
+    override fun getRefresher() = binding.commentsRefresher
     override fun getRibbonAdapter() = commentAdapter
     override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<Comment> = {
         // comments go from new to last, no need for a limiter
@@ -63,36 +46,36 @@ class CommentListFragment : UserContentListFragment() {
     }
 
     lateinit var entry: Entry
-
     private lateinit var commentAdapter: LoadMoreAdapter
 
+    private lateinit var binding: FragmentCommentListBinding
     private lateinit var activity: MainActivity
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        entry = requireArguments().get(ENTRY_ARG) as Entry
-
-        val view = inflater.inflate(R.layout.fragment_comment_list, container, false)
+        binding = FragmentCommentListBinding.inflate(inflater, container, false)
         activity = context as MainActivity
+
+        entry = requireArguments().get(ENTRY_ARG) as Entry
         commentAdapter = CommentListAdapter()
 
-        ButterKnife.bind(this, view)
         setupUI()
         setupTheming()
         loadMore()
 
-        return view
+        return binding.root
     }
 
     private fun setupUI() {
-        toolbar.title = entry.title
-        toolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
-        toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+        binding.commentsToolbar.title = entry.title
+        binding.commentsToolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
+        binding.commentsToolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 
-        ribbonRefresher.setOnRefreshListener { loadMore(reset = true) }
-        commentRibbon.adapter = commentAdapter
+        binding.commentsRefresher.setOnRefreshListener { loadMore(reset = true) }
+        binding.commentsRibbon.adapter = commentAdapter
 
+        binding.addCommentButton.setOnClickListener { addComment() }
         if (!isEntryCommentable(entry))
-            addCommentButton.visibility = View.GONE
+            binding.addCommentButton.visibility = View.GONE
     }
 
     private fun setupTheming() {
@@ -100,17 +83,17 @@ class CommentListFragment : UserContentListFragment() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
+        styleLevel.bind(TOOLBAR, binding.commentsToolbar, DefaultColorAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, binding.commentsToolbar, ToolbarTextAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, binding.commentsToolbar, ToolbarIconsAdapter())
 
-        styleLevel.bind(ACCENT, addCommentButton, BackgroundTintColorAdapter())
-        styleLevel.bind(ACCENT_TEXT, addCommentButton, FabIconAdapter())
+        styleLevel.bind(ACCENT, binding.addCommentButton, BackgroundTintColorAdapter())
+        styleLevel.bind(ACCENT_TEXT, binding.addCommentButton, FabIconAdapter())
 
-        styleLevel.bind(BACKGROUND, commentRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bind(BACKGROUND, binding.commentsRibbon, NoRewriteBgPicAdapter())
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
-        val backgrounds = mapOf<View, Int>(commentRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
+        val backgrounds = mapOf<View, Int>(binding.commentsRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
         (entry.community ?: entry.profile).get(entry.document)?.let { applyTheme(activity, it, styleLevel, backgrounds) }
     }
 
@@ -223,7 +206,6 @@ class CommentListFragment : UserContentListFragment() {
         }
     }
 
-    @OnClick(R.id.add_comment_button)
     fun addComment() {
         val commentAdd = CreateNewCommentFragment().apply {
             arguments = Bundle().apply {

@@ -4,10 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
-import androidx.viewbinding.ViewBinding
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
-import com.kanedias.dybr.fair.databinding.FragmentEntryListBinding
 import com.kanedias.dybr.fair.databinding.FragmentEntryListFullscreenBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.themes.*

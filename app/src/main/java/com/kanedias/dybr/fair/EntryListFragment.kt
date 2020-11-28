@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewbinding.ViewBinding
 import com.ftinc.scoop.Scoop
-import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kanedias.dybr.fair.databinding.FragmentEntryListBinding
 import com.kanedias.dybr.fair.dto.*

@@ -4,14 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
+import com.kanedias.dybr.fair.databinding.FragmentNotificationListItemBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import com.kanedias.dybr.fair.dto.Notification
@@ -28,35 +23,13 @@ import kotlinx.coroutines.*
  * View holder for showing notifications in main tab.
  * @param iv inflated view to be used by this holder
  *
- * @see NotificationListFragment.notifRibbon
+ * @see NotificationListFragment
  *
  * @author Kanedias
  */
-class NotificationViewHolder(iv: View, val parentFragment: UserContentListFragment) : RecyclerView.ViewHolder(iv) {
+class NotificationViewHolder(iv: View, private val parent: UserContentListFragment) : RecyclerView.ViewHolder(iv) {
 
-    @BindView(R.id.notification_content_area)
-    lateinit var notificationArea: RelativeLayout
-
-    @BindView(R.id.notification_cause)
-    lateinit var causeView: TextView
-
-    @BindView(R.id.notification_profile)
-    lateinit var authorView: TextView
-
-    @BindView(R.id.notification_date)
-    lateinit var dateView: TextView
-
-    @BindView(R.id.notification_blog)
-    lateinit var blogView: TextView
-
-    @BindView(R.id.notification_message)
-    lateinit var bodyView: TextView
-
-    @BindView(R.id.notification_divider)
-    lateinit var divider: View
-
-    @BindView(R.id.notification_read)
-    lateinit var readButton: ImageView
+    private val binding = FragmentNotificationListItemBinding.bind(iv)
 
     /**
      * Entry that this holder represents
@@ -69,7 +42,7 @@ class NotificationViewHolder(iv: View, val parentFragment: UserContentListFragme
     private val commentShow = View.OnClickListener {
         val activity = it.context as AppCompatActivity
 
-        parentFragment.lifecycleScope.launch {
+        parent.lifecycleScope.launch {
             Network.perform(
                 networkAction = { Network.loadEntry(notification.entryId) },
                 uiAction = { entry ->
@@ -90,20 +63,20 @@ class NotificationViewHolder(iv: View, val parentFragment: UserContentListFragme
     }
 
     init {
-        ButterKnife.bind(this, iv)
-        setupTheming()
+        binding.root.setOnClickListener(commentShow)
+        binding.notificationRead.setOnClickListener { switchRead() }
 
-        iv.setOnClickListener(commentShow)
+
+        setupTheming()
     }
 
-    @OnClick(R.id.notification_read)
     fun switchRead() {
         val marked = NotificationRequest().apply {
             id = notification.id
             state = if (notification.state == "new") { "read" } else { "new" }
         }
 
-        parentFragment.lifecycleScope.launch {
+        parent.lifecycleScope.launch {
             try {
                 withContext(Dispatchers.IO) { Network.updateNotification(marked) }
                 SyncNotificationsWorker.markRead(itemView.context, notification)
@@ -117,16 +90,16 @@ class NotificationViewHolder(iv: View, val parentFragment: UserContentListFragme
     }
 
     private fun setupTheming() {
-        val styleLevel = parentFragment.styleLevel
+        val styleLevel = parent.styleLevel
 
         styleLevel.bind(TEXT_BLOCK, itemView, CardViewColorAdapter())
-        styleLevel.bind(TEXT, causeView, TextViewDisableAwareColorAdapter())
-        styleLevel.bind(TEXT, blogView, TextViewDisableAwareColorAdapter())
-        styleLevel.bind(TEXT, authorView, TextViewDisableAwareColorAdapter())
-        styleLevel.bind(TEXT, dateView, TextViewDisableAwareColorAdapter())
-        styleLevel.bind(TEXT, bodyView, TextViewDisableAwareColorAdapter())
-        styleLevel.bind(TEXT_LINKS, bodyView, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, readButton, ImageViewColorAdapter())
+        styleLevel.bind(TEXT, binding.notificationCause, TextViewDisableAwareColorAdapter())
+        styleLevel.bind(TEXT, binding.notificationBlog, TextViewDisableAwareColorAdapter())
+        styleLevel.bind(TEXT, binding.notificationProfile, TextViewDisableAwareColorAdapter())
+        styleLevel.bind(TEXT, binding.notificationDate, TextViewDisableAwareColorAdapter())
+        styleLevel.bind(TEXT, binding.notificationMessage, TextViewDisableAwareColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.notificationMessage, TextViewLinksAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.notificationRead, ImageViewColorAdapter())
     }
 
     /**
@@ -142,21 +115,20 @@ class NotificationViewHolder(iv: View, val parentFragment: UserContentListFragme
         val source = notification.source.get(notification.document)
 
         // setup text views from entry data
-        dateView.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(comment.createdAt)
-        causeView.setText(R.string.comment)
-        authorView.text = profile.nickname
-        blogView.text = source.blogTitle
-        bodyView.handleMarkdown(comment.content)
-
+        binding.notificationDate.text = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(comment.createdAt)
+        binding.notificationCause.setText(R.string.comment)
+        binding.notificationProfile.text = profile.nickname
+        binding.notificationBlog.text = source.blogTitle
+        binding.notificationMessage.handleMarkdown(comment.content)
     }
 
     private fun updateState() {
         if (notification.state == "read") {
-            readButton.setImageResource(R.drawable.done_all)
-            toggleEnableRecursive(notificationArea, enabled = false)
+            binding.notificationRead.setImageResource(R.drawable.done_all)
+            toggleEnableRecursive(binding.notificationContentArea, enabled = false)
         } else { // state == "new"
-            readButton.setImageResource(R.drawable.done)
-            toggleEnableRecursive(notificationArea, enabled = true)
+            binding.notificationRead.setImageResource(R.drawable.done)
+            toggleEnableRecursive(binding.notificationContentArea, enabled = true)
         }
     }
 }

@@ -2,9 +2,7 @@ package com.kanedias.dybr.fair
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import butterknife.BindView
-import butterknife.ButterKnife
+import com.kanedias.dybr.fair.databinding.ActivityPreferencesBinding
 
 /**
  * Activity for holding and showing preference fragments
@@ -15,15 +13,15 @@ import butterknife.ButterKnife
  */
 class SettingsActivity: AppCompatActivity() {
 
-    @BindView(R.id.pref_toolbar)
-    lateinit var prefToolbar: Toolbar
+    private lateinit var binding: ActivityPreferencesBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_preferences)
-        ButterKnife.bind(this)
 
-        setSupportActionBar(prefToolbar)
+        binding = ActivityPreferencesBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.prefToolbar)
         supportFragmentManager.beginTransaction().replace(R.id.pref_content_frame, SettingsFragment()).commit()
     }
 

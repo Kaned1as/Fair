@@ -16,7 +16,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
@@ -95,8 +94,6 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        ButterKnife.bind(this)
 
         // init preferences
         donateHelper = DonateHelper(this)
@@ -769,7 +766,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class TabAdapter(val self: OwnProfile?): FragmentStateAdapter(supportFragmentManager, lifecycle), IconAwareTabAdapter {
+    inner class TabAdapter(private val self: OwnProfile?): FragmentStateAdapter(supportFragmentManager, lifecycle), IconAwareTabAdapter {
 
         override fun getItemCount() = 5 // own blog, favorites, communities, world and notifications
 

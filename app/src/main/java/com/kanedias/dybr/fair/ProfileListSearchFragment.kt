@@ -1,24 +1,19 @@
 package com.kanedias.dybr.fair
 
 import android.os.Bundle
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.ButterKnife
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
-import com.google.android.material.appbar.MaterialToolbar
+import com.kanedias.dybr.fair.databinding.FragmentProfileListFullscreenBinding
 import com.kanedias.dybr.fair.databinding.FragmentProfileListItemBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.idMatches
@@ -40,17 +35,8 @@ import java.util.*
  */
 open class ProfileListSearchFragment : UserContentListFragment() {
 
-    @BindView(R.id.profile_list_toolbar)
-    lateinit var toolbar: MaterialToolbar
-
-    @BindView(R.id.profile_list_area)
-    lateinit var ribbonRefresher: SwipeRefreshLayout
-
-    @BindView(R.id.profile_ribbon)
-    lateinit var profileRibbon: RecyclerView
-
-    override fun getRibbonView() = profileRibbon
-    override fun getRefresher() = ribbonRefresher
+    override fun getRibbonView() = binding.profileRibbon
+    override fun getRefresher() = binding.profileRefresher
     override fun getRibbonAdapter() = profileAdapter
     override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
         Network.searchProfiles(filters = filters, pageNum = pageNum)
@@ -63,16 +49,16 @@ open class ProfileListSearchFragment : UserContentListFragment() {
 
     private lateinit var profileAdapter: LoadMoreAdapter
 
+    private lateinit var binding: FragmentProfileListFullscreenBinding
     private lateinit var activity: MainActivity
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         filters = requireArguments().getSerializable("filters") as Map<String, String>
 
-        val view = inflater.inflate(R.layout.fragment_profile_list_fullscreen, container, false)
+        binding = FragmentProfileListFullscreenBinding.inflate(inflater, container, false)
         activity = context as MainActivity
         profileAdapter = ProfileListAdapter()
 
-        ButterKnife.bind(this, view)
         setupUI()
         setupTheming()
         loadMore()
@@ -81,14 +67,14 @@ open class ProfileListSearchFragment : UserContentListFragment() {
     }
 
     private fun setupUI() {
-        toolbar.title = requireArguments().getString("title", getString(R.string.search))
-        toolbar.subtitle = requireArguments().getString("subtitle", "")
+        binding.profileListToolbar.title = requireArguments().getString("title", getString(R.string.search))
+        binding.profileListToolbar.subtitle = requireArguments().getString("subtitle", "")
 
-        toolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
-        toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
+        binding.profileListToolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
+        binding.profileListToolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 
-        ribbonRefresher.setOnRefreshListener { loadMore(reset = true) }
-        profileRibbon.adapter = profileAdapter
+        binding.profileRefresher.setOnRefreshListener { loadMore(reset = true) }
+        binding.profileRibbon.adapter = profileAdapter
     }
 
     private fun setupTheming() {
@@ -96,14 +82,14 @@ open class ProfileListSearchFragment : UserContentListFragment() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(TOOLBAR, toolbar, DefaultColorAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarTextAdapter())
-        styleLevel.bind(TOOLBAR_TEXT, toolbar, ToolbarIconsAdapter())
+        styleLevel.bind(TOOLBAR, binding.profileListToolbar, DefaultColorAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, binding.profileListToolbar, ToolbarTextAdapter())
+        styleLevel.bind(TOOLBAR_TEXT, binding.profileListToolbar, ToolbarIconsAdapter())
 
-        styleLevel.bind(BACKGROUND, profileRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bind(BACKGROUND, binding.profileRibbon, NoRewriteBgPicAdapter())
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
-        val backgrounds = mapOf<View, Int>(profileRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
+        val backgrounds = mapOf<View, Int>(binding.profileRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
         Auth.profile?.let { applyTheme(activity, it, styleLevel, backgrounds) }
     }
 

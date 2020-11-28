@@ -4,16 +4,12 @@ import android.app.Dialog
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
-import android.text.Html
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.BindViews
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.internal.button.DialogActionButton
@@ -24,6 +20,7 @@ import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.kanedias.dybr.fair.databinding.FragmentProfileBinding
 import com.kanedias.dybr.fair.dto.ActionList
 import com.kanedias.dybr.fair.dto.ActionListRequest
 import com.kanedias.dybr.fair.dto.Auth
@@ -45,40 +42,8 @@ import java.util.*
  */
 class ProfileFragment: DialogFragment() {
 
-    @BindView(R.id.author_avatar)
-    lateinit var authorAvatar: ImageView
-
-    @BindView(R.id.author_name)
-    lateinit var authorName: TextView
-
-    @BindView(R.id.author_subtext)
-    lateinit var authorSubtext: TextView
-
-    @BindView(R.id.author_registration_date)
-    lateinit var registrationDate: TextView
-
-    @BindView(R.id.author_blog)
-    lateinit var authorBlog: TextView
-
-    @BindView(R.id.author_add_to_favorites)
-    lateinit var favoritesToggle: ImageView
-
-    @BindView(R.id.author_feed_ban)
-    lateinit var feedBanToggle: ImageView
-
-    @BindView(R.id.author_ban)
-    lateinit var banToggle: ImageView
-
-    @BindViews(
-            R.id.author_name_label,
-            R.id.author_subtext_label,
-            R.id.author_registration_date_label,
-            R.id.author_blog_label
-    )
-    lateinit var labels: List<@JvmSuppressWildcards TextView>
-
     lateinit var profile: OwnProfile
-    var actionLists: MutableList<ActionList> = mutableListOf()
+    private var actionLists: MutableList<ActionList> = mutableListOf()
 
     private lateinit var accountFavorited: Drawable
     private lateinit var accountUnfavorited: Drawable
@@ -89,6 +54,8 @@ class ProfileFragment: DialogFragment() {
     private lateinit var accountBanned: Drawable
     private lateinit var accountUnbanned: Drawable
 
+    private lateinit var binding: FragmentProfileBinding
+    private lateinit var labels: List<TextView>
     private lateinit var activity: MainActivity
 
     private lateinit var styleLevel: StyleLevel
@@ -96,15 +63,20 @@ class ProfileFragment: DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         savedInstanceState?.getSerializable("profile")?.let { profile = it as OwnProfile }
 
+        binding = FragmentProfileBinding.inflate(layoutInflater, null, false)
+        labels = listOf(
+                binding.authorNameLabel,
+                binding.authorSubtextLabel,
+                binding.authorRegistrationDateLabel,
+                binding.authorBlogLabel
+        )
         activity = context as MainActivity
 
-        val view = activity.layoutInflater.inflate(R.layout.fragment_profile, null)
-        ButterKnife.bind(this, view)
         setupUI()
 
         return MaterialDialog(activity)
                 .title(R.string.view_profile)
-                .customView(view = view, scrollable = true)
+                .customView(view = binding.root, scrollable = true)
                 .positiveButton(android.R.string.ok)
     }
 
@@ -124,14 +96,14 @@ class ProfileFragment: DialogFragment() {
         styleLevel.bind(TEXT_HEADERS, dialogTitle, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, okButton, MaterialDialogButtonAdapter())
 
-        styleLevel.bind(TEXT, authorName, TextViewColorAdapter())
-        styleLevel.bind(TEXT, authorSubtext, TextViewColorAdapter())
-        styleLevel.bind(TEXT, registrationDate, TextViewColorAdapter())
-        styleLevel.bind(TEXT, authorBlog, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, authorBlog, TextViewLinksAdapter())
-        styleLevel.bind(TEXT_LINKS, favoritesToggle, ImageViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, feedBanToggle, ImageViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, banToggle, ImageViewColorAdapter())
+        styleLevel.bind(TEXT, binding.authorName, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.authorSubtext, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.authorRegistrationDate, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.authorBlog, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.authorBlog, TextViewLinksAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.authorAddToFavorites, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.authorFeedBan, ImageViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.authorBan, ImageViewColorAdapter())
 
         labels.forEach { styleLevel.bind(TEXT, it, TextViewColorAdapter()) }
     }
@@ -141,39 +113,43 @@ class ProfileFragment: DialogFragment() {
         outState.putSerializable("profile", profile)
     }
 
-    @Suppress("DEPRECATION") // we need to support API < 24 in Html.fromHtml and setImageDrawable
     private fun setupUI() {
-        accountFavorited = activity.resources.getDrawable(R.drawable.account_favorited)
-        accountUnfavorited = activity.resources.getDrawable(R.drawable.account_unfavorited)
-        accountFeedBanned = activity.resources.getDrawable(R.drawable.account_feed_banned)
-        accountFeedUnbanned = activity.resources.getDrawable(R.drawable.account_feed_unbanned)
-        accountBanned = activity.resources.getDrawable(R.drawable.account_banned)
-        accountUnbanned = activity.resources.getDrawable(R.drawable.account_unbanned)
+        accountFavorited = ResourcesCompat.getDrawable(activity.resources, R.drawable.account_favorited, null)!!
+        accountUnfavorited = ResourcesCompat.getDrawable(activity.resources, R.drawable.account_unfavorited, null)!!
+        accountFeedBanned = ResourcesCompat.getDrawable(activity.resources, R.drawable.account_feed_banned, null)!!
+        accountFeedUnbanned = ResourcesCompat.getDrawable(activity.resources, R.drawable.account_feed_unbanned, null)!!
+        accountBanned = ResourcesCompat.getDrawable(activity.resources, R.drawable.account_banned, null)!!
+        accountUnbanned = ResourcesCompat.getDrawable(activity.resources, R.drawable.account_unbanned, null)!!
+
+        // setup actions
+        binding.authorAddToFavorites.setOnClickListener { toggleFavorite() }
+        binding.authorFeedBan.setOnClickListener { toggleFeedBan() }
+        binding.authorBan.setOnClickListener { toggleBan() }
 
         // set names and dates
-        authorName.text = profile.nickname
-        authorSubtext.text = profile.settings.subtext
-        registrationDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(profile.createdAt)
+        binding.authorName.text = profile.nickname
+        binding.authorSubtext.text = profile.settings.subtext
+        binding.authorRegistrationDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(profile.createdAt)
 
         if (profile.blogSlug != null) {
-            authorBlog.text = Html.fromHtml("<a href='https://dybr.ru/blog/${profile.blogSlug}'>${profile.blogTitle}</a>")
-            authorBlog.setOnClickListener { dismiss(); showBlog(profile) }
+            binding.authorBlog.text = HtmlCompat.fromHtml("<a href='https://dybr.ru/blog/${profile.blogSlug}'>${profile.blogTitle}</a>", 0)
+            binding.authorBlog.setOnClickListener { dismiss(); showBlog(profile) }
         } else {
-            authorBlog.text = ""
+            binding.authorBlog.text = ""
         }
 
         // set avatar
         val avatar = Network.resolve(profile.settings.avatar) ?: Network.defaultAvatar()
             // load avatar asynchronously
-        Glide.with(authorAvatar)
+        Glide.with(binding.authorAvatar)
                 .load(avatar.toString())
                 .apply(RequestOptions().centerInside())
-                .into(authorAvatar)
+                .into(binding.authorAvatar)
 
         // set favorite status
         when {
-            Auth.profile?.favorites?.any { it.idMatches(profile) } == true -> favoritesToggle.setImageDrawable(accountFavorited)
-            else -> favoritesToggle.setImageDrawable(accountUnfavorited)
+            Auth.profile?.favorites?.any { it.idMatches(profile) } == true -> binding.authorAddToFavorites.setImageDrawable(accountFavorited)
+            else -> binding.authorAddToFavorites.setImageDrawable(accountUnfavorited)
         }
 
         // set feed banned status
@@ -193,24 +169,23 @@ class ProfileFragment: DialogFragment() {
                 .flatMap { list -> list.profiles.get() }
                 .any { prof -> prof.idMatches(profile) }
 
-        feedBanToggle.visibility = View.VISIBLE
+        binding.authorFeedBan.visibility = View.VISIBLE
         when {
-            feedBanned -> feedBanToggle.setImageDrawable(accountFeedBanned)
-            else -> feedBanToggle.setImageDrawable(accountFeedUnbanned)
+            feedBanned -> binding.authorFeedBan.setImageDrawable(accountFeedBanned)
+            else -> binding.authorFeedBan.setImageDrawable(accountFeedUnbanned)
         }
 
         val accBanned = actionLists.filter { it.action == "ban" && it.scope == "blog" }
                 .flatMap { list -> list.profiles.get() }
                 .any { prof -> prof.idMatches(profile) }
 
-        banToggle.visibility = View.VISIBLE
+        binding.authorBan.visibility = View.VISIBLE
         when {
-            accBanned -> banToggle.setImageDrawable(accountBanned)
-            else -> banToggle.setImageDrawable(accountUnbanned)
+            accBanned -> binding.authorBan.setImageDrawable(accountBanned)
+            else -> binding.authorBan.setImageDrawable(accountUnbanned)
         }
     }
 
-    @OnClick(R.id.author_feed_ban)
     fun toggleFeedBan() {
         val feedBanned = actionLists.filter { it.action == "hide" && it.scope == "feed" }
                                     .flatMap { list -> list.profiles.get() }
@@ -224,7 +199,7 @@ class ProfileFragment: DialogFragment() {
                     networkAction = { Network.removeFromActionList(feedBanList, profile) },
                     uiAction = {
                         feedBanList.profiles.remove(profile)
-                        feedBanToggle.setImageDrawable(accountFeedUnbanned)
+                        binding.authorFeedBan.setImageDrawable(accountFeedUnbanned)
                         Toast.makeText(activity, R.string.unbanned_from_feed, Toast.LENGTH_SHORT).show()
                     }
                 )
@@ -251,7 +226,7 @@ class ProfileFragment: DialogFragment() {
                                 profiles = HasMany(profile)
                             })
                         }
-                        feedBanToggle.setImageDrawable(accountFeedBanned)
+                        binding.authorFeedBan.setImageDrawable(accountFeedBanned)
                         Toast.makeText(activity, R.string.banned_from_feed, Toast.LENGTH_SHORT).show()
                     }
                 )
@@ -259,7 +234,6 @@ class ProfileFragment: DialogFragment() {
         }
     }
 
-    @OnClick(R.id.author_ban)
     fun toggleBan() {
         val accBanned = actionLists.filter { it.action == "ban" && it.scope == "blog" }
                 .flatMap { list -> list.profiles.get() }
@@ -273,7 +247,7 @@ class ProfileFragment: DialogFragment() {
                         networkAction = { Network.removeFromActionList(banList, profile) },
                         uiAction = {
                             banList.profiles.remove(profile)
-                            banToggle.setImageDrawable(accountUnbanned)
+                            binding.authorBan.setImageDrawable(accountUnbanned)
                             Toast.makeText(activity, R.string.unbanned, Toast.LENGTH_SHORT).show()
                         }
                 )
@@ -300,7 +274,7 @@ class ProfileFragment: DialogFragment() {
                                     profiles = HasMany(profile)
                                 })
                             }
-                            banToggle.setImageDrawable(accountBanned)
+                            binding.authorBan.setImageDrawable(accountBanned)
                             Toast.makeText(activity, R.string.banned, Toast.LENGTH_SHORT).show()
                         }
                 )
@@ -308,7 +282,6 @@ class ProfileFragment: DialogFragment() {
         }
     }
 
-    @OnClick(R.id.author_add_to_favorites)
     fun toggleFavorite() {
         lifecycleScope.launch {
             try {
@@ -316,7 +289,7 @@ class ProfileFragment: DialogFragment() {
                     // remove from favorites
                     withContext(Dispatchers.IO) { Network.removeFavorite(profile) }
                     Auth.profile?.favorites?.remove(profile)
-                    favoritesToggle.setImageDrawable(accountUnfavorited)
+                    binding.authorAddToFavorites.setImageDrawable(accountUnfavorited)
                     Toast.makeText(activity, R.string.removed_from_favorites, Toast.LENGTH_SHORT).show()
                 } else {
                     // add to favorites
@@ -325,7 +298,7 @@ class ProfileFragment: DialogFragment() {
                         favorites.add(profile)
                         document.addInclude(profile)
                     }
-                    favoritesToggle.setImageDrawable(accountFavorited)
+                    binding.authorAddToFavorites.setImageDrawable(accountFavorited)
                     Toast.makeText(activity, R.string.added_to_favorites, Toast.LENGTH_SHORT).show()
                 }
             } catch (ioex: IOException) {

@@ -19,9 +19,9 @@ import android.text.style.ClickableSpan
 import android.text.style.MetricAffectingSpan
 import android.util.AttributeSet
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -29,8 +29,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.DrawableCompat
-import butterknife.BindView
-import butterknife.ButterKnife
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -39,6 +37,7 @@ import com.kanedias.dybr.fair.service.SpanCache
 import com.kanedias.dybr.fair.BuildConfig
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.R
+import com.kanedias.dybr.fair.databinding.ViewImageOverlayBinding
 import com.kanedias.html2md.Html2Markdown
 import com.stfalcon.imageviewer.StfalconImageViewer
 import io.noties.markwon.Markwon
@@ -159,7 +158,7 @@ val MORE_FULL_REGEX = Regex(".*($MORE_START_PATTERN(.*?)$MORE_END_PATTERN)", Reg
 /**
  * Post-process spans like MORE or image loading
  * @param spanned editable spannable to change
- * @param view resulting text view to accept the modified spanned string
+ * @param ctx context that this processing is performed in
  */
 fun postProcessSpans(spanned: SpannableStringBuilder, ctx: Context) {
     postProcessDrawables(spanned, ctx)
@@ -169,7 +168,7 @@ fun postProcessSpans(spanned: SpannableStringBuilder, ctx: Context) {
 /**
  * Post-process drawables, so you can click on them to see them in full-screen
  * @param spanned editable spannable to change
- * @param view resulting text view to accept the modified spanned string
+ * @param ctx context that this processing is performed in
  */
 fun postProcessDrawables(spanned: SpannableStringBuilder, ctx: Context) {
     val imgSpans = spanned.getSpans(0, spanned.length, AsyncDrawableSpan::class.java)
@@ -299,22 +298,13 @@ class ImageShowOverlay(ctx: Context,
                        attrs: AttributeSet? = null,
                        defStyleAttr: Int = 0) : FrameLayout(ctx, attrs, defStyleAttr) {
 
-    @BindView(R.id.overlay_download)
-    lateinit var download: ImageView
-
-    @BindView(R.id.overlay_share)
-    lateinit var share: ImageView
-
-    init {
-        View.inflate(ctx, R.layout.view_image_overlay, this)
-        ButterKnife.bind(this)
-    }
+    private val binding = ViewImageOverlayBinding.inflate(LayoutInflater.from(ctx), this)
 
     fun update(span: AsyncDrawableSpan) {
         val resolved = Network.resolve(span.drawable.destination) ?: return
 
         // share button: share the image using file provider
-        share.setOnClickListener {
+        binding.overlayShare.setOnClickListener {
             Glide.with(it).asFile().load(resolved.toString()).into(object: SimpleTarget<File>() {
 
                 override fun onResourceReady(resource: File, transition: Transition<in File>?) {
@@ -332,7 +322,7 @@ class ImageShowOverlay(ctx: Context,
         }
 
         // download button: download the image to Download folder on internal SD
-        download.setOnClickListener {
+        binding.overlayDownload.setOnClickListener {
             val activity = context as? Activity ?: return@setOnClickListener
 
             // request SD write permissions if we don't have it already

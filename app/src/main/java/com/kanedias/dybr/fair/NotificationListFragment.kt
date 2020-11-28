@@ -1,14 +1,12 @@
 package com.kanedias.dybr.fair
 
 import android.os.Bundle
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.recyclerview.widget.RecyclerView
 import android.view.*
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.ButterKnife
 import com.afollestad.materialdialogs.MaterialDialog
 import com.ftinc.scoop.Scoop
+import com.kanedias.dybr.fair.databinding.FragmentNotificationListBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
 import com.kanedias.dybr.fair.service.Network
@@ -25,14 +23,8 @@ import moe.banana.jsonapi2.ArrayDocument
  */
 open class NotificationListFragment: UserContentListFragment() {
 
-    @BindView(R.id.notif_ribbon)
-    lateinit var notifRibbon: RecyclerView
-
-    @BindView(R.id.notif_list_area)
-    lateinit var ribbonRefresher: SwipeRefreshLayout
-
-    override fun getRibbonView() = notifRibbon
-    override fun getRefresher() = ribbonRefresher
+    override fun getRibbonView() = binding.notifRibbon
+    override fun getRefresher() = binding.notifRefresher
     override fun getRibbonAdapter() = notifAdapter
     override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<Notification> = {
         Network.loadNotifications(pageNum = pageNum)
@@ -40,15 +32,15 @@ open class NotificationListFragment: UserContentListFragment() {
 
     private val notifAdapter = NotificationListAdapter()
 
+    lateinit var binding: FragmentNotificationListBinding
     lateinit var activity: MainActivity
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
 
-        val view = inflater.inflate(R.layout.fragment_notification_list, container, false)
+        binding = FragmentNotificationListBinding.inflate(inflater, container, false)
         activity = context as MainActivity
 
-        ButterKnife.bind(this, view)
         setupUI()
         setupTheming()
         loadMore()
@@ -96,8 +88,8 @@ open class NotificationListFragment: UserContentListFragment() {
     }
 
     open fun setupUI() {
-        ribbonRefresher.setOnRefreshListener { loadMore(true) }
-        notifRibbon.adapter = notifAdapter
+        binding.notifRefresher.setOnRefreshListener { loadMore(true) }
+        binding.notifRibbon.adapter = notifAdapter
     }
 
     override fun onResume() {
@@ -111,9 +103,9 @@ open class NotificationListFragment: UserContentListFragment() {
         styleLevel = Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(BACKGROUND, notifRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bind(BACKGROUND, binding.notifRibbon, NoRewriteBgPicAdapter())
 
-        val backgrounds = mapOf<View, Int>(notifRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
+        val backgrounds = mapOf<View, Int>(binding.notifRibbon to BACKGROUND/*, toolbar to TOOLBAR*/)
         Auth.profile?.let { applyTheme(activity, it, styleLevel, backgrounds) }
     }
 
@@ -123,7 +115,7 @@ open class NotificationListFragment: UserContentListFragment() {
      */
     override fun loadMore(reset: Boolean) {
         if (Auth.profile == null) { // we don't have a profile, just show empty list
-            ribbonRefresher.isRefreshing = false
+            binding.notifRefresher.isRefreshing = false
             return
         }
 

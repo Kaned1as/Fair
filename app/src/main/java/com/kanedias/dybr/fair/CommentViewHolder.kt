@@ -4,18 +4,13 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import butterknife.BindView
-import butterknife.BindViews
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.afollestad.materialdialogs.MaterialDialog
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
-import com.google.android.material.textview.MaterialTextView
+import com.kanedias.dybr.fair.databinding.FragmentCommentListItemBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
@@ -31,50 +26,39 @@ import kotlinx.coroutines.*
  * @param parentFragment fragment that this view holder belongs to. Needed for styling and
  *                       proper async job lifecycle
  * @param iv inflated view
- * @see CommentListFragment.commentRibbon
+ * @see CommentListFragment
  * @author Kanedias
  */
 class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : UserContentViewHolder<Comment>(iv, parentFragment) {
 
-    @BindView(R.id.comment_avatar)
-    lateinit var avatarView: ImageView
-
-    @BindView(R.id.comment_date)
-    lateinit var dateView: MaterialTextView
-
-    @BindView(R.id.comment_author)
-    lateinit var authorView: MaterialTextView
-
-    @BindView(R.id.comment_message)
-    lateinit var bodyView: MaterialTextView
-
-    @BindViews(R.id.comment_edit, R.id.comment_delete)
-    lateinit var buttons: List<@JvmSuppressWildcards ImageView>
+    private val binding = FragmentCommentListItemBinding.bind(iv)
+    private val buttons = listOf(binding.commentEdit, binding.commentDelete)
 
     private lateinit var comment: Comment
 
     init {
-        ButterKnife.bind(this, iv)
+        binding.commentEdit.setOnClickListener { editComment() }
+        binding.commentDelete.setOnClickListener { deleteComment() }
+
         setupTheming()
     }
 
-    override fun getCreationDateView() = dateView
-    override fun getProfileAvatarView() = avatarView
-    override fun getAuthorNameView() = authorView
-    override fun getContentView() = bodyView
+    override fun getCreationDateView() = binding.commentDate
+    override fun getProfileAvatarView() = binding.commentAvatar
+    override fun getAuthorNameView() = binding.commentAuthor
+    override fun getContentView() = binding.commentMessage
 
     private fun setupTheming() {
         val styleLevel = parentFragment.styleLevel
 
         styleLevel.bind(TEXT_BLOCK, itemView, CardViewColorAdapter())
-        styleLevel.bind(TEXT, authorView, TextViewColorAdapter())
-        styleLevel.bind(TEXT, dateView, TextViewColorAdapter())
-        styleLevel.bind(TEXT, bodyView, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, bodyView, TextViewLinksAdapter())
+        styleLevel.bind(TEXT, binding.commentAuthor, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.commentDate, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.commentMessage, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.commentMessage, TextViewLinksAdapter())
         buttons.forEach { styleLevel.bind(TEXT_LINKS, it, ImageViewColorAdapter()) }
     }
 
-    @OnClick(R.id.comment_edit)
     fun editComment() {
         val activity = itemView.context as AppCompatActivity
         val parentEntry = comment.entry.get(comment.document)
@@ -90,7 +74,6 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
         activity.showFullscreenFragment(commentEdit)
     }
 
-    @OnClick(R.id.comment_delete)
     fun deleteComment() {
         val activity = itemView.context as AppCompatActivity
 
@@ -140,16 +123,16 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
 
         this.comment = entity
 
-        bodyView.handleMarkdown(comment.content)
+        binding.commentMessage.handleMarkdown(comment.content)
 
         val profile = comment.profile.get(comment.document)
         toggleEditButtons(isBlogWritable(profile))
 
         // make text selectable
         // XXX: this is MAGIC: see https://stackoverflow.com/a/56224791/1696844
-        bodyView.setTextIsSelectable(false)
-        bodyView.measure(-1, -1)
-        bodyView.setTextIsSelectable(true)
+        binding.commentMessage.setTextIsSelectable(false)
+        binding.commentMessage.measure(-1, -1)
+        binding.commentMessage.setTextIsSelectable(true)
     }
 
 

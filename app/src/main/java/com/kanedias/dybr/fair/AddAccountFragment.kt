@@ -5,16 +5,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import butterknife.*
 import com.afollestad.materialdialogs.MaterialDialog
-import com.google.android.material.textfield.TextInputLayout
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
+import com.kanedias.dybr.fair.databinding.FragmentCreateAccountBinding
 import com.kanedias.dybr.fair.dto.RegisterRequest
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
@@ -38,46 +34,6 @@ import kotlinx.coroutines.*
  */
 class AddAccountFragment : Fragment() {
 
-    @BindView(R.id.acc_email)
-    lateinit var emailLayout: TextInputLayout
-
-    @BindView(R.id.acc_email_input)
-    lateinit var emailInput: EditText
-
-    @BindView(R.id.acc_password)
-    lateinit var pwdLayout: TextInputLayout
-
-    @BindView(R.id.acc_password_input)
-    lateinit var pwdInput: EditText
-
-    @BindView(R.id.acc_password_confirm)
-    lateinit var confirmPwdLayout: TextInputLayout
-
-    @BindView(R.id.acc_password_confirm_input)
-    lateinit var confirmPasswordInput: EditText
-
-    @BindView(R.id.acc_termsofservice_checkbox)
-    lateinit var termsOfServiceSwitch: CheckBox
-
-    @BindView(R.id.acc_is_over_18_checkbox)
-    lateinit var isAdultSwitch: CheckBox
-
-    @BindView(R.id.confirm_button)
-    lateinit var confirmButton: Button
-
-    @BindView(R.id.register_checkbox)
-    lateinit var registerSwitch: CheckBox
-
-    @BindViews(
-            R.id.acc_email,
-            R.id.acc_password, R.id.acc_password_confirm,
-            R.id.acc_termsofservice_checkbox, R.id.acc_is_over_18_checkbox
-    )
-    lateinit var regInputs: List<@JvmSuppressWildcards View>
-
-    @BindViews(R.id.acc_email, R.id.acc_password)
-    lateinit var loginInputs: List<@JvmSuppressWildcards View>
-
     private lateinit var activity: MainActivity
     private lateinit var emailCheck: Validation
     private lateinit var tosCheck: Validation
@@ -85,43 +41,56 @@ class AddAccountFragment : Fragment() {
     private lateinit var pwdCheck: Validation
     private lateinit var pwdConfirmCheck: Validation
 
+    private lateinit var binding: FragmentCreateAccountBinding
+    private lateinit var registerInputs: List<View>
+    private lateinit var loginInputs: List<View>
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = inflater.inflate(R.layout.fragment_create_account, container, false)
-        ButterKnife.bind(this, view)
+        binding = FragmentCreateAccountBinding.inflate(inflater, container, false)
         activity = context as MainActivity
 
-        emailCheck = Validation(emailLayout).add(EmailRule(R.string.email_is_invalid))
-        pwdCheck = Validation(pwdLayout).notEmpty(R.string.must_be_not_empty)
-        pwdConfirmCheck = Validation(confirmPwdLayout).add(PasswordMatchRule(pwdInput, R.string.passwords_not_match))
-        tosCheck = Validation("").add(CheckBoxCheckedRule(termsOfServiceSwitch, R.string.tos_not_accepted_error))
-        ageCheck = Validation("").add(CheckBoxCheckedRule(isAdultSwitch, R.string.age_not_confirmed_error))
+        loginInputs = listOf(binding.accEmail, binding.accPassword)
+        registerInputs = listOf(
+                binding.accEmail,
+                binding.accPassword,
+                binding.accPasswordConfirm,
+                binding.accTermsofserviceCheckbox,
+                binding.accIsOver18Checkbox
+        )
 
-        return view
+        binding.registerCheckbox.setOnCheckedChangeListener { _, checked -> switchToRegister(checked) }
+        binding.confirmButton.setOnClickListener { confirm(binding.confirmButton) }
+
+        emailCheck = Validation(binding.accEmail).add(EmailRule(R.string.email_is_invalid))
+        pwdCheck = Validation(binding.accPassword).notEmpty(R.string.must_be_not_empty)
+        pwdConfirmCheck = Validation(binding.accPasswordConfirm).add(PasswordMatchRule(binding.accPasswordInput, R.string.passwords_not_match))
+        tosCheck = Validation("").add(CheckBoxCheckedRule(binding.accTermsofserviceCheckbox, R.string.tos_not_accepted_error))
+        ageCheck = Validation("").add(CheckBoxCheckedRule(binding.accIsOver18Checkbox, R.string.age_not_confirmed_error))
+
+        return binding.root
     }
 
     /**
      * Show/hide additional register fields, change main button text
      */
-    @OnCheckedChanged(R.id.register_checkbox)
     fun switchToRegister(checked: Boolean) {
         if (checked) {
-            confirmButton.setText(R.string.register)
+            binding.confirmButton.setText(R.string.register)
             loginInputs.forEach { it.visibility = View.GONE }
-            regInputs.forEach { it.visibility = View.VISIBLE }
+            registerInputs.forEach { it.visibility = View.VISIBLE }
         } else {
-            confirmButton.setText(R.string.enter)
-            regInputs.forEach { it.visibility = View.GONE }
+            binding.confirmButton.setText(R.string.enter)
+            registerInputs.forEach { it.visibility = View.GONE }
             loginInputs.forEach { it.visibility = View.VISIBLE }
         }
-        emailInput.requestFocus()
+        binding.accEmailInput.requestFocus()
     }
 
     /**
      * Performs register/login call after all fields are validated
      */
-    @OnClick(R.id.confirm_button)
     fun confirm(confirmBtn: View) {
-        if (registerSwitch.isChecked) {
+        if (binding.registerCheckbox.isChecked) {
             // send register query
             Validator.with(confirmBtn.context)
                     .setListener(object: Validator.OnValidateListener {
@@ -144,15 +113,15 @@ class AddAccountFragment : Fragment() {
      * Creates session for the user, saves auth and closes fragment on success.
      */
     private fun doLogin() {
-        if (DbProvider.helper.accDao.queryForEq("email", emailInput.text.toString()).isNotEmpty()) {
+        if (DbProvider.helper.accDao.queryForEq("email", binding.accEmailInput.text.toString()).isNotEmpty()) {
             // we already have this account as active, skip!
             Toast.makeText(activity, R.string.email_already_added, Toast.LENGTH_SHORT).show()
             return
         }
 
         val acc = Account().apply {
-            email = emailInput.text.toString()
-            password = pwdInput.text.toString()
+            email = binding.accEmailInput.text.toString()
+            password = binding.accPasswordInput.text.toString()
             current = true
         }
 
@@ -193,11 +162,11 @@ class AddAccountFragment : Fragment() {
      */
     private fun doRegistration() {
         val req = RegisterRequest().apply {
-            email = emailInput.text.toString()
-            password = pwdInput.text.toString()
-            confirmPassword = confirmPasswordInput.text.toString()
-            termsOfService = termsOfServiceSwitch.isChecked
-            isAdult = isAdultSwitch.isChecked
+            email = binding.accEmailInput.text.toString()
+            password = binding.accPasswordInput.text.toString()
+            confirmPassword = binding.accPasswordConfirmInput.text.toString()
+            termsOfService = binding.accTermsofserviceCheckbox.isChecked
+            isAdult = binding.accIsOver18Checkbox.isChecked
         }
 
         val progressDialog = MaterialDialog(requireContext())
