@@ -349,4 +349,6 @@
     <string name="dative_case_profile_name">profile name</string>
     <string name="dative_case_tag">tag</string>
     <string name="dative_case_text">post text</string>
+    <string name="repost">Repost</string>
+    <string name="repost_header"><![CDATA[<a href="/profile/%s">%s</a> writes:</br>]]></string>
 </resources>

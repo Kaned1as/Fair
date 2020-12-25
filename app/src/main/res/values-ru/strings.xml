@@ -270,5 +270,6 @@
     <string name="dative_case_profile_name">имени профиля</string>
     <string name="dative_case_tag">тэгу</string>
     <string name="dative_case_text">тексту поста</string>
-
+    <string name="repost">Репост</string>
+    <string name="repost_header"><![CDATA[<a href="/profile/%s">%s</a> пишет:</br>]]></string>
 </resources>

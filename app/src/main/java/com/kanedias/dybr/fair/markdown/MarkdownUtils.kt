@@ -40,9 +40,7 @@ import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.databinding.ViewImageOverlayBinding
 import com.kanedias.html2md.Html2Markdown
 import com.stfalcon.imageviewer.StfalconImageViewer
-import io.noties.markwon.Markwon
-import io.noties.markwon.MarkwonConfiguration
-import io.noties.markwon.RenderProps
+import io.noties.markwon.*
 import io.noties.markwon.core.spans.LinkSpan
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
@@ -162,7 +160,23 @@ val MORE_FULL_REGEX = Regex(".*($MORE_START_PATTERN(.*?)$MORE_END_PATTERN)", Reg
  */
 fun postProcessSpans(spanned: SpannableStringBuilder, ctx: Context) {
     postProcessDrawables(spanned, ctx)
+    postProcessLinks(spanned, ctx)
     postProcessMore(spanned, ctx)
+}
+
+/**
+ * Post-process links so they are absolute, not relative.
+ * Android doesn't support relative links in TextViews
+ * @param spanned editable spannable to change
+ * @param ctx context that this processing is performed in
+ */
+fun postProcessLinks(spanned: SpannableStringBuilder, ctx: Context) {
+    val linkSpans = spanned.getSpans(0, spanned.length, LinkSpan::class.java)
+    for (span in linkSpans) {
+        val field = span.javaClass.getDeclaredField("link").apply { isAccessible = true }
+        val link = Network.resolve(field.get(span)?.toString())
+        link?.let { field.set(span, it.toString()) }
+    }
 }
 
 /**

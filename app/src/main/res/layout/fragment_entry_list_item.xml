@@ -261,6 +261,15 @@
 
             <ImageView
                 android:theme="@style/Ripple.Item"
+                android:id="@+id/entry_repost"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="8dp"
+                android:src="@drawable/repost"
+                android:contentDescription="@string/repost"/>
+
+            <ImageView
+                android:theme="@style/Ripple.Item"
                 android:id="@+id/entry_bookmark"
                 android:layout_width="36dp"
                 android:layout_height="36dp"

@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.WindowManager
 import android.widget.*
 import androidx.lifecycle.lifecycleScope
+import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
@@ -29,6 +30,7 @@ import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.databinding.FragmentEntryListItemBinding
 import com.kanedias.dybr.fair.dto.*
+import com.kanedias.dybr.fair.markdown.markdownToHtml
 import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.onClickSingleOnly
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
@@ -37,6 +39,7 @@ import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.openUrlExternally
 import com.kanedias.dybr.fair.ui.showToastAtView
 import kotlinx.coroutines.*
+import moe.banana.jsonapi2.HasOne
 
 /**
  * View holder for showing regular entries in blog view.
@@ -90,6 +93,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             binding.entryEdit,
             binding.entryDelete,
             binding.entryMoreOptions,
+            binding.entryRepost,
             binding.entryAddReaction
     )
 
@@ -113,6 +117,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         binding.entryMoreOptions.setOnClickListener { showOverflowMenu() }
         binding.entryWatch.setOnClickListener { subscribeToEntry(binding.entryWatch) }
         binding.entryBookmark.setOnClickListener { bookmarkEntry(binding.entryBookmark) }
+        binding.entryRepost.setOnClickListener { repostEntry() }
         binding.entryAddReaction.setOnClickListener { openReactionMenu(binding.entryAddReaction) }
     }
 
@@ -202,6 +207,47 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             } catch (ex: Exception) {
                 Network.reportErrors(itemView.context, ex)
             }
+        }
+    }
+
+    private fun repostEntry() {
+        val repostHeader = itemView.context.getString(R.string.repost_header, profile.id, profile.nickname)
+        val repostText = "${repostHeader} <blockquote>${entry.content}</blockquote>"
+
+        val repostView = TextView(itemView.context)
+        parentFragment.styleLevel.bind(TEXT, repostView, TextViewColorAdapter())
+        repostView.handleMarkdown(repostText)
+
+        MaterialDialog(itemView.context)
+                .title(R.string.confirm_action)
+                .customView(view = repostView, scrollable = true, horizontalPadding = true)
+                .negativeButton(android.R.string.no)
+                .positiveButton(R.string.repost, click = { dialog -> doRepostEntry(repostText) })
+                .showThemed(parentFragment.styleLevel)
+    }
+
+    private fun doRepostEntry(repostText: String) {
+
+        val dialog = MaterialDialog(itemView.context)
+                .title(R.string.please_wait)
+                .message(R.string.submitting)
+
+        val repostedEntry = EntryCreateRequest().apply {
+            title = entry.title
+            state = "published"
+            content = repostText
+            tags = entry.tags
+
+            profile = HasOne(Auth.profile!!)
+        }
+
+        parentFragment.lifecycleScope.launch(Dispatchers.Main) {
+            dialog.showThemed(parentFragment.styleLevel)
+
+            Network.perform(networkAction = { Network.createEntry(repostedEntry) },
+            uiAction = { Toast.makeText(itemView.context, R.string.entry_created, Toast.LENGTH_SHORT).show() })
+
+            dialog.dismiss()
         }
     }
 

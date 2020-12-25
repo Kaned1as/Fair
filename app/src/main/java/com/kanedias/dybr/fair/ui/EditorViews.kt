@@ -162,7 +162,7 @@ class EditorViews(private val parent: Fragment, private val binding: FragmentEdi
                 .message(R.string.uploading)
 
         GlobalScope.launch(Dispatchers.Main) {
-            dialog.show()
+            dialog.showThemed(binding.root.styleLevel!!)
 
             try {
                 val link = withContext(Dispatchers.IO) { Network.uploadImage(stream.readBytes()) }
