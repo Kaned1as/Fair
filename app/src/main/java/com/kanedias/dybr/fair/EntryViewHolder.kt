@@ -211,11 +211,13 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
     }
 
     private fun repostEntry() {
-        val repostHeader = itemView.context.getString(R.string.repost_header, profile.id, profile.nickname)
-        val repostText = "${repostHeader} <blockquote>${entry.content}</blockquote>"
+        val repostHeader = itemView.context.getString(R.string.repost_header, profile.id, profile.nickname, profile.blogSlug, entry.id)
+        val repostFooter = itemView.context.getString(R.string.repost_footer, profile.blogSlug, entry.id)
+        val repostText = "$repostHeader <blockquote>${entry.content}</blockquote> $repostFooter"
 
         val repostView = TextView(itemView.context)
         parentFragment.styleLevel.bind(TEXT, repostView, TextViewColorAdapter())
+        parentFragment.styleLevel.bind(TEXT_LINKS, repostView, TextViewLinksAdapter())
         repostView.handleMarkdown(repostText)
 
         MaterialDialog(itemView.context)

@@ -42,7 +42,7 @@
     <string name="register_new_account">Зарегистрировать новый аккаунт</string>
     <string name="email">E-Mail</string>
     <string name="password">Пароль</string>
-    <string name="confirm_password">Подтвердить пароль</string>
+    <string name="confirm_password">Подтвердите пароль</string>
     <string name="enter">Вход</string>
     <string name="invalid_email">Некорректный E-Mail</string>
     <string name="passwords_not_match">Пароли должны совпадать</string>
@@ -96,7 +96,7 @@
     <string name="create_new">Создать новый</string>
     <string name="new_profile">Новый профиль</string>
     <string name="no_profiles_create_one">Мы не нашли ни одного профиля для этого аккаунта. Создать профиль?</string>
-    <string name="confirm_action">Подтвердить действие</string>
+    <string name="confirm_action">Подтвердите действие</string>
     <string name="confirm_profile_deletion">
         Подтвердите удаление профиля.
         Внимание: дневник и все записи, сделанные от этого профиля, будут удалены!\n
@@ -271,5 +271,6 @@
     <string name="dative_case_tag">тэгу</string>
     <string name="dative_case_text">тексту поста</string>
     <string name="repost">Репост</string>
-    <string name="repost_header"><![CDATA[<a href="/profile/%s">%s</a> пишет:</br>]]></string>
+    <string name="repost_header"><![CDATA[<a rel="author" href="/profile/%s">@%s</a> <a href="/blog/%s/%s">пишет</a>:</br>]]></string>
+    <string name="repost_footer"><![CDATA[<a href="/blog/%s/%s">URL оригинальной записи</a>]]></string>
 </resources>

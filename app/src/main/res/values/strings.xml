@@ -350,5 +350,6 @@
     <string name="dative_case_tag">tag</string>
     <string name="dative_case_text">post text</string>
     <string name="repost">Repost</string>
-    <string name="repost_header"><![CDATA[<a href="/profile/%s">%s</a> writes:</br>]]></string>
+    <string name="repost_header"><![CDATA[<a rel="author" href="/profile/%s">@%s</a> <a href="/blog/%s/%s">writes</a>:</br>]]></string>
+    <string name="repost_footer"><![CDATA[<a href="/blog/%s/%s">Original entry URL</a>]]></string>
 </resources>
