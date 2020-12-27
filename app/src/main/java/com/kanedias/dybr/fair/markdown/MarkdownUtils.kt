@@ -138,7 +138,7 @@ infix fun TextView.handleMarkdown(html: String) {
     renderer.setParsedMarkdown(this, cachedMd)
 }
 
-const val MORE_START_PATTERN = "\\[MORE=(.+?)]"
+const val MORE_START_PATTERN = "\\[MORE=(.*?)]"
 const val MORE_END_PATTERN = "\\[/MORE]"
 
 const val MORE_TAG_START_PATTERN = "<details><summary>(.*?)</summary>"
@@ -227,7 +227,7 @@ fun postProcessDrawables(spanned: SpannableStringBuilder, ctx: Context) {
 /**
  * Post-process MORE statements in the text. They act like `<spoiler>` or `<cut>` tag in some websites
  * @param spanned text to be modified to cut out MORE tags and insert replacements instead of them
- * @param view resulting text view to accept the modified spanned string
+ * @param ctx context that this processing is performed in
  */
 fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
     while (true) {
@@ -240,8 +240,12 @@ fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
         val moreRange = match.groups[2]!!.range // content inside opening tag [MORE=...]
         val innerRange = match.groups[3]!!.range // range between opening and closing tag of MORE
 
-        // content inside opening tag [MORE=...] with all spans there
-        val moreSpanned = spanned.subSequence(moreRange.first, moreRange.last + 1) as SpannableStringBuilder
+        // spoiler text inside opening tag [MORE=...] with all spans there
+        var moreSpanned = spanned.subSequence(moreRange.first, moreRange.last + 1) as SpannableStringBuilder
+        if (moreSpanned.isEmpty()) {
+            // it was degenerate [MORE=][/MORE] tag without spoiler text, use default instead
+            moreSpanned = SpannableStringBuilder(ctx.getString(R.string.more_tag_default))
+        }
 
         // content between opening and closing tag with all spans there
         val innerSpanned = spanned.subSequence(innerRange.first, innerRange.last + 1) as SpannableStringBuilder
