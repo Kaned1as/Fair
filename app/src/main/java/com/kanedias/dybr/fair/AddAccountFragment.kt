@@ -1,6 +1,7 @@
 package com.kanedias.dybr.fair
 
 import android.os.Bundle
+import android.text.Editable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.afollestad.materialdialogs.MaterialDialog
+import com.google.android.material.internal.TextWatcherAdapter
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.databinding.FragmentCreateAccountBinding
@@ -60,6 +62,14 @@ class AddAccountFragment : Fragment() {
 
         binding.registerCheckbox.setOnCheckedChangeListener { _, checked -> switchToRegister(checked) }
         binding.confirmButton.setOnClickListener { confirm(binding.confirmButton) }
+
+        // if password is revealed on password prompt, reveal it
+        // in password confirmation input as well, also works in other direction
+        binding.accPasswordInput.addTextChangedListener(object: TextWatcherAdapter() {
+            override fun afterTextChanged(s: Editable) {
+                binding.accPasswordConfirmInput.transformationMethod = binding.accPasswordInput.transformationMethod
+            }
+        })
 
         emailCheck = Validation(binding.accEmail).add(EmailRule(R.string.email_is_invalid))
         pwdCheck = Validation(binding.accPassword).notEmpty(R.string.must_be_not_empty)
