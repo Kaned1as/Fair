@@ -142,7 +142,10 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
             override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
                 val actionLists = Network.loadActionLists()
                 val banned = actionLists
-                        .filter { it.action == "ban" && it.scope == "blog" }
+                        .filter {
+                            it.action == "ban" && it.scope == "blog"     // banned entirely
+                            || it.action == "hide" && it.scope == "feed" // or hidden from feed
+                        }
                         .flatMap { list -> list.profiles.get(list.document) }
                         .toList()
                 val from = (pageNum - 1) * 20
