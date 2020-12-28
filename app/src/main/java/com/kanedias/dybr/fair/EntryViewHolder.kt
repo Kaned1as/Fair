@@ -64,9 +64,13 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
     private var reactions: MutableList<Reaction> = mutableListOf()
 
     /**
-     * Blog this entry belongs to
+     * Profile this entry belongs to
      */
     private lateinit var profile: OwnProfile
+
+    /**
+     * Community this entry belongs to, if exists
+     */
     private var community: OwnProfile? = null
 
     override fun getCreationDateView() = binding.entryDate
@@ -410,6 +414,14 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         }
         val editTag = itemView.context.getString(R.string.edit_tag)
         buttons.filter { it.tag == editTag }.forEach { it.visibility = editVisibility }
+
+        // setup repost button
+        // don't show it on our own entries
+        val repostBtn = buttons.first { it.id == R.id.entry_repost }
+        when (profile.idMatches(Auth.profile)) {
+            true -> repostBtn.visibility = View.GONE
+            false -> repostBtn.visibility = View.VISIBLE
+        }
 
         // setup subscription button
         val subButton = buttons.first { it.id == R.id.entry_watch }

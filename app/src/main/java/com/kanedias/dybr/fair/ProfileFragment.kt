@@ -146,6 +146,14 @@ class ProfileFragment: DialogFragment() {
                 .apply(RequestOptions().centerInside())
                 .into(binding.authorAvatar)
 
+        if (profile.idMatches(Auth.profile)) {
+            // skip all button checks if it's our own profile and don't refresh any views
+            binding.authorAddToFavorites.visibility = View.GONE
+            binding.authorFeedBan.visibility = View.GONE
+            binding.authorBan.visibility = View.GONE
+            return
+        }
+
         // set favorite status
         when {
             Auth.profile?.favorites?.any { it.idMatches(profile) } == true -> binding.authorAddToFavorites.setImageDrawable(accountFavorited)
