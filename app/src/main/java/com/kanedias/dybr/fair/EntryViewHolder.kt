@@ -416,9 +416,9 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         buttons.filter { it.tag == editTag }.forEach { it.visibility = editVisibility }
 
         // setup repost button
-        // don't show it on our own entries
+        // don't show it on our own entries or if we don't have blog
         val repostBtn = buttons.first { it.id == R.id.entry_repost }
-        when (profile.idMatches(Auth.profile)) {
+        when (profile.idMatches(Auth.profile) || Auth.profile?.blogSlug.isNullOrEmpty()) {
             true -> repostBtn.visibility = View.GONE
             false -> repostBtn.visibility = View.VISIBLE
         }
