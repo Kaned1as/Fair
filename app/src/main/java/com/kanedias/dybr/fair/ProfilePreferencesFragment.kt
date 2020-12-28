@@ -72,7 +72,7 @@ class ProfilePreferencesFragment: Fragment() {
     }
 
     private fun setupTheming() {
-        styleLevel = Scoop.getInstance().addStyleLevel()
+        styleLevel = (activity as? MainActivity)?.styleLevel ?: Scoop.getInstance().addStyleLevel()
         lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(BACKGROUND, binding.root, NoRewriteBgPicAdapter())
@@ -110,7 +110,7 @@ class ProfilePreferencesFragment: Fragment() {
             applySettings(view)
         }
 
-        binding.newCommentsInSubscribedSwitch.isChecked = profile.settings.notifications.entries.enable
+        binding.newCommentsInSubscribedSwitch.isChecked = profile.settings.notifications.comments.enable
         binding.newCommentsInSubscribedSwitch.setOnCheckedChangeListener { view, isChecked ->
             profile.settings.notifications.apply { comments = comments.copy(enable = isChecked) }
             applySettings(view)
