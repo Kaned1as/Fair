@@ -92,7 +92,11 @@ class ProfileFragment: DialogFragment() {
         val dialogTitle = dialog.view.titleLayout.findViewById(R.id.md_text_title) as TextView
         val okButton = dialog.view.buttonsLayout!!.findViewById(R.id.md_button_positive) as DialogActionButton
 
-        styleLevel.bind(TEXT_BLOCK, dialog.view, DefaultColorAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, dialog.view)
+        styleLevel.bind(TEXT_BLOCK, dialog.view.titleLayout, DefaultColorAdapter())
+        styleLevel.bind(TEXT_BLOCK, dialog.view.contentLayout, DefaultColorAdapter())
+        styleLevel.bind(TEXT_BLOCK, dialog.view.buttonsLayout, DefaultColorAdapter())
+
         styleLevel.bind(TEXT_HEADERS, dialogTitle, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, okButton, MaterialDialogButtonAdapter())
 

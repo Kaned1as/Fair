@@ -13,10 +13,8 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import com.ftinc.scoop.Scoop
 import com.ftinc.scoop.adapters.DefaultColorAdapter
-import com.ftinc.scoop.binding.ViewDrawableBinding
 import com.kanedias.dybr.fair.databinding.FragmentCommentListBinding
 import com.kanedias.dybr.fair.dto.*
-import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.misc.getTopFragment
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
@@ -215,7 +213,7 @@ class CommentListFragment : UserContentListFragment() {
             }
         }
 
-        requireActivity().showFullscreenFragment(commentAdd)
+        commentAdd.show(parentFragmentManager, "comment create fragment")
     }
 
     /**

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="4dp"
+    android:padding="8dp"
     android:orientation="vertical">
 
     <GridLayout
@@ -165,10 +165,12 @@
         android:hint="@string/content"
         app:endIconMode="clear_text">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
+            style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
             android:id="@+id/source_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:bufferType="spannable"
             android:inputType="textCapSentences|textMultiLine"
             android:textAppearance="@android:style/TextAppearance.Medium"
             android:minLines="2"

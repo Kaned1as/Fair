@@ -59,7 +59,7 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
         buttons.forEach { styleLevel.bind(TEXT_LINKS, it, ImageViewColorAdapter()) }
     }
 
-    fun editComment() {
+    private fun editComment() {
         val activity = itemView.context as AppCompatActivity
         val parentEntry = comment.entry.get(comment.document)
         val commentEdit = CreateNewCommentFragment().apply {
@@ -71,7 +71,7 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
             }
         }
 
-        activity.showFullscreenFragment(commentEdit)
+        commentEdit.show(parentFragment.parentFragmentManager, "comment edit fragment")
     }
 
     fun deleteComment() {

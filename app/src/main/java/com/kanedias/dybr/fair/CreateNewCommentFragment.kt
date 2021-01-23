@@ -17,6 +17,7 @@ import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.OfflineDraft
 import com.kanedias.dybr.fair.databinding.FragmentCreateCommentBinding
@@ -41,7 +42,7 @@ import java.util.*
  *
  * Created on 01.04.18
  */
-class CreateNewCommentFragment : Fragment() {
+class CreateNewCommentFragment : EditorFragment() {
 
     companion object {
         const val EDIT_MODE = "edit-mode"
@@ -52,9 +53,7 @@ class CreateNewCommentFragment : Fragment() {
         const val REPLY_TEXT = "reply-text"
     }
 
-    private lateinit var styleLevel: StyleLevel
     private lateinit var binding: FragmentCreateCommentBinding
-    private lateinit var editor: EditorViews
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCreateCommentBinding.inflate(inflater, container, false)
@@ -77,12 +76,11 @@ class CreateNewCommentFragment : Fragment() {
         return binding.root
     }
 
-    private fun setupTheming() {
-        styleLevel = Scoop.getInstance().addStyleLevel()
-        //lifecycle.addObserver(styleLevel) // only auto-bind without animations
+    override fun setupTheming() {
+        super.setupTheming()
 
-        styleLevel.bind(BACKGROUND, binding.dialogArea, NoRewriteBgPicAdapter())
-        styleLevel.bindBgDrawable(BACKGROUND, binding.dialogArea)
+        styleLevel.bind(BACKGROUND, binding.dialogArea, DefaultColorAdapter())
+        styleLevel.bindImageDrawable(BACKGROUND, binding.blogBgArea)
 
         styleLevel.bind(TEXT_BLOCK, binding.commentAddArea, DefaultColorAdapter())
 
@@ -124,7 +122,7 @@ class CreateNewCommentFragment : Fragment() {
 
         if (editMode || binding.commentEditor.sourceText.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
-            parentFragmentManager.popBackStack()
+            dialog?.cancel()
             return
         }
 
@@ -135,7 +133,7 @@ class CreateNewCommentFragment : Fragment() {
         ))
 
         Toast.makeText(requireContext(), R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
-        parentFragmentManager.popBackStack()
+        dialog?.cancel()
     }
 
     /**
@@ -143,8 +141,8 @@ class CreateNewCommentFragment : Fragment() {
      * Cancels dialog and doesn't create any offline draft.
      * @return always true
      */
-    fun forceCancel(): Boolean {
-        parentFragmentManager.popBackStack()
+    private fun forceCancel(): Boolean {
+        dialog?.cancel()
         return true
     }
 
@@ -188,7 +186,7 @@ class CreateNewCommentFragment : Fragment() {
                     Toast.makeText(activity, R.string.comment_created, Toast.LENGTH_SHORT).show()
                     curFrg?.loadMore()
                 }
-                parentFragmentManager.popBackStack()
+                dialog?.cancel()
             } catch (ex: Exception) {
                 // don't close the fragment, just report errors
                 if (isActive) {

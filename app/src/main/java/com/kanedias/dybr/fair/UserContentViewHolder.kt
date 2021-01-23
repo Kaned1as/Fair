@@ -129,7 +129,7 @@ abstract class UserContentViewHolder<T: Authored>(iv: View, val parentFragment: 
                 }
             }
         }
-        activity.showFullscreenFragment(commentAdd)
+        commentAdd.show(parentFragment.parentFragmentManager, "comment add fragment")
     }
 
     inner class SelectionEnhancer(private val entity: T): ActionMode.Callback {

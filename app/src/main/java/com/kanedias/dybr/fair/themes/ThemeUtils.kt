@@ -134,7 +134,11 @@ fun updateColorBindings(ctx: Context, design: Design, level: StyleLevel) {
 
     // background drawable
     design.data.background?.url?.let {
-        val resolved = Network.resolve(it) ?: return@let
+        val resolved = Network.resolve(it)
+        if (resolved == null) {
+            level.updateDrawable(BACKGROUND, null)
+            return@let
+        }
 
         Glide.with(ctx)
                 .load(resolved.toString())

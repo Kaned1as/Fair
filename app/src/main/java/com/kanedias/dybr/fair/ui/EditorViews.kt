@@ -3,25 +3,36 @@ package com.kanedias.dybr.fair.ui
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.ClipboardManager
 import android.content.Context
-import android.net.Uri
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import androidx.fragment.app.Fragment
-import androidx.core.content.ContextCompat
+import android.net.Uri
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.MultiAutoCompleteTextView
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
-import com.kanedias.dybr.fair.service.Network
+import com.hootsuite.nachos.chip.ChipSpan
+import com.kanedias.dybr.fair.EditorFragment
 import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.databinding.FragmentEditFormBinding
+import com.kanedias.dybr.fair.dto.Auth
+import com.kanedias.dybr.fair.misc.SubstringItemFilter
 import com.kanedias.dybr.fair.misc.styleLevel
+import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import kotlinx.coroutines.*
+
 
 /**
  * Fragment to hold all editing-related functions in all edit views where possible.
@@ -30,7 +41,7 @@ import kotlinx.coroutines.*
  *
  * Created on 07.04.18
  */
-class EditorViews(private val parent: Fragment, private val binding: FragmentEditFormBinding) {
+class EditorViews(private val parentFragment: EditorFragment, private val binding: FragmentEditFormBinding) {
 
     companion object {
         val LINE_START = Regex("^", RegexOption.MULTILINE)
@@ -38,7 +49,7 @@ class EditorViews(private val parent: Fragment, private val binding: FragmentEdi
 
     private val ctx = binding.root.context
 
-    private val permissionCall = parent.registerForActivityResult(RequestPermission()) { granted ->
+    private val permissionCall = parentFragment.registerForActivityResult(RequestPermission()) { granted ->
         if (granted) {
             uploadImage(binding.editQuickImage)
         } else {
@@ -46,7 +57,7 @@ class EditorViews(private val parent: Fragment, private val binding: FragmentEdi
         }
     }
 
-    private val selectImageCall = parent.registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    private val selectImageCall = parentFragment.registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         requestImageUpload(uri)
     }
 
@@ -68,17 +79,49 @@ class EditorViews(private val parent: Fragment, private val binding: FragmentEdi
                 binding.editQuickMore,
                 binding.editQuickOfftopic,
 
-        ).forEach { it.setOnClickListener { view -> editSelection(view) } }
+                ).forEach { it.setOnClickListener { view -> editSelection(view) } }
+
+        setupAutocompleteMentions()
 
         // start editing content right away
         binding.sourceText.requestFocus()
-
-        setupTheming(binding.root)
-
     }
 
-    private fun setupTheming(view: View) {
-        val styleLevel = view.styleLevel ?: return
+    private fun setupAutocompleteMentions() {
+        val myFavs = Auth.profile?.favorites?.get(Auth.profile?.document).orEmpty()
+
+        binding.sourceText.setTokenizer(object : MultiAutoCompleteTextView.Tokenizer {
+
+            override fun findTokenStart(text: CharSequence, cursor: Int): Int {
+                for (i in cursor - 1 downTo 0) {
+                    if (text[i] == '@')
+                        return i
+                }
+                return cursor
+            }
+
+            override fun findTokenEnd(text: CharSequence?, cursor: Int): Int {
+                return cursor
+            }
+
+            override fun terminateToken(text: CharSequence): CharSequence {
+                val prof = myFavs.firstOrNull { it.nickname == text } ?: return text
+                val hidden = """<a rel="author" href="/profile/${prof.id}">@${prof.nickname}</a>"""
+                val spanned = SpannableStringBuilder(hidden)
+
+                val chip = ChipSpan(ctx, text, null, prof)
+                spanned.setSpan(chip, 0, spanned.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                return spanned
+            }
+        })
+
+        val profilesAdapter = MentionsAdapter(ctx, myFavs.map { it.nickname })
+        binding.sourceText.setAdapter(profilesAdapter)
+    }
+
+    fun setupTheming() {
+        val styleLevel = parentFragment.styleLevel
 
         for (idx in 0 until binding.editQuickButtonArea.childCount) {
             styleLevel.bind(TEXT_LINKS, binding.editQuickButtonArea.getChildAt(idx), ImageViewColorAdapter())
@@ -115,7 +158,7 @@ class EditorViews(private val parent: Fragment, private val binding: FragmentEdi
 
         when (clicked.id) {
             R.id.edit_quick_bold -> insertInCursorPosition("<b>", paste, "</b>")
-            R.id.edit_quick_italic -> insertInCursorPosition( "<i>", paste, "</i>")
+            R.id.edit_quick_italic -> insertInCursorPosition("<i>", paste, "</i>")
             R.id.edit_quick_underlined -> insertInCursorPosition("<u>", paste, "</u>")
             R.id.edit_quick_strikethrough -> insertInCursorPosition("<s>", paste, "</s>")
             R.id.edit_quick_code -> insertInCursorPosition("```\n", paste, "\n```\n")
@@ -155,7 +198,7 @@ class EditorViews(private val parent: Fragment, private val binding: FragmentEdi
         if (uri == null)
             return
 
-        val stream = parent.activity?.contentResolver?.openInputStream(uri) ?: return
+        val stream = parentFragment.activity?.contentResolver?.openInputStream(uri) ?: return
 
         val dialog = MaterialDialog(ctx)
                 .title(R.string.please_wait)
@@ -169,7 +212,7 @@ class EditorViews(private val parent: Fragment, private val binding: FragmentEdi
                 MaterialDialog(ctx)
                         .title(R.string.insert_image)
                         .message(R.string.select_image_width)
-                        .listItems(res = R.array.image_sizes, selection = {_, index, _ ->
+                        .listItems(res = R.array.image_sizes, selection = { _, index, _ ->
                             val spec = when (index) {
                                 0 -> "100"
                                 1 -> "200"
@@ -211,5 +254,24 @@ class EditorViews(private val parent: Fragment, private val binding: FragmentEdi
         binding.sourceText.setText(result)
 
         binding.sourceText.setSelection(cursorPos + prefix.length, cursorPos + prefix.length + what.length)
+    }
+
+    inner class MentionsAdapter(context: Context, objects: List<String>)
+        : ArrayAdapter<String>(context, R.layout.fragment_edit_form_tags_item, R.id.tag_text_label, objects) {
+
+        private val filter = SubstringItemFilter(this, objects).apply { addSkipChar('@') }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = convertView ?: LayoutInflater.from(ctx).inflate(R.layout.fragment_edit_form_tags_item, parent, false)
+
+            val tagName = view.findViewById<TextView>(R.id.tag_text_label)
+            tagName.text = getItem(position)
+
+            parentFragment.styleLevel.bind(TEXT, tagName, TextViewColorAdapter())
+
+            return view
+        }
+
+        override fun getFilter() = filter
     }
 }

@@ -29,6 +29,7 @@ import com.kanedias.dybr.fair.databinding.FragmentEditFormDraftSelectionRowBindi
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.markdown.handleMarkdownRaw
 import com.kanedias.dybr.fair.markdown.markdownToHtml
+import com.kanedias.dybr.fair.misc.SubstringItemFilter
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.EditorViews
@@ -47,7 +48,7 @@ import java.util.*
  * @see EntryListFragment.entryRibbon
  * @author Kanedias
  */
-class CreateNewEntryFragment : Fragment() {
+class CreateNewEntryFragment : EditorFragment() {
 
     companion object {
         /// True if edit mode is enabled, false if it's new entry.
@@ -68,8 +69,6 @@ class CreateNewEntryFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentCreateEntryBinding
-    private lateinit var editor: EditorViews
-    private lateinit var styleLevel: StyleLevel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCreateEntryBinding.inflate(inflater, container, false)
@@ -118,19 +117,13 @@ class CreateNewEntryFragment : Fragment() {
         }
         binding.tagsText.addChipTerminator('\n', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
         binding.tagsText.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
-        binding.tagsText.onFocusChangeListener = View.OnFocusChangeListener { _, focused ->
-            if (focused && binding.tagsText.text.isNullOrBlank()) {
-                binding.tagsText.showDropDown()
-            }
-        }
     }
 
-    private fun setupTheming() {
-        styleLevel = Scoop.getInstance().addStyleLevel()
-        //lifecycle.addObserver(styleLevel) // only auto-bind without animations
+    override fun setupTheming() {
+        super.setupTheming()
 
-        styleLevel.bind(BACKGROUND, binding.dialogArea, NoRewriteBgPicAdapter())
-        styleLevel.bindBgDrawable(BACKGROUND, binding.dialogArea)
+        styleLevel.bind(BACKGROUND, binding.dialogArea, DefaultColorAdapter())
+        styleLevel.bindImageDrawable(BACKGROUND, binding.blogBgArea)
 
         styleLevel.bind(TEXT_BLOCK, binding.entryAddArea, DefaultColorAdapter())
 
@@ -144,6 +137,8 @@ class CreateNewEntryFragment : Fragment() {
         styleLevel.bind(TEXT_BLOCK, binding.tagsText, AutocompleteDropdownNoAlphaAdapter())
         styleLevel.bind(ACCENT_TEXT, binding.tagsText, NachosChipTextColorAdapter())
         styleLevel.bind(ACCENT, binding.tagsText, NachosChipBgColorAdapter())
+        styleLevel.bind(TEXT, binding.tagsTextLayout, EditTextLayoutHintAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.tagsTextLayout, EditTextLayoutBoxStrokeAdapter())
 
         styleLevel.bind(TEXT, binding.entryMarkdownPreview, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, binding.entryMarkdownPreview, TextViewLinksAdapter())
@@ -235,7 +230,7 @@ class CreateNewEntryFragment : Fragment() {
                 binding.entryEditor.sourceText.text.isNullOrEmpty() &&
                 binding.tagsText.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
-            parentFragmentManager.popBackStack()
+            dialog?.cancel()
             return
         }
 
@@ -248,7 +243,7 @@ class CreateNewEntryFragment : Fragment() {
                 tags = binding.tagsText.chipValues.joinToString()
         ))
         Toast.makeText(activity, R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
-        parentFragmentManager.popBackStack()
+        dialog?.cancel()
     }
 
     /**
@@ -318,7 +313,7 @@ class CreateNewEntryFragment : Fragment() {
                         withContext(Dispatchers.IO) { Network.updateProfile(req) }
                     }
                 }
-                parentFragmentManager.popBackStack()
+                dialog?.cancel()
 
                 // if we have current tab set, refresh it
                 val frgPredicate = { it: Fragment -> it is UserContentListFragment && it.lifecycle.currentState == Lifecycle.State.RESUMED }
@@ -463,6 +458,8 @@ class CreateNewEntryFragment : Fragment() {
     inner class TagsAdapter(context: Context, objects: List<String>)
         : ArrayAdapter<String>(context, R.layout.fragment_edit_form_tags_item, R.id.tag_text_label, objects) {
 
+        private val filter = SubstringItemFilter(this, objects)
+
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = convertView ?: layoutInflater.inflate(R.layout.fragment_edit_form_tags_item, parent, false)
 
@@ -473,6 +470,8 @@ class CreateNewEntryFragment : Fragment() {
 
             return view
         }
+
+        override fun getFilter() = filter
     }
 
     /**

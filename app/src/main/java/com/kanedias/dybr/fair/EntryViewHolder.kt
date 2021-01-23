@@ -166,7 +166,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             }
         }
 
-        activity.showFullscreenFragment(entryEdit)
+        entryEdit.show(parentFragment.parentFragmentManager, "entry edit fragment")
     }
 
     private fun subscribeToEntry(subButton: ImageView) {

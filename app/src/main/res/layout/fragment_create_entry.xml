@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dialog_area"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:layout_margin="5dp">
+
+    <ImageView
+        android:id="@+id/blog_bg_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_alignTop="@+id/entry_add_area"
+        android:layout_alignBottom="@+id/entry_add_area"
+        android:scaleType="centerCrop"/>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/entry_add_area"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
         app:cardCornerRadius="6dp"
         app:cardElevation="2dp"
@@ -66,16 +75,27 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content" />
 
-                            <com.hootsuite.nachos.NachoTextView
-                                android:id="@+id/tags_text"
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                android:id="@+id/tags_text_layout"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:completionThreshold="1"
+                                android:padding="8dp"
                                 android:hint="@string/add_tags"
-                                app:chipVerticalSpacing="3dp"
-                                app:chipTextSize="12dp"
-                                app:chipHeight="30dp" />
+                                app:endIconMode="clear_text">
+
+                                <com.hootsuite.nachos.NachoTextView
+                                    style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
+                                    android:id="@+id/tags_text"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:completionThreshold="1"
+                                    app:chipVerticalSpacing="3dp"
+                                    app:chipTextSize="12dp"
+                                    app:chipHeight="30dp" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
 
                             <androidx.appcompat.widget.AppCompatSpinner
                                 android:id="@+id/entry_permission_selector"
@@ -167,4 +187,4 @@
 
     </androidx.cardview.widget.CardView>
 
-</FrameLayout>
+</RelativeLayout>

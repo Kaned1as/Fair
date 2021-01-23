@@ -181,7 +181,7 @@ open class EntryListFragment: UserContentListFragment() {
             }
         }
 
-        requireActivity().showFullscreenFragment(entryAdd)
+        entryAdd.show(parentFragmentManager, "entry create fragment")
     }
 
     /**
