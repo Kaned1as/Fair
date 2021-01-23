@@ -22,7 +22,13 @@ class SubstringItemFilter<T>(private val adapter: ArrayAdapter<T>, items: List<T
         origItems.forEach {
             val lcItem = it.toString().toLowerCase(Locale.getDefault())
             var lcConstraint = constraint.toString().toLowerCase(Locale.getDefault())
-            lcConstraint = lcConstraint.replace(Regex("[${skipChars.joinToString(separator = "")}]"), "")
+
+            if (skipChars.isNotEmpty()) {
+                // remove skip chars from search query
+                // this is needed because tokens @username should search for "username", not full token
+                lcConstraint = lcConstraint.replace(Regex("[${skipChars.joinToString(separator = "")}]"), "")
+            }
+
             if (lcItem.contains(lcConstraint)) {
                 filteredItems.add(it)
             }

@@ -4,6 +4,7 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -109,7 +110,14 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
                 val hidden = """<a rel="author" href="/profile/${prof.id}">@${prof.nickname}</a>"""
                 val spanned = SpannableStringBuilder(hidden)
 
+                val editorStyle = parentFragment.styleLevel
+                val chipBgColor = editorStyle.getOrCreateTopping(ACCENT).color
+                val chipTextColor = editorStyle.getOrCreateTopping(ACCENT_TEXT).color
+
                 val chip = ChipSpan(ctx, text, null, prof)
+                chip.setBackgroundColor(ColorStateList.valueOf(chipBgColor))
+                chip.setTextColor(chipTextColor)
+                chip.setTextSize(binding.sourceText.textSize.toInt())
                 spanned.setSpan(chip, 0, spanned.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
                 return spanned
