@@ -173,7 +173,7 @@ class CreateNewEntryFragment : EditorFragment() {
         binding.entryPinnedSwitch.isChecked = profSettings.pinnedEntries.contains(editEntryId)
         // need to convert entry content (html) to Markdown somehow...
         val markdown = Html2Markdown().parseExtended(editEntryContentHtml)
-        binding.entryEditor.sourceText.setText(markdown)
+        editor.setText(markdown)
         binding.tagsText.setText(editEntryTags.asList())
 
         // permission settings, if exist
@@ -387,7 +387,7 @@ class CreateNewEntryFragment : EditorFragment() {
      */
     private fun popDraftUI(draft: OfflineDraft) {
         binding.entryTitleText.setText(draft.title)
-        binding.entryEditor.sourceText.setText(draft.content)
+        editor.setText(draft.content)
         binding.tagsText.setText(draft.tags?.split(Regex(",\\s+")).orEmpty().filterNot { it.isBlank() })
         Toast.makeText(context, R.string.offline_draft_loaded, Toast.LENGTH_SHORT).show()
 

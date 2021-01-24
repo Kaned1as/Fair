@@ -4,7 +4,7 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import java.util.*
 
-class SubstringItemFilter<T>(private val adapter: ArrayAdapter<T>, items: List<T>) : Filter() {
+class SubstringItemFilter<T>(private val adapter: ArrayAdapter<T>, items: Collection<T>) : Filter() {
 
     // clone list so adapter won't reduce it on clear
     private val origItems = items.toList()

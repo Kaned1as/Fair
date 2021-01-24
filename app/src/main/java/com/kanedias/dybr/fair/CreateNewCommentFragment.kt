@@ -98,7 +98,7 @@ class CreateNewCommentFragment : EditorFragment() {
         // need to convert entry content (html) to Markdown somehow...
         val html = requireArguments().getString(EDIT_COMMENT_HTML)!!
         val markdown = Html2Markdown().parseExtended(html)
-        binding.commentEditor.sourceText.setText(markdown)
+        editor.setText(markdown)
     }
 
     /**
@@ -250,7 +250,7 @@ class CreateNewCommentFragment : EditorFragment() {
      * @param draft draft to load into UI forms and delete
      */
     private fun popDraftUI(draft: OfflineDraft) {
-        binding.commentEditor.sourceText.setText(draft.content)
+        editor.setText(draft.content)
         Toast.makeText(context, R.string.offline_draft_loaded, Toast.LENGTH_SHORT).show()
 
         DbProvider.helper.draftDao.deleteById(draft.id)

@@ -150,7 +150,7 @@ val MORE_END_REGEX = Regex(MORE_END_PATTERN, RegexOption.DOT_MATCHES_ALL)
 val MORE_TAG_START_REGEX = Regex(MORE_TAG_START_PATTERN, RegexOption.DOT_MATCHES_ALL)
 val MORE_TAG_END_REGEX = Regex(MORE_TAG_END_PATTERN, RegexOption.DOT_MATCHES_ALL)
 
-// starting ,* is required to capture only inner MORE, see https://regex101.com/r/zbpWUK/1
+// starting .* is required to capture only inner MORE, see https://regex101.com/r/zbpWUK/1
 val MORE_FULL_REGEX = Regex(".*($MORE_START_PATTERN(.*?)$MORE_END_PATTERN)", RegexOption.DOT_MATCHES_ALL)
 
 /**
@@ -423,8 +423,8 @@ class ImageShowOverlay(ctx: Context,
  */
 fun markdownToHtml(md: String): String {
     // we have to convert MORE tags to normal HTML tags
-    // otherwise we can end up in the situation when HTML tag, say, <p>, is opened
-    // outside the MORE and closed inside, causing messy logic on the website version
+    // otherwise we can end up in a situation when HTML tag, say, <p>, is opened
+    // outside the MORE and closed inside, causing logic on the website version
     // to close MORE as well, before it really needs to be closed
     // see example text here: https://regex101.com/r/ruWyDj/1
     // without postprocessing it is converted into this: https://regex101.com/r/HNrPE9/1
@@ -432,6 +432,7 @@ fun markdownToHtml(md: String): String {
             .replace(MORE_START_REGEX, "<details><summary>$1</summary>")
             .replace(MORE_END_REGEX, "</details>")
 
+    // actual conversion, using common mark reference spec
     val extensions = listOf(StrikethroughExtension.create(), TablesExtension.create())
     val parser = Parser.builder().extensions(extensions).build()
     val document = parser.parse(mdPostProcessed)

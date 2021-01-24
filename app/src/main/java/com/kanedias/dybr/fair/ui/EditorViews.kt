@@ -13,22 +13,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.MultiAutoCompleteTextView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.text.HtmlCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
+import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.hootsuite.nachos.chip.ChipSpan
+import com.kanedias.dybr.fair.CommentListFragment
 import com.kanedias.dybr.fair.EditorFragment
 import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.databinding.FragmentEditFormBinding
 import com.kanedias.dybr.fair.dto.Auth
+import com.kanedias.dybr.fair.dto.Comment
+import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.misc.SubstringItemFilter
+import com.kanedias.dybr.fair.misc.getTopFragment
 import com.kanedias.dybr.fair.misc.styleLevel
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
@@ -89,43 +96,17 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
     }
 
     private fun setupAutocompleteMentions() {
-        val myFavs = Auth.profile?.favorites?.get(Auth.profile?.document).orEmpty()
+        // get all commenters in this thread, gather readers and favorites as possible mention targets
+        val commentPage = parentFragment.activity?.getTopFragment(CommentListFragment::class)
+        val commenters = commentPage?.getRibbonAdapter()?.items
+                ?.mapNotNull { (it as? Comment)?.profile?.get(it.document) }
+                .orEmpty()
+        val favorites = Auth.profile?.favorites?.get(Auth.profile?.document).orEmpty()
+        val readers = Auth.profile?.readers?.get(Auth.profile?.document).orEmpty()
+        val possiblePredictions = commenters + favorites + readers
 
-        binding.sourceText.setTokenizer(object : MultiAutoCompleteTextView.Tokenizer {
-
-            override fun findTokenStart(text: CharSequence, cursor: Int): Int {
-                for (i in cursor - 1 downTo 0) {
-                    if (text[i] == '@')
-                        return i
-                }
-                return cursor
-            }
-
-            override fun findTokenEnd(text: CharSequence?, cursor: Int): Int {
-                return cursor
-            }
-
-            override fun terminateToken(text: CharSequence): CharSequence {
-                val prof = myFavs.firstOrNull { it.nickname == text } ?: return text
-                val hidden = """<a rel="author" href="/profile/${prof.id}">@${prof.nickname}</a>"""
-                val spanned = SpannableStringBuilder(hidden)
-
-                val editorStyle = parentFragment.styleLevel
-                val chipBgColor = editorStyle.getOrCreateTopping(ACCENT).color
-                val chipTextColor = editorStyle.getOrCreateTopping(ACCENT_TEXT).color
-
-                val chip = ChipSpan(ctx, text, null, prof)
-                chip.setBackgroundColor(ColorStateList.valueOf(chipBgColor))
-                chip.setTextColor(chipTextColor)
-                chip.setTextSize(binding.sourceText.textSize.toInt())
-                spanned.setSpan(chip, 0, spanned.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-                return spanned
-            }
-        })
-
-        val profilesAdapter = MentionsAdapter(ctx, myFavs.map { it.nickname })
-        binding.sourceText.setAdapter(profilesAdapter)
+        binding.sourceText.setTokenizer(MentionsChipTokenizer(possiblePredictions))
+        binding.sourceText.setAdapter(MentionsAdapter(ctx, possiblePredictions.map { it.nickname }.toSet().toList()))
     }
 
     fun setupTheming() {
@@ -264,6 +245,12 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
         binding.sourceText.setSelection(cursorPos + prefix.length, cursorPos + prefix.length + what.length)
     }
 
+    fun setText(markdown: String) {
+        binding.sourceText.setText(markdown)
+        MentionsSpanPreProcessor().preProcessMentionSpans(parentFragment.styleLevel, binding.sourceText)
+        binding.sourceText.setSelection(binding.sourceText.text.length)
+    }
+
     inner class MentionsAdapter(context: Context, objects: List<String>)
         : ArrayAdapter<String>(context, R.layout.fragment_edit_form_tags_item, R.id.tag_text_label, objects) {
 
@@ -281,5 +268,74 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
         }
 
         override fun getFilter() = filter
+    }
+
+    inner class MentionsChipTokenizer(private val predictions: List<OwnProfile>): MultiAutoCompleteTextView.Tokenizer {
+
+        override fun findTokenStart(text: CharSequence, cursor: Int): Int {
+            for (i in cursor - 1 downTo 0) {
+                if (text[i] == '@')
+                    return i
+            }
+            return cursor
+        }
+
+        override fun findTokenEnd(text: CharSequence?, cursor: Int): Int {
+            return cursor
+        }
+
+        override fun terminateToken(text: CharSequence): CharSequence {
+            val prof = predictions.firstOrNull { it.nickname == text } ?: return text
+            val hidden = """<a rel="author" href="/profile/${prof.id}">@${prof.nickname}</a>"""
+            val spanned = SpannableStringBuilder(hidden)
+
+            val editorStyle = parentFragment.styleLevel
+            val chipBgColor = editorStyle.getOrCreateTopping(ACCENT).color
+            val chipTextColor = editorStyle.getOrCreateTopping(ACCENT_TEXT).color
+            val chipDrawable = ContextCompat.getDrawable(ctx, R.drawable.profile)!!
+            DrawableCompat.setTint(chipDrawable, chipTextColor)
+
+            val chip = ChipSpan(ctx, text, chipDrawable, prof)
+            chip.setBackgroundColor(ColorStateList.valueOf(chipBgColor))
+            chip.setTextColor(chipTextColor)
+            chip.setTextSize(binding.sourceText.textSize.toInt())
+            spanned.setSpan(chip, 0, spanned.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            return spanned
+        }
+    }
+
+    class MentionsSpanPreProcessor {
+
+        companion object {
+            const val MENTION_TAG_START_PATTERN = """<a rel="author" href="/profile/\d+">"""
+            const val MENTION_TAG_END_PATTERN = "</a>"
+
+            const val MENTION_START_PATTERN = """\["""
+            const val MENTION_END_PATTERN = """\]\(/profile/\d+\)"""
+
+            val MENTION_TAG_FULL_REGEX = Regex("$MENTION_TAG_START_PATTERN(.*?)$MENTION_TAG_END_PATTERN", RegexOption.DOT_MATCHES_ALL)
+            val MENTION_FULL_REGEX = Regex("$MENTION_START_PATTERN(.*?)$MENTION_END_PATTERN", RegexOption.DOT_MATCHES_ALL)
+        }
+
+        fun preProcessMentionSpans(editorStyle: StyleLevel, editText: EditText) {
+            val spanned = editText.text as Spannable
+            for (mention in MENTION_TAG_FULL_REGEX.findAll(spanned) + MENTION_FULL_REGEX.findAll(spanned)) {
+                val username = mention.groups[1]!!.value
+                val usernameClean = username.replace("@", "")
+
+                val chipBgColor = editorStyle.getOrCreateTopping(ACCENT).color
+                val chipTextColor = editorStyle.getOrCreateTopping(ACCENT_TEXT).color
+                val chipDrawable = ContextCompat.getDrawable(editText.context, R.drawable.profile)!!
+                DrawableCompat.setTint(chipDrawable, chipTextColor)
+
+                val chip = ChipSpan(editText.context, usernameClean, chipDrawable, null)
+                chip.setBackgroundColor(ColorStateList.valueOf(chipBgColor))
+                chip.setTextColor(chipTextColor)
+                chip.setTextSize(editText.textSize.toInt())
+
+                spanned.setSpan(chip, mention.range.first, mention.range.last + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
     }
 }
