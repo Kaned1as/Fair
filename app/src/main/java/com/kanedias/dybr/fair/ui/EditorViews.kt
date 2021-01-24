@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.ColorStateList
 import android.net.Uri
+import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
@@ -91,6 +92,11 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
 
         setupAutocompleteMentions()
 
+        // auto complete views disable IME suggestions, re-enable it
+        // clear bit: type &= ~flag
+        val removed = binding.sourceText.inputType and InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE.inv()
+        binding.sourceText.inputType = removed
+
         // start editing content right away
         binding.sourceText.requestFocus()
     }
@@ -119,6 +125,7 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
         styleLevel.bind(TEXT_LINKS, binding.editInsertFromClipboard, CheckBoxAdapter())
         styleLevel.bind(TEXT, binding.sourceText, EditTextAdapter())
         styleLevel.bind(TEXT_LINKS, binding.sourceText, EditTextLineAdapter())
+        styleLevel.bind(TEXT_BLOCK, binding.sourceText, AutocompleteDropdownNoAlphaAdapter())
         styleLevel.bind(TEXT_LINKS, binding.sourceTextLayout, EditTextLayoutBoxStrokeAdapter())
         styleLevel.bind(TEXT, binding.sourceTextLayout, EditTextLayoutHintAdapter())
         styleLevel.bind(TEXT, binding.editFormattingHelperLabel, TextViewColorAdapter())

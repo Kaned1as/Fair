@@ -170,7 +170,7 @@
             android:id="@+id/source_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textCapSentences|textMultiLine"
+            android:inputType="textCapSentences|textMultiLine|textAutoCorrect|textAutoComplete"
             android:textAppearance="@android:style/TextAppearance.Medium"
             android:minLines="2"
             android:importantForAutofill="no" />
