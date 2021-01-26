@@ -117,6 +117,11 @@ class CreateNewEntryFragment : EditorFragment() {
         }
         binding.tagsText.addChipTerminator('\n', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
         binding.tagsText.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
+        binding.tagsText.onFocusChangeListener = View.OnFocusChangeListener { _, focused ->
+            if (focused && binding.tagsText.text.isNullOrBlank()) {
+                binding.tagsText.showDropDown()
+            }
+        }
     }
 
     override fun setupTheming() {

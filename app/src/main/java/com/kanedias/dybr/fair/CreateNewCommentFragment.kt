@@ -59,10 +59,8 @@ class CreateNewCommentFragment : EditorFragment() {
         binding = FragmentCreateCommentBinding.inflate(inflater, container, false)
         editor = EditorViews(this, binding.commentEditor)
 
-        binding.commentPreview.setOnClickListener { togglePreview() }
-        binding.commentCancel.setOnClickListener { cancel() }
-        binding.commentCancel.setOnLongClickListener { forceCancel() }
-        binding.commentSubmit.setOnClickListener { submit() }
+        setupUI()
+        setupTheming()
 
         val editMode = requireArguments().getBoolean(EDIT_MODE)
         if (editMode) {
@@ -72,8 +70,14 @@ class CreateNewCommentFragment : EditorFragment() {
             handleMisc()
         }
 
-        setupTheming()
         return binding.root
+    }
+
+    private fun setupUI() {
+        binding.commentPreview.setOnClickListener { togglePreview() }
+        binding.commentCancel.setOnClickListener { cancel() }
+        binding.commentCancel.setOnLongClickListener { forceCancel() }
+        binding.commentSubmit.setOnClickListener { submit() }
     }
 
     override fun setupTheming() {

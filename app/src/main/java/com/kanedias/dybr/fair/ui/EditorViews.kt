@@ -22,6 +22,7 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestPermissi
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.lifecycleScope
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import com.ftinc.scoop.StyleLevel
@@ -200,8 +201,8 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
                 .title(R.string.please_wait)
                 .message(R.string.uploading)
 
-        GlobalScope.launch(Dispatchers.Main) {
-            dialog.showThemed(binding.root.styleLevel!!)
+        parentFragment.lifecycleScope.launch {
+            dialog.showThemed(parentFragment.styleLevel)
 
             try {
                 val link = withContext(Dispatchers.IO) { Network.uploadImage(stream.readBytes()) }

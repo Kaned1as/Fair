@@ -69,59 +69,6 @@ class NoRewriteBgPicAdapter: DefaultColorAdapter() {
     }
 }
 
-class BackgroundDelayedAdapter(private val url: String): ColorAdapter<View> {
-
-    override fun getColor(view: View): Int {
-        return Color.TRANSPARENT
-    }
-
-    override fun applyColor(view: View, @ColorInt color: Int) {
-        // don't apply if we're already in progress or have bg set
-        if (url.isBlank() || view.background is BitmapDrawable || view.background is TransitionDrawable)
-            return
-
-        val resolved = Network.resolve(url) ?: return
-
-        Glide.with(view)
-                .load(resolved.toString())
-                .apply(RequestOptions()
-                        .override(view.width, view.height)
-                        .centerCrop())
-                .into(BgDrawableTarget(view))
-    }
-
-    inner class BgDrawableTarget(view: View): CustomViewTarget<View, Drawable>(view) {
-
-        private val cf = DrawableCrossFadeTransition(100, true)
-
-        override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-            resource.setBounds(0, 0, resource.intrinsicWidth, resource.intrinsicHeight)
-            GlobalScope.launch(Dispatchers.Main) {
-                cf.transition(resource, BgAdapter(view))
-            }
-        }
-
-        override fun onLoadFailed(errorDrawable: Drawable?) {
-        }
-
-        override fun onResourceCleared(placeholder: Drawable?) {
-            view.background = null
-        }
-    }
-
-    inner class BgAdapter(private val view: View) : Transition.ViewAdapter {
-
-        override fun getView() = view
-
-        override fun getCurrentDrawable(): Drawable? = view.background
-
-        override fun setDrawable(drawable: Drawable) {
-            view.background = drawable
-        }
-
-    }
-}
-
 class BackgroundTintColorAdapter : ColorAdapter<View> {
 
     override fun applyColor(view: View, @ColorInt color: Int) {

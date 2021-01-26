@@ -247,7 +247,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             profile = HasOne(Auth.profile!!)
         }
 
-        parentFragment.lifecycleScope.launch(Dispatchers.Main) {
+        parentFragment.lifecycleScope.launch {
             dialog.showThemed(parentFragment.styleLevel)
 
             Network.perform(networkAction = { Network.createEntry(repostedEntry) },
