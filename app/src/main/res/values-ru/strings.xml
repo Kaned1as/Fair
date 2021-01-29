@@ -10,11 +10,11 @@
     </string-array>
 
     <string-array name="permission_types">
-        <item>Не видно никому, кроме вас</item>                  <!-- 0 -->
+        <item>Не видно никому, кроме вас</item>  <!-- 0 -->
         <item>Видно зарегистрированным пользователям</item>      <!-- 1 -->
-        <item>Видно вашему избранному</item>                     <!-- 2 -->
-        <item>Видно вашим читателям</item>                       <!-- 3 -->
-        <item>Видно всем</item>                                  <!-- 4 -->
+        <item>Видно вашему избранному</item>       <!-- 2 -->
+        <item>Видно вашим читателям</item>     <!-- 3 -->
+        <item>Видно всем</item>             <!-- 4 -->
     </string-array>
 
     <string-array name="notification_intervals_desc">
@@ -102,7 +102,6 @@
         Внимание: дневник и все записи, сделанные от этого профиля, будут удалены!\n
         Введите никнейм профиля (%s) для подтверждения.
     </string>
-    <string name="keep_comments_in_other_blogs">Сохранить комментарии в чужих дневниках</string>
     <string name="confirm">Подтвердить</string>
     <string name="profile_deleted">Профиль удалён</string>
     <string name="switch_profile">Сменить профиль</string>
@@ -170,8 +169,8 @@
     <string name="communities">Сообщества</string>
     <string name="user_avatar">Аватар пользователя</string>
     <string name="author_name_label">Имя:</string>
-    <string name="registration_date_label">Дата регистрации:</string>
     <string name="subtext">Подпись:</string>
+    <string name="registration_date_label">Дата регистрации:</string>
     <string name="blog_label">Дневник:</string>
     <string name="view_profile">Посмотреть профиль</string>
     <string name="removed_from_favorites">Удалить из Избранного</string>
@@ -246,6 +245,23 @@
     <string name="more_tag_default">Читать далее</string>
     <string name="notifications_check_frequency">Частота проверки уведомлений</string>
     <string name="notifications_check_frequency_sum">Насколько часто производить проверку новых уведомлений</string>
+    <string name="reaction_deleted">Реакция удалена</string>
+    <string name="add_reaction">Добавить реакцию</string>
+    <string name="reaction_added">Реакция добавлена</string>
+    <string name="profile_settings">Настройки профиля</string>
+    <string name="new_posts_in_favorites">Новые посты в Избранном</string>
+    <string name="new_comments_in_subscribed">Новые комментарии в подписках</string>
+    <string name="notifications_settings">Настройки оповещений</string>
+    <string name="feed_settings">Настройки ленты</string>
+    <string name="privacy_settings">Настройки приватности</string>
+    <string name="participate_in_feed">Участвовать в общей ленте</string>
+    <string name="dont_participate_in_feed">Не участвовать в общей ленте</string>
+    <string name="reactions_settings">Настройки реакций</string>
+    <string name="disable_everywhere">Запрещены везде</string>
+    <string name="enable_everywhere">Разрешены везде</string>
+    <string name="disable_in_my_blog">Запрещены в моем блоге</string>
+    <string name="enable_in_my_blog">Разрешены в моем блоге</string>
+    <string name="applied">Применено</string>
     <string name="hide_author_from_feed">Скрыть этого автора из ленты</string>
     <string name="author_hidden_from_feed">Автор скрыт из ленты</string>
     <string name="reason">Причина</string>
@@ -258,12 +274,14 @@
     <string name="my_readers">Мои читатели</string>
     <string name="my_banned">Мои забаненные</string>
     <string name="my_communities">Мои сообщества</string>
+    <string name="keep_comments_in_other_blogs">Сохранить комментарии в чужих дневниках</string>
     <string name="user_preferred_language">Предпочитаемый язык</string>
     <string name="needs_app_restart">Требует полного рестарта приложения</string>
     <string name="no_communities_yet">Вы ещё не присоединились ни к одному сообществу</string>
     <string name="joined_community">Успешно присоединились к сообществу</string>
     <string name="left_community">Успешно вышли из сообщества</string>
     <string name="community_join_request_sent">Запрос на присоединение к сообществу отправлен на рассмотрение модератору.</string>
+    <string name="join_community">Присоединиться к сообществу</string>
     <string name="search_by">Поиск по %s</string>
     <string name="from_saved_search_by">Сохранённый поиск по %s</string>
     <string name="dative_case_blog_name">имени блога</string>
