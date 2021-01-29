@@ -67,7 +67,7 @@
         <item>1440</item>
     </string-array>
 
-    <string-array name="available_languages_desc">
+    <string-array name="available_languages_desc" translatable="false">
         <item>Русский</item>
         <item>Беларускі</item>
         <item>Український</item>
@@ -75,7 +75,7 @@
         <item>English</item>
     </string-array>
 
-    <string-array name="available_languages">
+    <string-array name="available_languages" translatable="false">
         <item>ru</item>
         <item>be</item>
         <item>uk</item>
