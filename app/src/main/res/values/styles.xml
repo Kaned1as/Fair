@@ -6,11 +6,20 @@
         <item name="android:background">?android:selectableItemBackground</item>
     </style>
 
+    <!-- place bottom sheet dialog above the keyboard, always -->
+    <!-- see https://stackoverflow.com/questions/44625365/keyboard-hides-bottomsheetdialogfragment -->
+    <style name="EditorDialog" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="colorSurface">@color/transparent</item>
+    </style>
+
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/scoop_default_primary_color</item>
         <item name="colorPrimaryDark">@color/scoop_default_primary_dark_color</item>
         <item name="colorAccent">@color/md_cyan_400</item>
         <item name="colorSurface">@color/transparent</item>
+        <item name="bottomSheetDialogTheme">@style/EditorDialog</item>
     </style>
 
 </resources>
