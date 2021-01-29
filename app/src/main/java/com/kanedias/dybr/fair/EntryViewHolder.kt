@@ -220,16 +220,24 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         val repostText = "$repostHeader <blockquote>${entry.content}</blockquote> $repostFooter"
 
         val repostView = TextView(itemView.context)
-        parentFragment.styleLevel.bind(TEXT, repostView, TextViewColorAdapter())
-        parentFragment.styleLevel.bind(TEXT_LINKS, repostView, TextViewLinksAdapter())
+
         repostView.handleMarkdown(repostText)
 
-        MaterialDialog(itemView.context)
+        val dialog = MaterialDialog(itemView.context)
                 .title(R.string.confirm_action)
                 .customView(view = repostView, scrollable = true, horizontalPadding = true)
                 .negativeButton(android.R.string.no)
                 .positiveButton(R.string.repost, click = { dialog -> doRepostEntry(repostText) })
-                .showThemed(parentFragment.styleLevel)
+
+        parentFragment.styleLevel.bindBgDrawable(BACKGROUND, dialog.view)
+        parentFragment.styleLevel.bind(TEXT_BLOCK, dialog.view.titleLayout, DefaultColorAdapter())
+        parentFragment.styleLevel.bind(TEXT_BLOCK, dialog.view.contentLayout, DefaultColorAdapter())
+        parentFragment.styleLevel.bind(TEXT_BLOCK, dialog.view.buttonsLayout, DefaultColorAdapter())
+
+        parentFragment.styleLevel.bind(TEXT, repostView, TextViewColorAdapter())
+        parentFragment.styleLevel.bind(TEXT_LINKS, repostView, TextViewLinksAdapter())
+
+        dialog.showThemed(parentFragment.styleLevel)
     }
 
     private fun doRepostEntry(repostText: String) {
@@ -242,7 +250,6 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             title = entry.title
             state = "published"
             content = repostText
-            tags = entry.tags
 
             profile = HasOne(Auth.profile!!)
         }
