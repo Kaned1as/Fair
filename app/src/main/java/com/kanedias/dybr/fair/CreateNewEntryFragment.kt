@@ -1,6 +1,7 @@
 package com.kanedias.dybr.fair
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,8 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.customListAdapter
-import com.ftinc.scoop.Scoop
-import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
@@ -93,7 +92,7 @@ class CreateNewEntryFragment : EditorFragment() {
         binding.entryPreview.setOnClickListener { togglePreview() }
         binding.entryDraftSwitch.setOnCheckedChangeListener { _, publish ->  toggleDraftState(publish) }
         binding.entryPinnedSwitch.setOnCheckedChangeListener { _, pin ->  togglePinnedState(pin) }
-        binding.entryCancel.setOnClickListener { cancel() }
+        binding.entryCancel.setOnClickListener { dismiss() }
         binding.entrySubmit.setOnClickListener { submit() }
 
         binding.entryPermissionSelector.adapter = PermissionSpinnerAdapter(listOf(
@@ -225,17 +224,21 @@ class CreateNewEntryFragment : EditorFragment() {
         }
     }
 
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        cancelEdit()
+    }
+
     /**
      * Cancel this item editing (with confirmation)
      */
-    fun cancel() {
+    private fun cancelEdit() {
         val editMode = requireArguments().getBoolean(EDIT_MODE, false)
         if (editMode ||
                 binding.entryTitleText.text.isNullOrEmpty() &&
                 binding.entryEditor.sourceText.text.isNullOrEmpty() &&
                 binding.tagsText.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
-            dialog?.cancel()
             return
         }
 
@@ -248,7 +251,6 @@ class CreateNewEntryFragment : EditorFragment() {
                 tags = binding.tagsText.chipValues.joinToString()
         ))
         Toast.makeText(activity, R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
-        dialog?.cancel()
     }
 
     /**

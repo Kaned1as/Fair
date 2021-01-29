@@ -1,6 +1,7 @@
 package com.kanedias.dybr.fair
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -75,8 +76,7 @@ class CreateNewCommentFragment : EditorFragment() {
 
     private fun setupUI() {
         binding.commentPreview.setOnClickListener { togglePreview() }
-        binding.commentCancel.setOnClickListener { cancel() }
-        binding.commentCancel.setOnLongClickListener { forceCancel() }
+        binding.commentCancel.setOnClickListener { dismiss() }
         binding.commentSubmit.setOnClickListener { submit() }
     }
 
@@ -108,7 +108,7 @@ class CreateNewCommentFragment : EditorFragment() {
     /**
      * Handler for clicking on "Preview" button
      */
-    fun togglePreview() {
+    private fun togglePreview() {
         if (binding.commentPreviewSwitcher.displayedChild == 0) {
             binding.commentPreviewSwitcher.displayedChild = 1
             binding.commentMarkdownPreview.handleMarkdownRaw(binding.commentEditor.sourceText.text.toString())
@@ -117,16 +117,20 @@ class CreateNewCommentFragment : EditorFragment() {
         }
     }
 
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        cancelEdit()
+    }
+
     /**
      * Cancel this item editing (with confirmation)
      */
-    fun cancel() {
+    private fun cancelEdit() {
         val entryId = requireArguments().getString(ENTRY_ID)
         val editMode = requireArguments().getBoolean(EDIT_MODE)
 
         if (editMode || binding.commentEditor.sourceText.text.isNullOrEmpty()) {
             // entry has empty title and content, canceling right away
-            dialog?.cancel()
             return
         }
 
@@ -137,17 +141,6 @@ class CreateNewCommentFragment : EditorFragment() {
         ))
 
         Toast.makeText(requireContext(), R.string.offline_draft_saved, Toast.LENGTH_SHORT).show()
-        dialog?.cancel()
-    }
-
-    /**
-     * Nobody knows about this feature.
-     * Cancels dialog and doesn't create any offline draft.
-     * @return always true
-     */
-    private fun forceCancel(): Boolean {
-        dialog?.cancel()
-        return true
     }
 
     /**
