@@ -68,6 +68,7 @@ class CreateNewEntryFragment : EditorFragment() {
     }
 
     private lateinit var binding: FragmentCreateEntryBinding
+    private var skipDraft = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCreateEntryBinding.inflate(inflater, container, false)
@@ -92,6 +93,7 @@ class CreateNewEntryFragment : EditorFragment() {
         binding.entryPreview.setOnClickListener { togglePreview() }
         binding.entryDraftSwitch.setOnCheckedChangeListener { _, publish ->  toggleDraftState(publish) }
         binding.entryPinnedSwitch.setOnCheckedChangeListener { _, pin ->  togglePinnedState(pin) }
+        binding.entryCancel.setOnLongClickListener { skipDraft = true; dismiss(); true }
         binding.entryCancel.setOnClickListener { dismiss() }
         binding.entrySubmit.setOnClickListener { submit() }
 
@@ -226,13 +228,17 @@ class CreateNewEntryFragment : EditorFragment() {
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        cancelEdit()
+        saveDraftEdit()
     }
 
     /**
      * Cancel this item editing (with confirmation)
      */
-    private fun cancelEdit() {
+    private fun saveDraftEdit() {
+        if (skipDraft) {
+            return
+        }
+
         val editMode = requireArguments().getBoolean(EDIT_MODE, false)
         if (editMode ||
                 binding.entryTitleText.text.isNullOrEmpty() &&
@@ -320,12 +326,13 @@ class CreateNewEntryFragment : EditorFragment() {
                         withContext(Dispatchers.IO) { Network.updateProfile(req) }
                     }
                 }
-                dialog?.cancel()
-
                 // if we have current tab set, refresh it
                 val frgPredicate = { it: Fragment -> it is UserContentListFragment && it.lifecycle.currentState == Lifecycle.State.RESUMED }
                 val currentFrg = parentFragmentManager.fragments.reversed().find(frgPredicate) as UserContentListFragment?
                 currentFrg?.loadMore(reset = true)
+
+                skipDraft = true
+                dismiss()
             } catch (ex: Exception) {
                 // don't close the fragment, just report errors
                 if (isActive) {

@@ -13,12 +13,9 @@ import android.widget.*
 import androidx.lifecycle.lifecycleScope
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.customListAdapter
-import com.ftinc.scoop.Scoop
-import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.OfflineDraft
 import com.kanedias.dybr.fair.databinding.FragmentCreateCommentBinding
@@ -55,6 +52,7 @@ class CreateNewCommentFragment : EditorFragment() {
     }
 
     private lateinit var binding: FragmentCreateCommentBinding
+    private var skipDraft = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCreateCommentBinding.inflate(inflater, container, false)
@@ -76,6 +74,7 @@ class CreateNewCommentFragment : EditorFragment() {
 
     private fun setupUI() {
         binding.commentPreview.setOnClickListener { togglePreview() }
+        binding.commentCancel.setOnLongClickListener { skipDraft = true; dismiss(); true }
         binding.commentCancel.setOnClickListener { dismiss() }
         binding.commentSubmit.setOnClickListener { submit() }
     }
@@ -119,13 +118,17 @@ class CreateNewCommentFragment : EditorFragment() {
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        cancelEdit()
+        saveDraftEdit()
     }
 
     /**
      * Cancel this item editing (with confirmation)
      */
-    private fun cancelEdit() {
+    private fun saveDraftEdit() {
+        if (skipDraft) {
+            return
+        }
+
         val entryId = requireArguments().getString(ENTRY_ID)
         val editMode = requireArguments().getBoolean(EDIT_MODE)
 
@@ -183,7 +186,9 @@ class CreateNewCommentFragment : EditorFragment() {
                     Toast.makeText(activity, R.string.comment_created, Toast.LENGTH_SHORT).show()
                     curFrg?.loadMore()
                 }
-                dialog?.cancel()
+
+                skipDraft = true
+                dismiss()
             } catch (ex: Exception) {
                 // don't close the fragment, just report errors
                 if (isActive) {
