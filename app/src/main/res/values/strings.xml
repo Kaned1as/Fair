@@ -69,7 +69,7 @@
 
     <string-array name="available_languages_desc" translatable="false">
         <item>Русский</item>
-        <item>Беларускі</item>
+        <item>Беларуская</item>
         <item>Український</item>
         <item>Deutsch</item>
         <item>English</item>
