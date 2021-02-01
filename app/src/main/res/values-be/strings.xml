@@ -9,6 +9,22 @@
         <item>поўны памер</item>  <!-- 5 -->
     </string-array>
 
+    <string-array name="permission_types">
+        <item>Бачна толькі вам</item>  <!-- 0 -->
+        <item>Бачна для зарэгістраваных карыстальнікаў</item>      <!-- 1 -->
+        <item>Бачна для абраных</item>       <!-- 2 -->
+        <item>Бачна для падпісантаў</item>     <!-- 3 -->
+        <item>Бачна для ўсіх</item>             <!-- 4 -->
+    </string-array>
+
+    <string-array name="notification_intervals_desc">
+        <item>Ніколі</item>                       <!--    0 -->
+        <item>Кожныя 15 хвілін</item>            <!--   15 -->
+        <item>Кожную гадзіну</item>                  <!--   60 -->
+        <item>Кожныя 12 гадзін</item>              <!--  720 -->
+        <item>Кожны дзень</item>                       <!-- 1440 -->
+    </string-array>
+
     <!-- regular strings -->
     <string name="my_profile">Мой профiль</string>
     <string name="my_diary">Мой дзеннiк</string>
@@ -22,16 +38,18 @@
     <string name="inbox">Пошта</string>
     <string name="settings">Налады</string>
     <string name="go_to">Перайсцi да...</string>
+    <string name="configure_account">Наладзіць уліковы запіс</string>
     <string name="register_new_account">Рэгiстрацыя акаунта</string>
     <string name="email">E-Mail</string>
     <string name="password">Пароль</string>
     <string name="confirm_password">Пацвердзiце пароль</string>
     <string name="enter">Уваход</string>
-    <string name="invalid_email">Невалiдны / няверны / недапушчальны E-Mail</string>
-    <string name="passwords_not_match">Паролi не супадаюць. А павiнны</string>
-    <string name="invalid_password">Невалiдны / няверны / недапушчальны пароль</string>
+    <string name="invalid_email">Несапраўдны E-Mail</string>
+    <string name="passwords_not_match">Паролi не супадаюць</string>
+    <string name="invalid_password">Несапраўдны пароль</string>
     <string name="must_be_not_empty">Павінна быць запоўненым</string>
-    <string name="must_only_contain_alphanumeric">Павiiна ўтрымлiваць толькi a-z і 0-9</string>
+    <string name="must_be_no_longer_than">Павінна быць не даўжэй за 1 %d сімвалы</string>
+    <string name="must_only_contain_alphanumeric">Дапускаюцца толькi працяжнік, a-z і 0-9</string>
     <string name="register">Рэгiстрацыя</string>
     <string name="username">Нiк</string>
     <string name="checking_in_progress">Праверка</string>
@@ -52,6 +70,7 @@
     <string name="login_successful">Паспяховы ўваход</string>
     <string name="profile_not_found">Профiль ня знойдзены!</string>
     <string name="loading">Загрузка...</string>
+    <string name="submitting">Адпраўляем...</string>
     <string name="loading_profile">Загрузка профiлю...</string>
     <string name="please_wait">Пачакайце калi ласка</string>
     <string name="logging_in">Уваход...</string>
@@ -61,4 +80,213 @@
     <string name="still_loading">Загрузка працягваецца...</string>
     <string name="entry_content">Змест запiсу</string>
     <string name="entry_title">Загаловак запісу</string>
-    </resources>
+    <string name="submit">Адправіць</string>
+    <string name="tos_accept">Я прымаю ўмовы прадастаўлення паслуг</string>
+    <string name="tos_not_accepted_error">Я не прымаю ўмовы прадастаўлення паслуг</string>
+    <string name="i_am_over_eighteen">Мне ёсць васемнаццаць / Я паўналетні(яя)</string>
+    <string name="age_not_confirmed_error">Узрост не пацверджаны</string>
+    <string name="next_steps">Наступныя крокі</string>
+    <string name="registered_please_confirm_mail">Рэгістрацыя завершаная! Калі ласка, праверце сваю электронную пошту і выканайце інструкцыі па актывацыі уліковага запісу.</string>
+    <string name="nickname">Мянушка</string>
+    <string name="birthday_dd_mm">Дзень нараджэння: ГГГГ-ММ-ДД</string>
+    <string name="must_be_in_iso_form">Павінна быць ГГГГ-ММ-ДД</string>
+    <string name="must_be_in_the_past">Выберыце ранейшую дату</string>
+    <string name="description">Апісанне</string>
+    <string name="create">Стварыць</string>
+    <string name="create_new">Стварыць новы</string>
+    <string name="new_profile">Новы профіль</string>
+    <string name="no_profiles_create_one">Для гэтага ўліковага запісу не знойдзена ніводнага профіля. Стварыць новы?</string>
+    <string name="confirm_action">Пацвердзіць / Пацвердзіць дзеянне</string>
+    <string name="confirm_profile_deletion">
+Пацвердзіць выдаленне профіля.\n
+Увага: дзённік і усе запісы, адпраўленыя ад імя гэтага профіля, будуць выдаленыя!\n
+Напішыце імя профіля (%s) ў поле, каб пацвердзіць выдаленне.</string>
+    <string name="confirm">Пацвердзіць</string>
+    <string name="profile_deleted">Профіль выдалены</string>
+    <string name="switch_profile">Абраць іншы профіль</string>
+    <string name="remove_profile">Выдаліць профіль</string>
+    <string name="profile_created">Профіль створаны</string>
+    <string name="add_profile">Дабавіць профіль</string>
+    <string name="create_blog">Стварыць блог</string>
+    <string name="blog_title">Назва блога</string>
+    <string name="blog_created">Блог створаны</string>
+    <string name="add_blog">Дабавіць блог</string>
+    <string name="my_blog">Мой блог</string>
+    <string name="preview">Папярэдні прагляд</string>
+    <string name="leave_crash_comment">Калі ласка, апішыце ваша апошняе дзеянне перад збоем праграмы</string>
+    <string name="app_crashed">На жаль, праграма перастала працаваць</string>
+    <string name="app_crash_report">Даклад аб збоі работы Fair</string>
+    <string name="edit_entry">Рэдагаваць запіс</string>
+    <string name="delete_entry">Выдалісь запіс</string>
+    <string name="more_options">Больш варыянтаў / Іншыя варыянты</string>
+    <string name="entry_deleted">Запіс выдалены</string>
+    <string name="entry_updated">Запіс абноўлены</string>
+    <string name="entry_created">Запіс створаны</string>
+    <string name="delete_comment">Выдаліць каментарый</string>
+    <string name="edit_comment">Рэдагаваць каментарый</string>
+    <string name="comment_deleted">Каментарый выдалены</string>
+    <string name="comment_content">Тэкст каментарыя</string>
+    <string name="comment_updated">Каментарый абноўлены</string>
+    <string name="comment_created">Каментарый створаны</string>
+    <string name="comment">Каментарый</string>
+    <string name="comments">Каментарыі</string>
+    <string name="entry_menu">Меню запісу</string>
+    <string name="show_web_version">Адкрыць у браўзеры</string>
+    <string name="bold_font">Тлусты шрыфт</string>
+    <string name="italic_font">Курсіў</string>
+    <string name="underlined_font">Падкрэслены шрыфт</string>
+    <string name="strikethrough_font">Закрэслены шрыфт</string>
+    <string name="insert_code_block">Уставіць блок з кодам</string>
+    <string name="insert_quote_block">Уставіць цытату</string>
+    <string name="insert_numbered_list">Уставіць нумараваны спіс</string>
+    <string name="insert_bulleted_list">Уставіць маркіраваны спіс</string>
+    <string name="insert_link">Уставіць спасылку</string>
+    <string name="insert_image">Уставіць малюнак</string>
+    <string name="insert_from_clipboard">Уставіць с буфера абмену</string>
+    <string name="content">Тэкст / Змест</string>
+    <string name="select_image_to_upload">Выберыце малюнак, які трэба запампаваць</string>
+    <string name="no_file_manager_found">Няма файлавага менеджэра</string>
+    <string name="uploading">Запамвоўваецца... / Запампоўваем...</string>
+    <string name="donate">Ахвяраваць</string>
+    <string name="thanks_for_your_pledge">Дзякуй за ваш ўклад!</string>
+    <string name="request_a_feature">Прапанаваць функцыянальнасць</string>
+    <string name="create_issue">Зараз вы будзеце перанакіраваныя да трэкера праекта. Калі ласка, стварыце там новы запіс.</string>
+    <string name="understood">Зразумела</string>
+    <string name="make_draft_entry">Захаваць чарнавік</string>
+    <string name="publish_entry">Адправіць запіс</string>
+    <string name="draft">Чарнавік</string>
+    <string name="api_home_server">API сервера</string>
+    <string name="api_home_server_sum">Лепш не чапайце, калі не ведаеце, что робіце</string>
+    <string name="read_more">Чытаць далей</string>
+    <string name="last_page">Больш старонак няма!</string>
+    <string name="participants_number_indicator">Колькі чалавек удзельнічае у абмеркаванні</string>
+    <string name="markdown_basics"><![CDATA[Пра фармат: <a href=\"https://en.wikipedia.org/wiki/Markdown\">Markdown</a>]]></string>
+    <string name="select_image_width">Абраць шырыню малюнка:</string>
+    <string name="no_permissions">У вас няма дазволу на гэта дзеянне</string>
+    <string name="world">Агульнае</string>
+    <string name="communities">Суполкі</string>
+    <string name="user_avatar">Аватарка</string>
+    <string name="author_name_label">Імя:</string>
+    <string name="subtext">Подпіс</string>
+    <string name="registration_date_label">Дата рэгістрацыі:</string>
+    <string name="blog_label">Блог:</string>
+    <string name="view_profile">Прагляд профіля</string>
+    <string name="removed_from_favorites">Выдалена з абранага</string>
+    <string name="add_to_favorites">Дабавіць да абранага</string>
+    <string name="added_to_favorites">Дабаўлена да абранага</string>
+    <string name="ban_from_feed">Не паказваць у стужцы запісаў</string>
+    <string name="unbanned_from_feed">Зноў паказваць у стужцы запісаў</string>
+    <string name="banned_from_feed">Не будзе паказвацца у стужцы</string>
+    <string name="ban">Заблакаваць</string>
+    <string name="apply_blog_theme">Выкарыстоўваць тэму афармлення з блога</string>
+    <string name="apply_blog_theme_on">Праграма будзе выкарыстоўваць тэму афармлення с блога, калі яна ёсць</string>
+    <string name="apply_blog_theme_off">Праграма будзе выглядаць па змаўчанні</string>
+    <string name="save_offline_draft">Захаваць чарнавік офлайн</string>
+    <string name="load_offline_draft">Загрузіць чарнавік</string>
+    <string name="offline_draft_saved">Чарнавік захаваны офлайн</string>
+    <string name="offline_draft_loaded">Чарнавік загружаны</string>
+    <string name="select_offline_draft">Абраць чарнавік</string>
+    <string name="from_profile_favorites">З абранага гэтага профілю</string>
+    <string name="not_found">Не знойдзена</string>
+    <string name="auto_load_images">Загружаць малюнкі аўтаматычна</string>
+    <string name="auto_load_images_on">Малюнкі будуць загружацца адразу</string>
+    <string name="auto_load_images_off">Малюнкі будуць загружацца па патрабаванню</string>
+    <string name="share">Падзяліцца</string>
+    <string name="open_in_browser">Адкрыць у браўзеры</string>
+    <string name="no_browser_found">У вас няма браўзера</string>
+    <string name="share_link_using">Падзяліцца спасылкай праз...</string>
+    <string name="share_image_using">Падзяліцца малюнкам праз...</string>
+    <string name="no_blog_yet">У вас яшчэ няма блога</string>
+    <string name="mark_read">Адзнацыць як прачытанае</string>
+    <string name="notifications">Паведамленні</string>
+    <string name="mark_all_read">Адзначыць усе як прачытанае</string>
+    <string name="mark_all_notifications_read">Адзначыць усе паведамленні як прачытаныя?</string>
+    <string name="new_comments">Новыя каментарыі</string>
+    <string name="youve_received_new_comments">У вас ёсць новыя каментарыі</string>
+    <string name="delete_offline_draft">Выдаліць чарнавік</string>
+    <string name="offline_draft_deleted">Чарнавік выдалены</string>
+    <string name="select_permission_type">Абраць тып дазволу</string>
+    <string name="entry_access_permissions">Правы на прагляд запісу</string>
+    <string name="return_to_notifications">Вярнуцца да паведамленняў?</string>
+    <string name="add_tags">Дадаць #тэгі</string>
+    <string name="downloading_image">Спампоўваем малюнак...</string>
+    <string name="image_saved_as">Малюнак захаваны сюды</string>
+    <string name="subscribe_to_entry">Падпісацца/адпісацца ад паведамленняў аб новых каментарыях</string>
+    <string name="subscribed_to_entry">Вы падпісаліся на паведамленні</string>
+    <string name="unsubscribed_from_entry">Вы адпісаліся ад паведамленняў</string>
+    <string name="version">Версія</string>
+    <string name="license">Ліцэнзія</string>
+    <string name="author">Аўтар</string>
+    <string name="send_email">Адправіць на E-Mail</string>
+    <string name="about">Пра праграму</string>
+    <string name="source_code">Зыходны код</string>
+    <string name="fork_on_github">Стварыць форк на гітхабе</string>
+    <string name="report_bug">Адправіць даклад пра баг</string>
+    <string name="github_issue_tracker">Трэкер багаў і пытанняў на Github</string>
+    <string name="reply">Адказаць</string>
+    <string name="email_not_activated_yet">Гэты адрас электроннай пошты яшчэ не актываваны</string>
+    <string name="email_not_found">Адрас электроннай пошты не знойдзены</string>
+    <string name="email_is_invalid">Адрас электроннай пошты несапраўдны</string>
+    <string name="incorrect_password">Памылковы пароль</string>
+    <string name="email_already_added">Гэты адрас электроннай пошты ўжо выкарыстоўваецца</string>
+    <string name="bookmarks">Закладкі</string>
+    <string name="my_bookmarks">Мае закладкі</string>
+    <string name="add_to_bookmarks">Дадаць да закладак / Зрабіць закладку</string>
+    <string name="remove_from_bookmarks">Выдаліць закладку</string>
+    <string name="entry_bookmarked">Запіс дададзены ў закладкі</string>
+    <string name="entry_removed_from_bookmarks">Запіс выдалены з закладак</string>
+    <string name="pin_entry">Замацаваць запіс</string>
+    <string name="pinned_entry">Замацаваны запіс</string>
+    <string name="non_pinned_entry">Незамацаваны запіс</string>
+    <string name="entry_pinned_status">Паказвае, ці замацаваны запіс</string>
+    <string name="insert_more_tag">Ўставіць тэг MORE</string>
+    <string name="more_tag_default">Чытаць далей</string>
+    <string name="notifications_check_frequency">Прамежак часу паміж праверкамі новых паведамленняў</string>
+    <string name="notifications_check_frequency_sum">Наколькі часта праграма будзе правяраць новыя паведамленні</string>
+    <string name="reaction_deleted">Смайлік выдалены</string>
+    <string name="add_reaction">Дадаць смайлік</string>
+    <string name="reaction_added">Смайлік дададзены</string>
+    <string name="profile_settings">Налады профіля</string>
+    <string name="new_posts_in_favorites">Новыя запісы ў абраным</string>
+    <string name="new_comments_in_subscribed">Новыя каментарыі да запісаў, на якія вы падпісаліся</string>
+    <string name="notifications_settings">Налады паведамленняў</string>
+    <string name="feed_settings">Налады стужкі з запісамі</string>
+    <string name="privacy_settings">Налады прыватнасці</string>
+    <string name="participate_in_feed">Паказваць запісы з свайго блога ў агульнай стужцы</string>
+    <string name="dont_participate_in_feed">Не паказваць запісы з свайго блога ў агульнай стужцы</string>
+    <string name="reactions_settings">Налады смайлікаў</string>
+    <string name="disable_everywhere">Усюды адключыць</string>
+    <string name="enable_everywhere">Усюды ўключыць</string>
+    <string name="disable_in_my_blog">Акдлючыць у маім блогу</string>
+    <string name="enable_in_my_blog">Уключыць у маім блогу</string>
+    <string name="applied">Налады захаваныя</string>
+    <string name="hide_author_from_feed">Не паказваць запісы гэтага аўтара у стужцы</string>
+    <string name="author_hidden_from_feed">Запісы гэтага аўтара не будуць паказвацца ў стужцы</string>
+    <string name="reason">Чаму</string>
+    <string name="profile_belongs_to_community">Гэта профіль суполкі</string>
+    <string name="unbanned">Разблакаваны</string>
+    <string name="banned">Заблакаваны</string>
+    <string name="community_colon">Суполка:</string>
+    <string name="community_marker">Гэта азначае, что гэта профіль суполкі</string>
+    <string name="my_favorites">Маё абранае</string>
+    <string name="my_readers">Мае чытачы</string>
+    <string name="my_banned">Заблакаваныя</string>
+    <string name="my_communities">Мае суполкі</string>
+    <string name="keep_comments_in_other_blogs">Не выдаляць каментарыі у іншых блогах</string>
+    <string name="user_preferred_language">Мова</string>
+    <string name="needs_app_restart">Каб налады пачалі працаваць, перазапусціце праграму</string>
+    <string name="no_communities_yet">У вас няма суполак</string>
+    <string name="joined_community">Вы далучыліся да суполкі</string>
+    <string name="left_community">Вы зышлі з суполкі</string>
+    <string name="community_join_request_sent">Ваш запыт на далучэнне да суполкі адпраўлены. Чакаем адабрэння мадэратараў.</string>
+    <string name="join_community">Далучыцца да суполкі</string>
+    <string name="search_by">Шукаць па %s</string>
+    <string name="from_saved_search_by">захаваны пошук па %s</string>
+    <string name="dative_case_blog_name">назва блога</string>
+    <string name="dative_case_profile_name">імя профілю</string>
+    <string name="dative_case_tag">тэг</string>
+    <string name="dative_case_text">адправіць тэкст</string>
+    <string name="repost">Рэпост</string>
+    <string name="repost_header"><![CDATA[<a rel=\"author\" href=\"/profile/%s\">@%s</a> <a href=\"/blog/%s/%s\">піша</a>:</br>]]></string>
+    <string name="repost_footer"><![CDATA[<a href=\"/blog/%s/%s\">Спасылка на запіс</a>]]></string>
+</resources>
