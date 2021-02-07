@@ -3,6 +3,7 @@ package com.kanedias.dybr.fair.ui
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.ColorStateList
 import android.net.Uri
@@ -17,7 +18,6 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.MultiAutoCompleteTextView
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -38,7 +38,6 @@ import com.kanedias.dybr.fair.dto.Comment
 import com.kanedias.dybr.fair.dto.OwnProfile
 import com.kanedias.dybr.fair.misc.SubstringItemFilter
 import com.kanedias.dybr.fair.misc.getTopFragment
-import com.kanedias.dybr.fair.misc.styleLevel
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import kotlinx.coroutines.*
@@ -54,6 +53,9 @@ import kotlinx.coroutines.*
 class EditorViews(private val parentFragment: EditorFragment, private val binding: FragmentEditFormBinding) {
 
     companion object {
+        const val EDITOR_IMAGE_UPLOAD = 1000
+        val EDITOR_REQUEST_LIST = listOf(EDITOR_IMAGE_UPLOAD)
+
         val LINE_START = Regex("^", RegexOption.MULTILINE)
     }
 
@@ -65,10 +67,6 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
         } else {
             showToastAtView(binding.editQuickImage, R.string.no_permissions)
         }
-    }
-
-    private val selectImageCall = parentFragment.registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        requestImageUpload(uri)
     }
 
     init {
@@ -173,7 +171,11 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
 
     /**
      * Image upload button requires special handling
+     *
+     * *Use deprecated startActivityForResult: GetContent contract doesn't allow custom apps URIs in picker
+     * If you pick image in Gallery app, it just doesn't work and returns to previous picker instead*
      */
+    @Suppress("DEPRECATION")
     fun uploadImage(clicked: View) {
         // sometimes we need SD-card access to load the image
         if (ContextCompat.checkSelfPermission(ctx, WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
@@ -188,7 +190,19 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
         }
 
         // not from clipboard, show upload dialog
-        selectImageCall.launch("image/*")
+        val intent = Intent().apply {
+            type = "image/*"
+            action = Intent.ACTION_GET_CONTENT
+        }
+
+        val picker = Intent.createChooser(intent, ctx.getString(R.string.select_image_to_upload))
+        parentFragment.startActivityForResult(picker, EDITOR_IMAGE_UPLOAD)
+    }
+
+    fun onActivityResult(requestCode: Int, content: Intent?) {
+        if (requestCode == EDITOR_IMAGE_UPLOAD) {
+            requestImageUpload(content?.data)
+        }
     }
 
     private fun requestImageUpload(uri: Uri?) {

@@ -122,19 +122,6 @@ infix fun TextView.handleMarkdown(html: String) {
     }
 
     val cachedMd = SpanCache.forMessageId(html.hashCode(), converter)
-
-    // FIXME: see https://github.com/noties/Markwon/issues/120
-    addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
-        override fun onViewDetachedFromWindow(v: View) {
-
-        }
-
-        override fun onViewAttachedToWindow(v: View) {
-            AsyncDrawableScheduler.schedule(v as TextView)
-        }
-
-    })
-
     renderer.setParsedMarkdown(this, cachedMd)
 }
 

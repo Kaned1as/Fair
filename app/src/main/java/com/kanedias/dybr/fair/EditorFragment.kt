@@ -1,5 +1,6 @@
 package com.kanedias.dybr.fair
 
+import android.content.Intent
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.ftinc.scoop.Scoop
@@ -42,5 +43,18 @@ open class EditorFragment: BottomSheetDialogFragment() {
         lifecycle.addObserver(styleLevel)
 
         editor.setupTheming()
+    }
+
+    /**
+     * Override deprecated function, see comment at [EditorViews.uploadImage]
+     */
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (EditorViews.EDITOR_REQUEST_LIST.contains(requestCode)) {
+            editor.onActivityResult(requestCode, data)
+            return
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }
