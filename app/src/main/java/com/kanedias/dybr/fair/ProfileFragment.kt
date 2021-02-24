@@ -87,7 +87,6 @@ class ProfileFragment: DialogFragment() {
 
     private fun setupTheming(dialog: MaterialDialog) {
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
 
         val dialogTitle = dialog.view.titleLayout.findViewById(R.id.md_text_title) as TextView
         val okButton = dialog.view.buttonsLayout!!.findViewById(R.id.md_button_positive) as DialogActionButton

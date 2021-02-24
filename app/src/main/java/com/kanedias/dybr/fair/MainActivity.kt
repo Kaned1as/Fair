@@ -167,7 +167,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupTheming() {
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
 
         styleLevel.bindStatusBar(this, STATUS_BAR)
 

@@ -22,12 +22,12 @@
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/entry_ribbon_refresher"
-        android:layout_marginStart="4dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <FrameLayout
+            android:id="@+id/entry_ribbon_area"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="4dp"
-                android:paddingBottom="4dp"
+                android:paddingBottom="60dp"
                 android:clipToPadding="false"
                 android:scrollbars="vertical"
                 android:fadeScrollbars="true"/>

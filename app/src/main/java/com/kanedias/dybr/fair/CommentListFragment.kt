@@ -80,7 +80,9 @@ class CommentListFragment : UserContentListFragment() {
     private fun setupTheming() {
         // this is a fullscreen fragment, add new style
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
+
+        styleLevel.bind(BACKGROUND, binding.commentRibbonArea, DefaultColorAdapter())
+        styleLevel.bindBgDrawable(BACKGROUND, binding.commentsRibbon)
 
         styleLevel.bind(TOOLBAR, binding.commentsToolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, binding.commentsToolbar, ToolbarTextAdapter())
@@ -88,9 +90,6 @@ class CommentListFragment : UserContentListFragment() {
 
         styleLevel.bind(ACCENT, binding.addCommentButton, BackgroundTintColorAdapter())
         styleLevel.bind(ACCENT_TEXT, binding.addCommentButton, FabIconAdapter())
-
-        styleLevel.bind(BACKGROUND, binding.commentsRibbon, NoRewriteBgPicAdapter())
-        styleLevel.bindBgDrawable(BACKGROUND, binding.commentsRibbon)
 
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 

@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.view.*
+import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewbinding.ViewBinding
 import com.ftinc.scoop.Scoop
+import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kanedias.dybr.fair.databinding.FragmentEntryListBinding
 import com.kanedias.dybr.fair.dto.*
@@ -52,6 +54,7 @@ open class EntryListFragment: UserContentListFragment() {
     protected lateinit var binding: ViewBinding
     protected lateinit var activity: MainActivity
 
+    protected lateinit var entryRibbonArea: FrameLayout
     protected lateinit var entryRibbon: RecyclerView
     protected lateinit var entryRibbonRefresher: SwipeRefreshLayout
     protected lateinit var fastJumpButton: FloatingActionButton
@@ -63,6 +66,7 @@ open class EntryListFragment: UserContentListFragment() {
         }
         binding = bindLayout(inflater, container)
         entryRibbon = binding.root.findViewById(R.id.entry_ribbon)
+        entryRibbonArea = binding.root.findViewById(R.id.entry_ribbon_area)
         entryRibbonRefresher = binding.root.findViewById(R.id.entry_ribbon_refresher)
         fastJumpButton = binding.root.findViewById(R.id.fast_jump_button)
 
@@ -107,9 +111,8 @@ open class EntryListFragment: UserContentListFragment() {
 
     open fun setupTheming() {
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
 
-        styleLevel.bind(BACKGROUND, entryRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bind(BACKGROUND, entryRibbonArea, DefaultColorAdapter())
         styleLevel.bindBgDrawable(BACKGROUND, entryRibbon)
 
         styleLevel.bind(ACCENT, fastJumpButton, BackgroundTintColorAdapter())

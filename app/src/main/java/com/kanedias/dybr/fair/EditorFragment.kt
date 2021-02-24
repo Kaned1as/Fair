@@ -40,7 +40,6 @@ open class EditorFragment: BottomSheetDialogFragment() {
 
     protected open fun setupTheming() {
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
 
         editor.setupTheming()
     }

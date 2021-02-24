@@ -101,7 +101,6 @@ open class NotificationListFragment: UserContentListFragment() {
 
     open fun setupTheming() {
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(BACKGROUND, binding.notifRibbon, NoRewriteBgPicAdapter())
         styleLevel.bindBgDrawable(BACKGROUND, binding.notifRibbon)

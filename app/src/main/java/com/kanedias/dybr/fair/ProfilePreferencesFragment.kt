@@ -73,7 +73,6 @@ class ProfilePreferencesFragment: Fragment() {
 
     private fun setupTheming() {
         styleLevel = (activity as? MainActivity)?.styleLevel ?: Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(BACKGROUND, binding.root, NoRewriteBgPicAdapter())
         styleLevel.bindBgDrawable(BACKGROUND, binding.root)

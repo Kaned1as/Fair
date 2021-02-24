@@ -80,13 +80,12 @@ open class ProfileListSearchFragment : UserContentListFragment() {
     private fun setupTheming() {
         // this is a fullscreen fragment, add new style
         styleLevel = Scoop.getInstance().addStyleLevel()
-        lifecycle.addObserver(styleLevel)
 
         styleLevel.bind(TOOLBAR, binding.profileListToolbar, DefaultColorAdapter())
         styleLevel.bind(TOOLBAR_TEXT, binding.profileListToolbar, ToolbarTextAdapter())
         styleLevel.bind(TOOLBAR_TEXT, binding.profileListToolbar, ToolbarIconsAdapter())
 
-        styleLevel.bind(BACKGROUND, binding.profileRibbon, NoRewriteBgPicAdapter())
+        styleLevel.bind(BACKGROUND, binding.profileRibbonArea, DefaultColorAdapter())
         styleLevel.bindBgDrawable(BACKGROUND, binding.profileRibbon)
         styleLevel.bindStatusBar(activity, STATUS_BAR)
 
