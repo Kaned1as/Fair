@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.ColorStateList
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -209,7 +210,13 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
         if (uri == null)
             return
 
-        val stream = parentFragment.activity?.contentResolver?.openInputStream(uri) ?: return
+        val resolver = parentFragment.activity?.contentResolver ?: return
+        val filename = resolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            cursor.moveToFirst()
+            cursor.getString(nameIndex)
+        }
+        val stream = resolver.openInputStream(uri) ?: return
 
         val dialog = MaterialDialog(ctx)
                 .title(R.string.please_wait)
@@ -219,7 +226,7 @@ class EditorViews(private val parentFragment: EditorFragment, private val bindin
             dialog.showThemed(parentFragment.styleLevel)
 
             try {
-                val link = withContext(Dispatchers.IO) { Network.uploadImage(stream.readBytes()) }
+                val link = withContext(Dispatchers.IO) { Network.uploadImage(stream.readBytes(), filename) }
                 MaterialDialog(ctx)
                         .title(R.string.insert_image)
                         .message(R.string.select_image_width)
