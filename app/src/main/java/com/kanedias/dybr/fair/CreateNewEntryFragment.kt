@@ -109,9 +109,9 @@ class CreateNewEntryFragment : EditorFragment() {
         val parentProfileId = requireArguments().getString(PARENT_BLOG_PROFILE_ID)!!
         lifecycleScope.launch {
             Network.perform(
-                    networkAction = { Network.loadProfile(parentProfileId) },
-                    uiAction = { prof ->
-                        val tags = prof.tags.map { it.name }
+                    networkAction = { Network.loadProfileTags(parentProfileId) },
+                    uiAction = { tagDoc ->
+                        val tags = tagDoc.map { it.name }
                         val adapter = TagsAdapter(requireContext(), tags)
                         binding.tagsText.setAdapter(adapter)
                     })

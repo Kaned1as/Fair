@@ -120,6 +120,7 @@ object Network {
             .add(ProfileResponse::class.java)
             .add(EntryCreateRequest::class.java)
             .add(EntryResponse::class.java)
+            .add(EntryTagResponse::class.java)
             .add(CreateCommentRequest::class.java)
             .add(CommentResponse::class.java)
             .add(DesignResponse::class.java)
@@ -418,6 +419,22 @@ object Network {
 
         // response is returned after execute call, body is not null
         return fromWrappedJson(resp.body()!!.source(), OwnProfile::class.java)!!
+    }
+
+    /**
+     * Loads all profile tags, returns as document
+     * @param id identifier of profile to load
+     * @return array document containing all profile tags
+     */
+    fun loadProfileTags(id: String): ArrayDocument<EntryTag> {
+        val req = Request.Builder().url("$PROFILES_ENDPOINT/$id/tags").build()
+        val resp = httpClient.newCall(req).execute()
+        if (!resp.isSuccessful) {
+            throw extractErrors(resp, "Can't load profile $id")
+        }
+
+        // response is returned after execute call, body is not null
+        return fromWrappedListJson(resp.body()!!.source(), EntryTag::class.java)
     }
 
     /**

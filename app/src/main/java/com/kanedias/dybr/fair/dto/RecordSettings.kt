@@ -47,7 +47,11 @@ data class RecordPermissions (
  */
 data class RecordAccessItem (
         /**
-         * type of access item. Can be "private", "registered", "favorites"
+         * Type of access item. Can be:
+         * * "private"
+         * * "registered"
+         * * "favorites"
+         * * "subscribers"
          */
         @Json(name = "type")
         val type: String

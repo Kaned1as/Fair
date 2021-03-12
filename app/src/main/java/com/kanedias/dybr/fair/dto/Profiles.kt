@@ -139,12 +139,6 @@ class ProfileResponse : Dated() {
     var settings: ProfileSettings = ProfileSettings()
 
     /**
-     * Tags that this profile is using
-     */
-    @Json(name = "tags")
-    var tags = mutableSetOf<Tag>()
-
-    /**
      * Link to the user this profile belongs to
      */
     @Json(name = "user")
