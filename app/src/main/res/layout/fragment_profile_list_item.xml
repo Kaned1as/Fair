@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/profile_avatar"
             android:layout_below="@id/profile_name"
-            android:padding="5dp"
+            android:padding="8dp"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/registration_date_label"/>
 

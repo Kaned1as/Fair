@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/profile_avatar"
             android:layout_below="@id/profile_name"
-            android:padding="5dp"
+            android:padding="8dp"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/join_date_label"/>
 
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/profile_avatar"
             android:layout_below="@id/participant_join_date_label"
-            android:padding="5dp"
+            android:padding="8dp"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/permissions_label"/>
 
