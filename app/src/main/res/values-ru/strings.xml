@@ -291,4 +291,15 @@
     <string name="repost">Репост</string>
     <string name="repost_header"><![CDATA[<a rel="author" href="/profile/%s">@%s</a> <a href="/blog/%s/%s">пишет</a>:</br>]]></string>
     <string name="repost_footer"><![CDATA[<a href="/blog/%s/%s">URL оригинальной записи</a>]]></string>
+    <string name="participants_label">Участники:</string>
+    <string name="readers_label">Читатели:</string>
+    <string name="nickname_label">Никнейм:</string>
+    <string name="favorites_label">Избранное:</string>
+    <string name="list">Список</string>
+    <string name="join_date_label">Дата вступления:</string>
+    <string name="permissions_label">Права:</string>
+    <string name="community_participant">Участник сообщества</string>
+    <string name="community_guest">Гость сообщества</string>
+    <string name="community_mod">Модератор</string>
+    <string name="community_admin">Администратор</string>
 </resources>

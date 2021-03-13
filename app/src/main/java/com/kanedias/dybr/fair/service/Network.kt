@@ -1022,6 +1022,35 @@ object Network {
     }
 
     /**
+     * Retrieves list of community participants from given community id.
+     *
+     * Notes:
+     * * Community id is a simple profile id
+     * * Community participant class is a greater entity than profile, it encompasses also
+     *   permissions, join date and other relevant data.
+     * @param communityProfId community profile id
+     * @param pageSize number of data entities on one page
+     * @param pageNum page number to retrieve
+     * @return array document of all community participants (not paged yet) for a given community id
+     */
+    fun communityParticipants(communityProfId: String, pageSize: Int = PAGE_SIZE, pageNum: Int = 1): ArrayDocument<CommunityParticipant> {
+        val builder = HttpUrl.parse("$PROFILES_ENDPOINT/${communityProfId}/community-participants")!!.newBuilder()
+            .addQueryParameter("page[number]", pageNum.toString())
+            .addQueryParameter("page[size]", PAGE_SIZE.toString())
+            .addQueryParameter("include", "entries,profiles")
+            .addQueryParameter("sort", "-created-at")
+
+        val req = Request.Builder().url(builder.build()).build()
+        val resp = httpClient.newCall(req).execute()
+        if (!resp.isSuccessful) {
+            throw extractErrors(resp, "Can't load community participants")
+        }
+
+        // response is returned after execute call, body is not null
+        return fromWrappedListJson(resp.body()!!.source(), CommunityParticipant::class.java)
+    }
+
+    /**
      * Deletes reaction [myReaction]. This reaction must exist and must have
      * current profile as its author.
      */

@@ -55,85 +55,175 @@
         android:contentDescription="@string/ban"
         android:visibility="invisible"/>
 
-    <TextView
-        android:id="@+id/author_name_label"
-        android:layout_width="wrap_content"
+    <TableLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/author_avatar"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:padding="4dp"
-        android:text="@string/author_name_label"/>
-
-    <TextView
-        android:id="@+id/author_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/author_avatar"
-        android:layout_toEndOf="@+id/author_name_label"
-        android:layout_marginTop="16dp"
-        android:padding="4dp"
-        android:text="@string/placeholder_short"/>
-
-    <TextView
-        android:id="@+id/author_subtext_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/author_name"
         android:layout_marginTop="8dp"
         android:layout_marginStart="16dp"
-        android:padding="4dp"
-        android:text="@string/subtext"/>
+        android:weightSum="1">
 
-    <TextView
-        android:id="@+id/author_subtext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/author_name"
-        android:layout_toEndOf="@+id/author_subtext_label"
-        android:layout_marginTop="8dp"
-        android:padding="4dp"
-        android:text="@string/placeholder_short"/>
+        <TableRow
+            android:layout_marginTop="4dp">
 
-    <TextView
-        android:id="@+id/author_registration_date_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/author_subtext"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:padding="4dp"
-        android:text="@string/registration_date_label"/>
+            <TextView
+                android:id="@+id/author_nickname_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.3"
+                android:padding="4dp"
+                android:text="@string/nickname_label"/>
 
-    <TextView
-        android:id="@+id/author_registration_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/author_registration_date_label"
-        android:layout_below="@id/author_subtext"
-        android:layout_marginTop="8dp"
-        android:padding="4dp"
-        android:text="@string/placeholder_short"/>
+            <TextView
+                android:id="@+id/author_nickname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:layout_gravity="center_vertical"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:text="@string/placeholder_short"/>
+        </TableRow>
 
-    <TextView
-        android:id="@+id/author_blog_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/author_registration_date"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:padding="4dp"
-        android:text="@string/blog_label"/>
+        <TableRow
+            android:layout_marginTop="4dp">
 
-    <TextView
-        android:id="@+id/author_blog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/author_blog_label"
-        android:layout_below="@id/author_registration_date"
-        android:layout_marginTop="8dp"
-        android:padding="4dp"
-        android:textStyle="bold"
-        android:text="@string/placeholder_short"/>
+            <TextView
+                android:id="@+id/author_subtext_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.3"
+                android:padding="4dp"
+                android:text="@string/subtext"/>
+            <TextView
+                android:id="@+id/author_subtext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:layout_gravity="center_vertical"
+                android:padding="4dp"
+                android:text="@string/placeholder_short"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/author_registration_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.3"
+                android:padding="4dp"
+                android:text="@string/registration_date_label"/>
+
+            <TextView
+                android:id="@+id/author_registration_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:layout_gravity="center_vertical"
+                android:padding="4dp"
+                android:text="@string/placeholder_short"/>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/author_blog_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.3"
+                android:padding="4dp"
+                android:text="@string/blog_label"/>
+
+            <TextView
+                android:id="@+id/author_blog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:layout_gravity="center_vertical"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:text="@string/placeholder_short"/>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/author_readers_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.3"
+                android:padding="4dp"
+                android:text="@string/readers_label"/>
+
+            <TextView
+                android:id="@+id/author_readers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:text="@string/list"/>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/author_favorites_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.3"
+                android:padding="4dp"
+                android:text="@string/favorites_label"/>
+
+            <TextView
+                android:id="@+id/author_favorites"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:text="@string/list"/>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/community_participants_row"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/author_community_participants_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.3"
+                android:padding="4dp"
+                android:text="@string/participants_label"/>
+
+            <TextView
+                android:id="@+id/author_community_participants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:text="@string/list"/>
+
+        </TableRow>
+
+    </TableLayout>
 
 </RelativeLayout>

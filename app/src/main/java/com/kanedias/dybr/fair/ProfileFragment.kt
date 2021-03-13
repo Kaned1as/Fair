@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
@@ -30,6 +29,7 @@ import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import kotlinx.coroutines.*
+import moe.banana.jsonapi2.ArrayDocument
 import moe.banana.jsonapi2.HasMany
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -65,7 +65,7 @@ class ProfileFragment: DialogFragment() {
 
         binding = FragmentProfileBinding.inflate(layoutInflater, null, false)
         labels = listOf(
-                binding.authorNameLabel,
+                binding.authorNicknameLabel,
                 binding.authorSubtextLabel,
                 binding.authorRegistrationDateLabel,
                 binding.authorBlogLabel
@@ -99,11 +99,18 @@ class ProfileFragment: DialogFragment() {
         styleLevel.bind(TEXT_HEADERS, dialogTitle, TextViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, okButton, MaterialDialogButtonAdapter())
 
-        styleLevel.bind(TEXT, binding.authorName, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.authorNickname, TextViewColorAdapter())
         styleLevel.bind(TEXT, binding.authorSubtext, TextViewColorAdapter())
         styleLevel.bind(TEXT, binding.authorRegistrationDate, TextViewColorAdapter())
-        styleLevel.bind(TEXT, binding.authorBlog, TextViewColorAdapter())
-        styleLevel.bind(TEXT_LINKS, binding.authorBlog, TextViewLinksAdapter())
+        styleLevel.bind(TEXT, binding.authorFavoritesLabel, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.authorReadersLabel, TextViewColorAdapter())
+        styleLevel.bind(TEXT, binding.authorCommunityParticipantsLabel, TextViewColorAdapter())
+
+        styleLevel.bind(TEXT_LINKS, binding.authorBlog, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.authorReaders, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.authorFavorites, TextViewColorAdapter())
+        styleLevel.bind(TEXT_LINKS, binding.authorCommunityParticipants, TextViewColorAdapter())
+
         styleLevel.bind(TEXT_LINKS, binding.authorAddToFavorites, ImageViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, binding.authorFeedBan, ImageViewColorAdapter())
         styleLevel.bind(TEXT_LINKS, binding.authorBan, ImageViewColorAdapter())
@@ -130,16 +137,26 @@ class ProfileFragment: DialogFragment() {
         binding.authorBan.setOnClickListener { toggleBan() }
 
         // set names and dates
-        binding.authorName.text = profile.nickname
+        binding.authorNickname.text = profile.nickname
         binding.authorSubtext.text = profile.settings.subtext
         binding.authorRegistrationDate.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(profile.createdAt)
 
         if (profile.blogSlug != null) {
-            binding.authorBlog.text = HtmlCompat.fromHtml("<a href='https://dybr.ru/blog/${profile.blogSlug}'>${profile.blogTitle}</a>", 0)
+            binding.authorBlog.text = profile.blogTitle
             binding.authorBlog.setOnClickListener { dismiss(); showBlog(profile) }
         } else {
             binding.authorBlog.text = ""
         }
+
+        binding.authorFavorites.setOnClickListener { dismiss(); showFavorites(profile) }
+        binding.authorReaders.setOnClickListener { dismiss(); showReaders(profile) }
+
+        if (profile.isCommunity) {
+            binding.authorCommunityParticipants.setOnClickListener { dismiss(); showParticipants(profile) }
+        } else {
+            binding.communityParticipantsRow.visibility = View.GONE
+        }
+
 
         // set avatar
         val avatar = Network.resolve(profile.settings.avatar) ?: Network.defaultAvatar()
@@ -174,6 +191,54 @@ class ProfileFragment: DialogFragment() {
                 }
             )
         }
+    }
+
+    private fun showParticipants(communityProf: OwnProfile) {
+        val frag = ParticipantListFragment().apply {
+            arguments = Bundle().apply { putString(ParticipantListFragment.COMMUNITY_PROFILE_ID, communityProf.id) }
+        }
+
+        activity.showFullscreenFragment(frag)
+    }
+
+    // TODO: replace with explicit call!
+    private fun showFavorites(profile: OwnProfile) {
+        class ProfileListReadersFragment: ProfileListSearchFragment() {
+
+            override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
+                val prof = Network.loadProfile(filters.getValue("profileId"))
+                val readers = prof.readers.get(prof.document)
+                val from = (pageNum - 1) * 20
+                val to = minOf(pageNum * 20, readers.size)
+                ArrayDocument<OwnProfile>().apply { addAll(readers.subList(from, to)) }
+            }
+        }
+
+        val frag = ProfileListReadersFragment().apply {
+            arguments = Bundle().apply { putSerializable("filters", HashMap(mapOf("profileId" to profile.id))) }
+        }
+
+        activity.showFullscreenFragment(frag)
+    }
+
+    // TODO: replace with explicit call!
+    private fun showReaders(profile: OwnProfile) {
+        class ProfileListFavFragment: ProfileListSearchFragment() {
+
+            override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
+                val prof = Network.loadProfile(filters.getValue("profileId"))
+                val favs = prof.favorites.get(prof.document)
+                val from = (pageNum - 1) * 20
+                val to = minOf(pageNum * 20, favs.size)
+                ArrayDocument<OwnProfile>().apply { addAll(favs.subList(from, to)) }
+            }
+        }
+
+        val frag = ProfileListFavFragment().apply {
+            arguments = Bundle().apply { putSerializable("filters", HashMap(mapOf("profileId" to profile.id))) }
+        }
+
+        activity.showFullscreenFragment(frag)
     }
 
     private fun setupActionLists() {

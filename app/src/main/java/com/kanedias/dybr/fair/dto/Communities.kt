@@ -152,7 +152,7 @@ class CommunityParticipantResponse: Resource() {
      * Permissions of specified participant
      */
     @Json(name = "permissions")
-    lateinit var message: List<String>
+    lateinit var permissions: List<String>
 
     /**
      * Profile this participant represents

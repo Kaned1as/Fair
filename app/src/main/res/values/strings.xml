@@ -352,4 +352,15 @@
     <string name="repost">Repost</string>
     <string name="repost_header"><![CDATA[<a rel="author" href="/profile/%s">@%s</a> <a href="/blog/%s/%s">writes</a>:</br>]]></string>
     <string name="repost_footer"><![CDATA[<a href="/blog/%s/%s">Original entry URL</a>]]></string>
+    <string name="participants_label">Participants:</string>
+    <string name="readers_label">Readers:</string>
+    <string name="nickname_label">Nickname:</string>
+    <string name="favorites_label">Favorites:</string>
+    <string name="list">List</string>
+    <string name="join_date_label">Join date:</string>
+    <string name="permissions_label">Permissions:</string>
+    <string name="community_participant">Community participant</string>
+    <string name="community_guest">Community guest</string>
+    <string name="community_mod">Community moderator</string>
+    <string name="community_admin">Community administrator</string>
 </resources>

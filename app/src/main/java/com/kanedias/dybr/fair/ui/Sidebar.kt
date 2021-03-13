@@ -94,6 +94,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         activity.showFullscreenFragment(BookmarkListFragmentFull())
     }
 
+    // TODO: replace with explicit call!
     private fun goToFavorites() {
         class ProfileListFavFragment: ProfileListSearchFragment() {
 
@@ -115,6 +116,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
         activity.showFullscreenFragment(frag)
     }
 
+    // TODO: replace with explicit call!
     private fun goToReaders() {
         class ProfileListReadersFragment: ProfileListSearchFragment() {
 
