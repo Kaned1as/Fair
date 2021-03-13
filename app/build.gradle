@@ -26,7 +26,7 @@ android {
         targetSdkVersion 29 // device you test on
         minSdkVersion 21    // device you allow your users to be on :)
         versionCode 109
-        versionName "1.26.6"
+        versionName "1.27.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
