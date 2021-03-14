@@ -423,7 +423,10 @@ fun markdownToHtml(md: String): String {
     val extensions = listOf(StrikethroughExtension.create(), TablesExtension.create())
     val parser = Parser.builder().extensions(extensions).build()
     val document = parser.parse(mdPostProcessed)
-    val html = HtmlRenderer.builder().extensions(extensions).build().render(document)
+    val html = HtmlRenderer.builder()
+        .softbreak("<br/>")
+        .extensions(extensions)
+        .build().render(document)
 
     // and then we convert it back to BB-style tags so the logic on the website
     // can pick it up from here. Uhh, this is clearly a hack and I'm so not happy about this...

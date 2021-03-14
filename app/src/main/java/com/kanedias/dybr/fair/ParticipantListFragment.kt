@@ -21,11 +21,11 @@ import moe.banana.jsonapi2.ArrayDocument
 import java.util.*
 
 /**
- * Fragment which displays profile lists. Needed mostly for showing search results
+ * Fragment which displays community participant lists.
  *
  * @author Kanedias
  *
- * Created on 2020-04-20
+ * Created on 2021-03-14
  */
 open class ParticipantListFragment : UserContentListFragment() {
 
@@ -43,7 +43,7 @@ open class ParticipantListFragment : UserContentListFragment() {
     /**
      * Community to retrieve participants for
      */
-    lateinit var communityProfileId: String
+    private lateinit var communityProfileId: String
 
     private lateinit var profileAdapter: LoadMoreAdapter
 

@@ -26,7 +26,7 @@ import com.kanedias.dybr.fair.database.entities.OfflineDraft
 import com.kanedias.dybr.fair.databinding.FragmentCreateEntryBinding
 import com.kanedias.dybr.fair.databinding.FragmentEditFormDraftSelectionRowBinding
 import com.kanedias.dybr.fair.dto.*
-import com.kanedias.dybr.fair.markdown.handleMarkdownRaw
+import com.kanedias.dybr.fair.markdown.handleMarkdown
 import com.kanedias.dybr.fair.markdown.markdownToHtml
 import com.kanedias.dybr.fair.misc.SubstringItemFilter
 import com.kanedias.dybr.fair.service.Network
@@ -197,8 +197,10 @@ class CreateNewEntryFragment : EditorFragment() {
      */
     fun togglePreview() {
         if (binding.entryPreviewSwitcher.displayedChild == 0) {
+            val processedMd = markdownToHtml(binding.entryEditor.sourceText.text.toString())
+
             binding.entryPreviewSwitcher.displayedChild = 1
-            binding.entryMarkdownPreview.handleMarkdownRaw(binding.entryEditor.sourceText.text.toString())
+            binding.entryMarkdownPreview.handleMarkdown(processedMd)
         } else {
             binding.entryPreviewSwitcher.displayedChild = 0
         }

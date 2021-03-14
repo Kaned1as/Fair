@@ -21,9 +21,9 @@ import com.kanedias.dybr.fair.database.entities.OfflineDraft
 import com.kanedias.dybr.fair.databinding.FragmentCreateCommentBinding
 import com.kanedias.dybr.fair.databinding.FragmentEditFormDraftSelectionRowBinding
 import com.kanedias.dybr.fair.dto.*
+import com.kanedias.dybr.fair.markdown.handleMarkdown
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.EditorViews
-import com.kanedias.dybr.fair.markdown.handleMarkdownRaw
 import com.kanedias.dybr.fair.markdown.markdownToHtml
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.html2md.Html2Markdown
@@ -109,8 +109,10 @@ class CreateNewCommentFragment : EditorFragment() {
      */
     private fun togglePreview() {
         if (binding.commentPreviewSwitcher.displayedChild == 0) {
+            val processedMd = markdownToHtml(binding.commentEditor.sourceText.text.toString())
+
             binding.commentPreviewSwitcher.displayedChild = 1
-            binding.commentMarkdownPreview.handleMarkdownRaw(binding.commentEditor.sourceText.text.toString())
+            binding.commentMarkdownPreview.handleMarkdown(processedMd)
         } else {
             binding.commentPreviewSwitcher.displayedChild = 0
         }
