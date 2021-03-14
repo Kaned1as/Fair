@@ -389,10 +389,13 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
     private fun sharePost() {
         val ctx = itemView.context
 
+        // if entry belongs to the community, use community link instead
+        val prof = community ?: profile
+
         try {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "text/plain"
-            intent.putExtra(Intent.EXTRA_TEXT, "https://dybr.ru/blog/${profile.blogSlug}/${entry.id}")
+            intent.putExtra(Intent.EXTRA_TEXT, "https://dybr.ru/blog/${prof.blogSlug}/${entry.id}")
             ctx.startActivity(Intent.createChooser(intent, ctx.getString(R.string.share_link_using)))
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(ctx, R.string.no_browser_found, Toast.LENGTH_SHORT).show()

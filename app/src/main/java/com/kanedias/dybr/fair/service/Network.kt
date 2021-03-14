@@ -5,6 +5,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import com.auth0.android.jwt.JWT
@@ -212,7 +213,7 @@ object Network {
                 .build()
     }
 
-    @UiThread
+    @AnyThread
     private fun setupEndpoints(ctx: Context) {
         val endpoint = UserPrefs.homeServerUrl
 
@@ -244,7 +245,7 @@ object Network {
         COMMUNITY_JOIN_REQ_ENDPOINT = resolve("community-join-requests")!!.toString()
     }
 
-    @UiThread
+    @AnyThread
     fun resolve(url: String?): HttpUrl? {
         if (url.isNullOrEmpty())
             return null
@@ -252,7 +253,7 @@ object Network {
         return MAIN_DYBR_API_ENDPOINT.resolve(url)
     }
 
-    @UiThread
+    @AnyThread
     fun defaultAvatar(): HttpUrl {
         return resolve("/static/media/default_ava.9b2e26d5.jpg")!!
     }
@@ -261,6 +262,7 @@ object Network {
      * Perform registration with specified register request
      * @param regInfo registration request with all necessary fields filled
      */
+    @WorkerThread
     fun createAccount(regInfo: RegisterRequest): RegisterResponse {
         val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(regInfo))
 
@@ -286,6 +288,7 @@ object Network {
      * @return true if auth was successful, false otherwise
      * @throws IOException on connection fail
      */
+    @WorkerThread
     fun login(acc: Account, profileId: String? = null) {
         val loginRequest = LoginRequest().apply {
             action = "login"
@@ -394,6 +397,7 @@ object Network {
      * Guests can't request any profiles.
      * @return list of profiles that are bound to currently logged in user
      */
+    @WorkerThread
     fun loadUserProfiles(): List<OwnProfile> {
         val req = Request.Builder().url("$USERS_ENDPOINT/${Auth.user.serverId}?include=profiles,favorites,my-communities").build()
         val resp = httpClient.newCall(req).execute()
@@ -410,6 +414,7 @@ object Network {
      * Fully loads profile, with blog and favorites
      * @param id identifier of profile to load
      */
+    @WorkerThread
     fun loadProfile(id: String): OwnProfile {
         val req = Request.Builder().url("$PROFILES_ENDPOINT/$id?include=favorites,my-communities").build()
         val resp = httpClient.newCall(req).execute()
@@ -426,6 +431,7 @@ object Network {
      * @param id identifier of profile to load
      * @return array document containing all profile tags
      */
+    @WorkerThread
     fun loadProfileTags(id: String): ArrayDocument<EntryTag> {
         val req = Request.Builder().url("$PROFILES_ENDPOINT/$id/tags").build()
         val resp = httpClient.newCall(req).execute()
@@ -441,6 +447,7 @@ object Network {
      * Fully loads profile, with blog and favorites
      * @param nickname nickname of profile to load
      */
+    @WorkerThread
     fun loadProfileByNickname(nickname: String): OwnProfile {
         val req = Request.Builder().url("$PROFILES_ENDPOINT?filters[nickname]=$nickname&include=favorites").build()
         val resp = httpClient.newCall(req).execute()
@@ -456,11 +463,21 @@ object Network {
         return filtered[0]
     }
 
+    /**
+     * Retrieves a list of profiles matching provided criteria. No linked objects are included
+     * by default, only attributes.
+     *
+     * @param filters criteria to select among all profiles
+     * @param pageNum index of page to retrieve, defaults to 1
+     * @param pageSize page size, i.e., how many data objects reside on one page
+     */
+    @WorkerThread
     fun searchProfiles(filters: Map<String, String>,
-                       pageNum: Int = 1): ArrayDocument<OwnProfile> {
+                       pageNum: Int = 1,
+                       pageSize: Int = PAGE_SIZE): ArrayDocument<OwnProfile> {
         val builder = HttpUrl.parse(PROFILES_ENDPOINT)!!.newBuilder()
         builder.addQueryParameter("page[number]", pageNum.toString())
-                .addQueryParameter("page[size]", PAGE_SIZE.toString())
+                .addQueryParameter("page[size]", pageSize.toString())
                 .addQueryParameter("sort", "-created-at")
 
         for ((type, value) in filters) {
@@ -484,6 +501,7 @@ object Network {
      * @warning doesn't work for now
      * @param prof Profile to delete. Only profile id is actually needed.
      */
+    @WorkerThread
     fun removeProfile(prof: OwnProfile, keepComments: Boolean = false) {
         val queryBuilder = HttpUrl.parse("$PROFILES_ENDPOINT/${prof.id}")!!.newBuilder()
         if (keepComments) {
@@ -502,6 +520,7 @@ object Network {
      * Create new profile for logged in user
      * @param prof profile creation request with all info filled in
      */
+    @WorkerThread
     fun createProfile(prof: ProfileCreateRequest): OwnProfile {
         return createEntity(PROFILES_ENDPOINT, prof)
     }
@@ -510,6 +529,7 @@ object Network {
      * Add the requested profile to the favorites of current user's profile
      * @param prof profile to add to favorites
      */
+    @WorkerThread
     fun addFavorite(prof: OwnProfile) {
         val reqBody = RequestBody.create(MIME_JSON_API, toWrappedListJson(ResourceIdentifier(prof)))
         val req = Request.Builder()
@@ -526,6 +546,7 @@ object Network {
      * Remove requested profile from favorites of current user's profile
      * @param prof profile to remove from favorites
      */
+    @WorkerThread
     fun removeFavorite(prof: OwnProfile) {
         val reqBody = RequestBody.create(MIME_JSON_API, toWrappedListJson(ResourceIdentifier(prof)))
         val req = Request.Builder()
@@ -538,6 +559,12 @@ object Network {
             throw extractErrors(resp, "Can't remove favorite for profile ${prof.nickname}")
     }
 
+    /**
+     * Updates existing profile.
+     *
+     * @param profReq profile to update. Must exist on server. Must have id field set.
+     */
+    @WorkerThread
     fun updateProfile(profReq: ProfileCreateRequest): OwnProfile {
         val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(profReq))
         val req = Request.Builder().url("$PROFILES_ENDPOINT/${profReq.id}").patch(reqBody).build()
@@ -554,6 +581,7 @@ object Network {
      * @param prof profile to load design from
      * @return current design of the profile or null if nothing found
      */
+    @WorkerThread
     fun loadProfileDesign(prof: OwnProfile): Design? {
         val designId = prof.settings.currentDesign
 
@@ -576,6 +604,7 @@ object Network {
      * Load one particular profile by slug
      * @param slug slug of requested profile blog
      */
+    @WorkerThread
     fun loadProfileBySlug(slug: String): OwnProfile {
         val req = Request.Builder().url("$PROFILES_ENDPOINT?filters[blog-slug]=$slug").build()
         val resp = httpClient.newCall(req).execute()
@@ -599,6 +628,7 @@ object Network {
      * @param pageNum page number to retrieve
      * @param starter timestamp in the form of unixtime, used to indicate start of paging sequence
      */
+    @WorkerThread
     fun loadEntries(prof: OwnProfile? = null,
                     pageNum: Int = 1,
                     filters: Map<String, String> = emptyMap(),
@@ -645,6 +675,7 @@ object Network {
      * Load one particular entry by its ID. Includes blog and profile.
      * @param id identifier of requested entry
      */
+    @WorkerThread
     fun loadEntry(id: String): Entry {
         val req = Request.Builder().url("$ENTRIES_ENDPOINT/$id?include=profiles,reactions,community").build()
         val resp = httpClient.newCall(req).execute()
@@ -661,10 +692,11 @@ object Network {
      *
      * @param entry entry to retrieve comments from
      */
-    fun loadComments(entry: Entry, pageNum: Int = 1): ArrayDocument<Comment> {
+    @WorkerThread
+    fun loadComments(entry: Entry, pageNum: Int = 1, pageSize: Int = PAGE_SIZE): ArrayDocument<Comment> {
         val builder = HttpUrl.parse("$ENTRIES_ENDPOINT/${entry.id}/comments")!!.newBuilder()
                 .addQueryParameter("page[number]", pageNum.toString())
-                .addQueryParameter("page[size]", PAGE_SIZE.toString())
+                .addQueryParameter("page[size]", pageSize.toString())
                 .addQueryParameter("include", "profiles,entries")
                 .addQueryParameter("sort", "created-at")
 
@@ -683,6 +715,7 @@ object Network {
     /**
      * Put markdown content into local cache
      */
+    @AnyThread
     private fun preloadMarkdown(html: String) {
         val mdContent = Html2Markdown().parseExtended(html)
         val spanned = mdRendererFrom(appCtx).toMarkdown(mdContent) as SpannableStringBuilder
@@ -695,6 +728,7 @@ object Network {
      * Create new entry comment on server.
      * @param comment comment to create. Must not exist on server. Should be filled with entry, body content etc.
      */
+    @WorkerThread
     fun createComment(comment: CreateCommentRequest): Comment {
         return createEntity(COMMENTS_ENDPOINT, comment)
     }
@@ -703,6 +737,7 @@ object Network {
      * Updates existing comment. Only content attribute is changeable.
      * @param comment comment to update. Must exist on server. Must have id field set and null entry.
      */
+    @WorkerThread
     fun updateComment(comment: CreateCommentRequest): Comment {
         val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(comment))
         val req = Request.Builder().url("$COMMENTS_ENDPOINT/${comment.id}").patch(reqBody).build()
@@ -718,6 +753,7 @@ object Network {
      * Deletes existing comment.
      * @param comment comment to delete. Must exist on server. Must have id field set.
      */
+    @WorkerThread
     fun deleteComment(comment: Comment) {
         val req = Request.Builder().url("$COMMENTS_ENDPOINT/${comment.id}").delete().build()
         val resp = httpClient.newCall(req).execute()
@@ -726,9 +762,10 @@ object Network {
     }
 
     /**
-     * Create new diary entry on server.
+     * Create new blog entry on server.
      * @param entry entry to create. Must not exist on server. Should be filled with blog, title, body content etc.
      */
+    @WorkerThread
     fun createEntry(entry: EntryCreateRequest): Entry {
         return createEntity(ENTRIES_ENDPOINT, entry)
     }
@@ -737,6 +774,7 @@ object Network {
      * Updates existing entry. Content, title attributes are changeable.
      * @param entry entry to update. Must exist on server. Must have id field set and null blog.
      */
+    @WorkerThread
     fun updateEntry(entry: EntryCreateRequest): Entry {
         val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(entry))
         val req = Request.Builder().url("$ENTRIES_ENDPOINT/${entry.id}").patch(reqBody).build()
@@ -752,6 +790,7 @@ object Network {
      * Deletes existing entry.
      * @param entry entry to delete. Must exist on server. Must have id field set.
      */
+    @WorkerThread
     fun deleteEntry(entry: Entry) {
         val req = Request.Builder().url("$ENTRIES_ENDPOINT/${entry.id}").delete().build()
         val resp = httpClient.newCall(req).execute()
@@ -761,7 +800,12 @@ object Network {
 
     /**
      * Loads notifications for current profile
+     *
+     * @param pageSize number of data entities on one page
+     * @param pageNum page number to retrieve
+     * @param onlyNew true if only new (unread) notifications should be loaded
      */
+    @WorkerThread
     fun loadNotifications(pageSize: Int = PAGE_SIZE, pageNum: Int = 1, onlyNew: Boolean = false) : ArrayDocument<Notification> {
         if (Auth.profile == null)
             return ArrayDocument()
@@ -790,6 +834,7 @@ object Network {
      * Updates existing notification. Only state attribute is changeable.
      * @param notification notification to update. Must exist on server. Must have id field set.
      */
+    @WorkerThread
     fun updateNotification(notification: NotificationRequest): Notification {
         val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(notification))
         val req = Request.Builder().url("$NOTIFICATIONS_ENDPOINT/${notification.id}").patch(reqBody).build()
@@ -802,7 +847,20 @@ object Network {
     }
 
 
+    /**
+     * Mark notifications for denoted [entry] as read for currently logged in profile.
+     * Doesn't do anything if user is not logged in.
+     *
+     * @param entry entry that should be marked as read in notifications
+     * @return true if any notifications were updated, false otherwise
+     */
+    @WorkerThread
     fun markNotificationsReadFor(entry: Entry): Boolean {
+        if (Auth.profile == null) {
+            // not logged in
+            return false
+        }
+
         val builder = HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/relationships/notifications")!!.newBuilder()
         builder.addQueryParameter("filters[entry_id]", entry.id)
                 .addQueryParameter("filters[state]", "new")
@@ -827,9 +885,16 @@ object Network {
     }
 
     /**
-     * Marks all notifications read for current profile
+     * Marks all notifications read for currently logged in profile.
+     * Doesn't do anything if user is not logged in.
      */
+    @WorkerThread
     fun markAllNotificationsRead() {
+        if (Auth.profile == null) {
+            // not logged in
+            return
+        }
+
         val reqBody = RequestBody.create(MIME_JSON_API, "")
         val req = Request.Builder().url("$PROFILES_ENDPOINT/${Auth.profile?.id}/relationships/notifications/read-all").post(reqBody).build()
         val resp = httpClient.newCall(req).execute()
@@ -837,6 +902,10 @@ object Network {
             throw extractErrors(resp, "Can't mark notifications read")
     }
 
+    /**
+     * Can probably be made to work, but this registration workflow was not tested yet.
+     */
+    @WorkerThread
     fun confirmRegistration(emailToConfirm: String, tokenFromMail: String): LoginResponse {
         val confirmation = ConfirmRequest().apply {
             action = "confirm"
@@ -859,11 +928,12 @@ object Network {
 
 
     /**
-     * Update current profile's subscription to [entry]
+     * Update current profile's subscription to denoted [entry]
      *
      * @param entry entry to modify status for
      * @param subscribe if true, subscribe, else unsubscribe from denoted entry
      */
+    @WorkerThread
     fun updateSubscription(entry: Entry, subscribe: Boolean) {
         val subscription = ResourceIdentifier().apply {
             type = "subscriptions"
@@ -889,11 +959,12 @@ object Network {
     }
 
     /**
-     * Update current profile's bookmark to [entry]
+     * Update current profile's bookmark to denoted [entry]
      *
      * @param entry entry to modify status for
      * @param bookmark if true, bookmark, else remove bookmark to denoted entry
      */
+    @WorkerThread
     fun updateBookmark(entry: Entry, bookmark: Boolean) {
         val bookmarkReq = CreateBookmarkRequest().apply {
             this.entry = HasOne(entry)
@@ -919,10 +990,17 @@ object Network {
         }
     }
 
-    fun loadBookmarks(pageNum: Int): ArrayDocument<Bookmark> {
+    /**
+     * Loads bookmarks for current profile
+     *
+     * @param pageSize number of data entities on one page
+     * @param pageNum page number to retrieve
+     */
+    @WorkerThread
+    fun loadBookmarks(pageNum: Int = 1, pageSize: Int = PAGE_SIZE): ArrayDocument<Bookmark> {
         val builder = HttpUrl.parse(BOOKMARKS_ENDPOINT)!!.newBuilder()
                 .addQueryParameter("page[number]", pageNum.toString())
-                .addQueryParameter("page[size]", PAGE_SIZE.toString())
+                .addQueryParameter("page[size]", pageSize.toString())
                 .addQueryParameter("include", "entries,profiles")
                 .addQueryParameter("sort", "-created-at")
 
@@ -937,8 +1015,9 @@ object Network {
     }
 
     /**
-     * Load reaction sets. Only one reaction set is present atm, it's the first one.
+     * Loads reaction sets. Only one reaction set is present atm, it's the first one.
      */
+    @WorkerThread
     fun loadReactionSets(): List<ReactionSet> {
         val req = Request.Builder().url("$REACTION_SETS_ENDPOINT?include=reactions").build()
         val resp = httpClient.newCall(req).execute()
@@ -956,6 +1035,7 @@ object Network {
      * @param entry Entry for which reaction should be created
      * @param reactionType emoji to attach
      */
+    @WorkerThread
     fun createReaction(entry: Entry, reactionType: ReactionType): Reaction {
         val reactionReq = CreateReactionRequest().apply {
             this.reactionType = HasOne(reactionType)
@@ -984,8 +1064,11 @@ object Network {
 
     /**
      * Create a join request for specified community. Depending on community join type
-     * it can be fulfilled automatically
+     * it can be approved automatically.
+     *
+     * @param communityProf profile of community to join to
      */
+    @WorkerThread
     fun communityJoin(communityProf: OwnProfile): CommunityJoinResponse {
         val joinReq = CommunityJoinRequest().apply {
             this.message = "" // TODO: add message input when non-auto-join communities are implemented
@@ -1007,6 +1090,12 @@ object Network {
         return fromWrappedJson(resp.body()!!.source(), CommunityJoinResponse::class.java)!!
     }
 
+    /**
+     * Leave specified community.
+     *
+     * @param communityProf profile of community to leave from
+     */
+    @WorkerThread
     fun communityLeave(communityProf: OwnProfile) {
         val leaveReq = ArrayDocument<ResourceIdentifier>().apply { add(ResourceIdentifier(Auth.profile)) }
         val docType = Types.newParameterizedType(Document::class.java, ResourceIdentifier::class.java)
@@ -1033,7 +1122,8 @@ object Network {
      * @param pageNum page number to retrieve
      * @return array document of all community participants (not paged yet) for a given community id
      */
-    fun communityParticipants(communityProfId: String, pageSize: Int = PAGE_SIZE, pageNum: Int = 1): ArrayDocument<CommunityParticipant> {
+    @WorkerThread
+    fun communityParticipants(communityProfId: String, pageNum: Int = 1, pageSize: Int = PAGE_SIZE): ArrayDocument<CommunityParticipant> {
         val builder = HttpUrl.parse("$PROFILES_ENDPOINT/${communityProfId}/community-participants")!!.newBuilder()
             .addQueryParameter("page[number]", pageNum.toString())
             .addQueryParameter("page[size]", PAGE_SIZE.toString())
@@ -1053,7 +1143,10 @@ object Network {
     /**
      * Deletes reaction [myReaction]. This reaction must exist and must have
      * current profile as its author.
+     *
+     * @param myReaction reaction to delete
      */
+    @WorkerThread
     fun deleteReaction(myReaction: Reaction) {
         val req = Request.Builder().url("$REACTIONS_ENDPOINT/${myReaction.id}").delete().build()
         val resp = httpClient.newCall(req).execute()
@@ -1061,6 +1154,7 @@ object Network {
             throw extractErrors(resp, "Can't delete reaction ${myReaction.id}")
     }
 
+    @WorkerThread
     fun removeFromActionList(list: ActionList, prof: OwnProfile) {
         val req = Request.Builder()
                 .delete()
@@ -1073,10 +1167,12 @@ object Network {
         }
     }
 
+    @WorkerThread
     fun addToActionList(listItem: ActionListRequest): ActionListResponse {
         return createEntity(ACTION_LISTS_ENDPOINT, listItem)
     }
 
+    @WorkerThread
     fun loadActionLists(): MutableList<ActionList> {
         val req = Request.Builder().url(ACTION_LISTS_ENDPOINT).build()
         val resp = httpClient.newCall(req).execute()
@@ -1100,10 +1196,13 @@ object Network {
     }
 
     /**
-     * Uploads image to dybr-dedicated storage and returns link to it
+     * Uploads image to dybr-dedicated storage and returns link to it.
      *
      * @param image content of image
+     * @param filename filename to use
+     * @return link to the uploaded image on dybr server
      */
+    @WorkerThread
     fun uploadImage(image: ByteArray, filename: String? = null): String {
         val name = filename ?: "unknown"
 

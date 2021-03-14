@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/participant_join_date_label"
-            android:layout_below="@id/profile_name"
+            android:layout_alignBaseline="@+id/participant_join_date_label"
             android:padding="5dp"
             android:text="@string/placeholder_date"/>
 
@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/participant_permissions_label"
-            android:layout_below="@id/participant_join_date"
+            android:layout_alignBaseline="@+id/participant_permissions_label"
             android:padding="5dp"
             android:text="@string/community_participant"/>
 

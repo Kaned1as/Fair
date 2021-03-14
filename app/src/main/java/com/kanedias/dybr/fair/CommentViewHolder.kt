@@ -12,7 +12,6 @@ import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.databinding.FragmentCommentListItemBinding
 import com.kanedias.dybr.fair.dto.*
-import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.markdown.handleMarkdown
 import com.kanedias.dybr.fair.service.Network
@@ -60,7 +59,6 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
     }
 
     private fun editComment() {
-        val activity = itemView.context as AppCompatActivity
         val parentEntry = comment.entry.get(comment.document)
         val commentEdit = CreateNewCommentFragment().apply {
             arguments = Bundle().apply {
