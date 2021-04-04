@@ -2,6 +2,7 @@ package com.kanedias.dybr.fair.dto
 
 import com.squareup.moshi.Json
 import java.io.Serializable
+import java.util.*
 
 /**
  * Main settings structure linked with profile
@@ -42,6 +43,9 @@ data class ProfileSettings(
 
         @Json(name = "privacy")
         var privacy: PrivacySettings = PrivacySettings(),
+
+        @Json(name = "anonymity") // TODO: rename on backend
+        var anonimity: AnonimitySettings = AnonimitySettings(),
 
         @Json(name = "community")
         var community: CommunitySettings = CommunitySettings(),
@@ -100,7 +104,7 @@ data class NotificationsSettings(
  * }
  * ```
  */
-data class NotificationConfig(
+data class NotificationConfig (
         val enable: Boolean = true,
         val regularity: String = "timely"
 ) : Serializable
@@ -149,10 +153,43 @@ data class PaginationSettings(
  * Example:
  * ```
  * "privacy": {
+ *     "hide-content-from-search-engines": true,
  *     "dybrfeed": true
  * }
  * ```
  */
 data class PrivacySettings(
-        val dybrfeed: Boolean = true
+        @Json(name = "dybrfeed")
+        val dybrfeed: Boolean = true,
+
+        @Json(name = "hide-content-from-search-engines")
+        val hideContent: Boolean = false
+) : Serializable
+
+/**
+ * Example:
+ * ```
+ * "anonimity": {
+ *     "identity-change-rule": "time-limit",
+ *     "identity-condition": {...}
+ * }
+ * ```
+ */
+data class AnonimitySettings(
+        @Json(name = "identity-change-rule")
+        val identityChangeRule: String? = null,
+
+        @Json(name = "identity-condition")
+        val identityCondition: TimeCondition? = null
+) : Serializable
+
+/**
+ * Example: TBD
+ */
+data class TimeCondition(
+        @Json(name = "at-time")
+        val atTime: Date? = null,
+
+        @Json(name = "after-hours")
+        val afterHours: Int? = null,
 ) : Serializable

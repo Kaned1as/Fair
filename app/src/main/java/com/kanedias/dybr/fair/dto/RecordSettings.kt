@@ -41,9 +41,10 @@ data class RecordPermissions (
  * - Only for the owner
  * - Only for registered users
  * - Only for favorites of a current profile
+ * - Only for subscribers of a current profile
  *
  * Corresponding type/allow combinations (for now) are:
- *      "private/false", "registered/true", "favorites/true"
+ *      "private/false", "registered/true", "favorites/true", "subscribers/true"
  */
 data class RecordAccessItem (
         /**

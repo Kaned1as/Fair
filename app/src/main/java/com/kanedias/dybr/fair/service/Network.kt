@@ -427,6 +427,41 @@ object Network {
     }
 
     /**
+     * Loads readers of the profile
+     *
+     * @param id id of the profile
+     */
+    @WorkerThread
+    fun loadProfileReaders(id: String): ArrayDocument<OwnProfile> {
+        val req = Request.Builder().url("$PROFILES_ENDPOINT/$id/readers").build()
+        val resp = httpClient.newCall(req).execute()
+        if (!resp.isSuccessful) {
+            throw extractErrors(resp, "Can't load subscribers for profile $id")
+        }
+
+        // response is returned after execute call, body is not null
+        return fromWrappedListJson(resp.body()!!.source(), OwnProfile::class.java)
+    }
+
+    /**
+     * Loads subscriptions of the profile
+     *
+     * @param id id of the profile
+     */
+    @WorkerThread
+    fun loadProfileSubscriptions(id: String): ArrayDocument<OwnProfile> {
+        // TODO: should be `subscriptions` on backend
+        val req = Request.Builder().url("$PROFILES_ENDPOINT/$id/subscribers").build()
+        val resp = httpClient.newCall(req).execute()
+        if (!resp.isSuccessful) {
+            throw extractErrors(resp, "Can't load subscribers for profile $id")
+        }
+
+        // response is returned after execute call, body is not null
+        return fromWrappedListJson(resp.body()!!.source(), OwnProfile::class.java)
+    }
+
+    /**
      * Loads all profile tags, returns as document
      * @param id identifier of profile to load
      * @return array document containing all profile tags

@@ -145,6 +145,9 @@ class CommunityJoinResponse: Resource() {
     lateinit var participant: HasOne<CommunityParticipant>
 }
 
+/**
+ *
+ */
 @JsonApi(type = "community-participants", policy = Policy.DESERIALIZATION_ONLY)
 class CommunityParticipantResponse: Resource() {
 

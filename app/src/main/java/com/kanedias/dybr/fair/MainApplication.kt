@@ -11,15 +11,15 @@ import androidx.work.WorkManager
 import com.ftinc.scoop.Scoop
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.dto.Auth
-import com.kanedias.dybr.fair.themes.*
-import org.acra.ACRA
-import org.acra.annotation.AcraCore
-import org.acra.annotation.AcraDialog
-import org.acra.annotation.AcraMailSender
-import org.acra.data.StringFormat
 import com.kanedias.dybr.fair.scheduling.SyncNotificationsWorker
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.service.UserPrefs
+import com.kanedias.dybr.fair.themes.*
+import org.acra.ACRA
+import org.acra.config.CoreConfigurationBuilder
+import org.acra.config.DialogConfigurationBuilder
+import org.acra.config.MailSenderConfigurationBuilder
+import org.acra.data.StringFormat
 
 
 /**
@@ -27,9 +27,6 @@ import com.kanedias.dybr.fair.service.UserPrefs
  *
  * @author Kanedias
  */
-@AcraDialog(resIcon = R.mipmap.ic_launcher, resText = R.string.app_crashed, resCommentPrompt = R.string.leave_crash_comment, resTheme = R.style.AppTheme)
-@AcraMailSender(mailTo = "kanedias@xaker.ru", resSubject = R.string.app_crash_report, reportFileName = "crash-report.json")
-@AcraCore(buildConfigClass = BuildConfig::class, reportFormat = StringFormat.JSON, alsoReportToAndroidFramework = true)
 class MainApplication : Application() {
 
     private val preferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
@@ -42,7 +39,24 @@ class MainApplication : Application() {
         super.attachBaseContext(base)
 
         // init crash reporting
-        ACRA.init(this)
+        val builder = CoreConfigurationBuilder(this)
+            .setBuildConfigClass(BuildConfig::class.java)
+            .setReportFormat(StringFormat.JSON)
+            .setAlsoReportToAndroidFramework(true)
+            .apply {
+                getPluginConfigurationBuilder(DialogConfigurationBuilder::class.java)
+                    .setResIcon(R.mipmap.ic_launcher)
+                    .setResText(R.string.app_crashed)
+                    .setResCommentPrompt(R.string.leave_crash_comment)
+                    .setResTheme(R.style.AppTheme)
+            }
+            .apply {
+                getPluginConfigurationBuilder(MailSenderConfigurationBuilder::class.java)
+                    .setMailTo("kanedias@gmx.net")
+                    .setSubject(getString(R.string.app_crash_report))
+                    .setReportFileName("crash-report.json")
+            }
+        ACRA.init(this, builder)
     }
 
     override fun onCreate() {
