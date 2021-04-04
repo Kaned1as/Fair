@@ -27,6 +27,7 @@ import org.acra.data.StringFormat
  *
  * @author Kanedias
  */
+@Suppress("unused") // used in Android Manifest
 class MainApplication : Application() {
 
     private val preferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->

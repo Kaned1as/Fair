@@ -302,4 +302,6 @@
     <string name="community_guest">Гость сообщества</string>
     <string name="community_mod">Модератор</string>
     <string name="community_admin">Администратор</string>
+    <string name="everybody_can_join">Вступление свободное</string>
+    <string name="only_approved_can_join">Вступление по одобрению администратора</string>
 </resources>

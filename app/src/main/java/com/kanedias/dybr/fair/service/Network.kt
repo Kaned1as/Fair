@@ -670,13 +670,14 @@ object Network {
                     starter: Long = System.currentTimeMillis() / 1000): ArrayDocument<Entry> {
         // handle special case when we selected tab with favorites
         val builder = when (prof) {
-            Auth.favoritesMarker -> HttpUrl.parse("$FAVORITES_ENDPOINT/${Auth.profile?.id}/entries")!!
+            Auth.favoritesMarker ->
+                HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/favorites/entries")!!
                     .newBuilder()
-            Auth.communitiesMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!
+            Auth.communitiesMarker ->
+                HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/communities/entries")!!
                     .newBuilder()
-                    .addQueryParameter("filters[blog-id]",
-                            Auth.profile?.communities?.joinToString(separator = ",", transform = { it.id }))
-            Auth.worldMarker -> HttpUrl.parse(ENTRIES_ENDPOINT)!!
+            Auth.worldMarker ->
+                HttpUrl.parse(ENTRIES_ENDPOINT)!!
                     .newBuilder()
                     .addQueryParameter("filters[feed]", "1")
             null -> HttpUrl.parse(ENTRIES_ENDPOINT)!!.newBuilder()

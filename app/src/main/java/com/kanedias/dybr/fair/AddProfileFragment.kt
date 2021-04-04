@@ -12,6 +12,7 @@ import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.datetime.datePicker
 import com.kanedias.dybr.fair.databinding.FragmentCreateProfileBinding
 import com.kanedias.dybr.fair.dto.Auth
+import com.kanedias.dybr.fair.dto.CommunitySettings
 import com.kanedias.dybr.fair.dto.ProfileCreateRequest
 import com.kanedias.dybr.fair.dto.ProfileSettings
 import com.kanedias.dybr.fair.service.Network
@@ -75,6 +76,18 @@ class AddProfileFragment: Fragment() {
         }
         binding.profBirthdayInput.setOnClickListener { birthdayDatePicker.show() }
         binding.profBirthdayInput.setOnFocusChangeListener { v, hasFocus -> if (!hasFocus) v.isFocusable = false }
+        binding.communityMarker.setOnCheckedChangeListener { _, checked ->
+            binding.communityAutoJoinMarker.visibility = when (checked) {
+                true -> View.VISIBLE
+                false -> View.GONE
+            }
+        }
+        binding.communityAutoJoinMarker.setOnCheckedChangeListener { it, checked ->
+            it.setText(when (checked) {
+                true -> R.string.everybody_can_join
+                false -> R.string.only_approved_can_join
+            })
+        }
         binding.profCreateButton.setOnClickListener { confirm(it) }
 
         return binding.root
@@ -93,7 +106,12 @@ class AddProfileFragment: Fragment() {
             nickname = binding.profNicknameInput.text.toString()
             birthday = binding.profBirthdayInput.text.toString()
             description = binding.profDescriptionInput.text.toString()
-            isCommunity = binding.profCommunityMarker.isChecked
+            isCommunity = binding.communityMarker.isChecked
+        }
+
+        // check if auto-join is disabled
+        if (!binding.communityAutoJoinMarker.isChecked) {
+            profReq.settings = ProfileSettings(community = CommunitySettings(joinRequest = "manual"))
         }
 
         if (profReq.isCommunity) {

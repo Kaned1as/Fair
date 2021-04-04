@@ -363,4 +363,6 @@
     <string name="community_guest">Community guest</string>
     <string name="community_mod">Community moderator</string>
     <string name="community_admin">Community administrator</string>
+    <string name="everybody_can_join">Everybody can join</string>
+    <string name="only_approved_can_join">Only approved can join</string>
 </resources>

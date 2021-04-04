@@ -10,6 +10,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="16dp"
+    android:animateLayoutChanges="true"
     tools:context="AddProfileFragment">
 
     <TextView
@@ -81,13 +82,24 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/prof_community_marker"
+        android:id="@+id/community_marker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:drawableStart="@drawable/community"
         android:drawablePadding="4dp"
         android:text="@string/profile_belongs_to_community"/>
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/community_auto_join_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:drawableStart="@drawable/community"
+        android:drawablePadding="4dp"
+        android:checked="true"
+        android:visibility="gone"
+        android:text="@string/everybody_can_join"/>
 
     <Button
         android:id="@+id/prof_create_button"
