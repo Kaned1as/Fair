@@ -35,5 +35,13 @@
         android:entries="@array/available_languages_desc"
         android:entryValues="@array/available_languages"/>
 
+    <ListPreference
+        android:icon="@drawable/text_size"
+        android:key="user-preferred-text-size"
+        android:defaultValue="12"
+        android:title="@string/text_size"
+        android:summary="@string/control_main_content_text_size"
+        android:entries="@array/available_text_sizes_desc"
+        android:entryValues="@array/available_text_sizes"/>
 
 </PreferenceScreen>

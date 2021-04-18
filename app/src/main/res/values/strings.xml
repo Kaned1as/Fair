@@ -68,11 +68,11 @@
     </string-array>
 
     <string-array name="available_languages_desc" translatable="false">
-        <item>Русский</item>
-        <item>Беларуская</item>
-        <item>Український</item>
-        <item>Deutsch</item>
-        <item>English</item>
+        <item>Русский</item>                    <!-- ru -->
+        <item>Беларуская</item>                 <!-- be -->
+        <item>Український</item>                <!-- uk -->
+        <item>Deutsch</item>                    <!-- de -->
+        <item>English</item>                    <!-- en -->
     </string-array>
 
     <string-array name="available_languages" translatable="false">
@@ -81,6 +81,18 @@
         <item>uk</item>
         <item>de</item>
         <item>en</item>
+    </string-array>
+
+    <string-array name="available_text_sizes_desc">
+        <item>Small</item>                      <!-- 14 -->
+        <item>Medium</item>                     <!-- 18 -->
+        <item>Big</item>                        <!-- 22 -->
+    </string-array>
+
+    <string-array name="available_text_sizes" translatable="false">
+        <item>14</item>
+        <item>18</item>
+        <item>22</item>
     </string-array>
 
     <!-- regular strings -->
@@ -365,4 +377,6 @@
     <string name="community_admin">Community administrator</string>
     <string name="everybody_can_join">Everybody can join</string>
     <string name="only_approved_can_join">Only approved can join</string>
+    <string name="text_size">Text size</string>
+    <string name="control_main_content_text_size">Control main content text size (requires app restart)</string>
 </resources>

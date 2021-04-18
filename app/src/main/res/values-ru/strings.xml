@@ -10,19 +10,25 @@
     </string-array>
 
     <string-array name="permission_types">
-        <item>Не видно никому, кроме вас</item>  <!-- 0 -->
-        <item>Видно зарегистрированным пользователям</item>      <!-- 1 -->
-        <item>Видно вашему избранному</item>       <!-- 2 -->
-        <item>Видно вашим читателям</item>     <!-- 3 -->
-        <item>Видно всем</item>             <!-- 4 -->
+        <item>Не видно никому, кроме вас</item>                 <!-- 0 -->
+        <item>Видно зарегистрированным пользователям</item>     <!-- 1 -->
+        <item>Видно вашему избранному</item>                    <!-- 2 -->
+        <item>Видно вашим читателям</item>                      <!-- 3 -->
+        <item>Видно всем</item>                                 <!-- 4 -->
     </string-array>
 
     <string-array name="notification_intervals_desc">
-        <item>Никогда</item>                       <!--    0 -->
-        <item>Каждые 15 минут</item>            <!--   15 -->
-        <item>Каждый час</item>                  <!--   60 -->
-        <item>Каждые 12 часов</item>              <!--  720 -->
-        <item>Ежедневно</item>                       <!-- 1440 -->
+        <item>Никогда</item>                        <!--    0 -->
+        <item>Каждые 15 минут</item>                <!--   15 -->
+        <item>Каждый час</item>                     <!--   60 -->
+        <item>Каждые 12 часов</item>                <!--  720 -->
+        <item>Ежедневно</item>                      <!-- 1440 -->
+    </string-array>
+
+    <string-array name="available_text_sizes_desc">
+        <item>Маленький</item>                      <!-- 14 -->
+        <item>Средний</item>                        <!-- 18 -->
+        <item>Большой</item>                        <!-- 22 -->
     </string-array>
 
     <!-- regular strings -->
@@ -304,4 +310,6 @@
     <string name="community_admin">Администратор</string>
     <string name="everybody_can_join">Вступление свободное</string>
     <string name="only_approved_can_join">Вступление по одобрению администратора</string>
+    <string name="text_size">Размер текста</string>
+    <string name="control_main_content_text_size">Управляет размером текста основного контента (требуется перезапуск)</string>
 </resources>

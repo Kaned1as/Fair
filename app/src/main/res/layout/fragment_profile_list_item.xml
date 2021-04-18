@@ -30,6 +30,7 @@
             android:drawablePadding="4dp"
             android:padding="8dp"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:text="@string/placeholder_long"
             android:maxEms="18"/>
 
@@ -39,7 +40,8 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/profile_avatar"
             android:layout_below="@id/profile_name"
-            android:padding="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/registration_date_label"/>
 
@@ -49,7 +51,8 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/profile_registration_date_label"
             android:layout_alignBaseline="@id/profile_registration_date_label"
-            android:padding="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:text="@string/placeholder_date"/>
 
         <ImageView

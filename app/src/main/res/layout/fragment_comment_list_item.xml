@@ -31,6 +31,7 @@
             android:layout_toEndOf="@id/comment_avatar"
             android:padding="8dp"
             android:textStyle="bold"
+            android:textSize="16sp"
             android:text="@string/placeholder_long"
             android:maxEms="20"/>
 
@@ -41,6 +42,7 @@
             android:layout_alignBaseline="@id/comment_author"
             android:layout_alignParentEnd="true"
             android:padding="8dp"
+            android:textSize="16sp"
             android:text="@string/placeholder_date"/>
 
         <com.kanedias.dybr.fair.misc.ClickPreventingTextView
@@ -50,7 +52,6 @@
             android:layout_alignParentStart="true"
             android:layout_below="@id/comment_avatar"
             android:padding="5dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/placeholder_huge"/>
 
         <LinearLayout

@@ -16,8 +16,9 @@ object UserPrefs {
     const val FIRST_APP_LAUNCH_PREF = "first-app-launch"
     const val NOTIFICATION_CHECK_PREF = "notification-check-interval"
     const val USER_PREFERRED_LANGUAGE_PREF = "user-preferred-language"
+    const val USER_PREFERRED_TEXT_SIZE_PREF = "user-preferred-text-size"
 
-    lateinit var prefs: SharedPreferences
+    private lateinit var prefs: SharedPreferences
 
     fun init(ctx: Context) {
         prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
@@ -36,6 +37,10 @@ object UserPrefs {
     var userPreferredLanguage: String
         get() = prefs.getString(USER_PREFERRED_LANGUAGE_PREF, "")!!
         set(value) = prefs.edit().putString(USER_PREFERRED_LANGUAGE_PREF, value).apply()
+
+    var userPreferredTextSize: Int
+        get() = prefs.getString(USER_PREFERRED_TEXT_SIZE_PREF, "12")?.toIntOrNull() ?: 12
+        set(value) = prefs.edit().putString(USER_PREFERRED_TEXT_SIZE_PREF, value.toString()).apply()
 
     var homeServerUrl: String
         get() = prefs.getString(HOME_SERVER_PREF, Network.DEFAULT_DYBR_API_ENDPOINT)!!
