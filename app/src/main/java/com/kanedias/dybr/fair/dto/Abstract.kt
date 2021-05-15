@@ -44,3 +44,19 @@ open class Authored: Dated() {
     @Json(name = "profile")
     val profile = HasOne<OwnProfile>()
 }
+
+fun isEditable(entity: Authored?): Boolean {
+    // if there's no entry, don't bother checking
+    if (entity == null)
+        return false
+
+    // can't edit anything without profile
+    if (Auth.profile == null)
+        return false
+
+    // no author link in entry == can't edit
+    val author = entity.profile.get() ?: return false
+
+    // only allow editing if we authored this comment
+    return author.id == Auth.profile?.id
+}

@@ -225,15 +225,3 @@ fun isEntryCommentable(entry: Entry?): Boolean {
 
     return true
 }
-
-fun isEntryWritable(entry: Entry?): Boolean {
-    if (entry == null)
-        return false
-
-    if (Auth.profile == null)
-        return false
-
-    val author = entry.profile.get() ?: return false
-
-    return author.id == Auth.profile?.id
-}

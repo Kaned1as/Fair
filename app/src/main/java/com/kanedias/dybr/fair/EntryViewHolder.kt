@@ -30,7 +30,6 @@ import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.databinding.FragmentEntryListItemBinding
 import com.kanedias.dybr.fair.dto.*
-import com.kanedias.dybr.fair.markdown.markdownToHtml
 import com.kanedias.dybr.fair.misc.idMatches
 import com.kanedias.dybr.fair.misc.onClickSingleOnly
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
@@ -418,7 +417,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
      */
     private fun setupButtons() {
         // setup edit buttons
-        val editVisibility = when (isEntryWritable(entry)) {
+        val editVisibility = when (isEditable(entry)) {
             true -> View.VISIBLE
             false -> View.GONE
         }

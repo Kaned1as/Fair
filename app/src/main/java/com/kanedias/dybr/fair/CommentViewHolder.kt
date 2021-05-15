@@ -123,8 +123,7 @@ class CommentViewHolder(iv: View, parentFragment: UserContentListFragment) : Use
 
         binding.commentMessage.handleMarkdown(comment.content)
 
-        val profile = comment.profile.get(comment.document)
-        toggleEditButtons(isBlogWritable(profile))
+        toggleEditButtons(isEditable(comment))
 
         // make text selectable
         // XXX: this is MAGIC: see https://stackoverflow.com/a/56224791/1696844
