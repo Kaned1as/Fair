@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.text.Html
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
@@ -29,6 +30,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.text.HtmlCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -53,7 +55,13 @@ import io.noties.markwon.image.glide.GlideImagesPlugin
 import io.noties.markwon.utils.NoCopySpannableFactory
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
+import org.commonmark.internal.util.Escaping
+import org.commonmark.node.HtmlBlock
+import org.commonmark.node.Node
 import org.commonmark.parser.Parser
+import org.commonmark.renderer.NodeRenderer
+import org.commonmark.renderer.html.AttributeProvider
+import org.commonmark.renderer.html.HtmlNodeRendererFactory
 import org.commonmark.renderer.html.HtmlRenderer
 import java.io.File
 import java.io.IOException
@@ -415,9 +423,17 @@ fun markdownToHtml(md: String): String {
     // to close MORE as well, before it really needs to be closed
     // see example text here: https://regex101.com/r/ruWyDj/1
     // without postprocessing it is converted into this: https://regex101.com/r/HNrPE9/1
-    val mdPostProcessed = md
-            .replace(MORE_START_REGEX, "<details><summary>$1</summary>")
-            .replace(MORE_END_REGEX, "</details>")
+    var mdPostProcessed = md
+    for (match in MORE_START_REGEX.findAll(md).toList().asReversed()) {
+        // commonmark parser doesn't remove markdown escapes inside code blocks
+        // example: <tag>\_markdown italic text\_</tag>
+        val moreRange = match.groups[0]!!.range
+        val moreText = Escaping.unescapeString(match.groups[1]!!.value)
+
+        // we are looping in reverse, indexes should stay the same
+        mdPostProcessed = mdPostProcessed.replaceRange(moreRange, "<details><summary>$moreText</summary>")
+    }
+    mdPostProcessed = mdPostProcessed.replace(MORE_END_REGEX, "</details>")
 
     // actual conversion, using common mark reference spec
     val extensions = listOf(StrikethroughExtension.create(), TablesExtension.create())
