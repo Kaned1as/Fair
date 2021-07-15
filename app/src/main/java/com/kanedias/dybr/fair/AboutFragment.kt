@@ -42,14 +42,14 @@ class AboutFragment: EasyAboutFragment() {
                 .setSubtitle(R.string.gplv3)
                 .setIcon(R.drawable.description)
 
-        val sourceCodeItem = AboutItemBuilder.generateLinkItem(ctx, "https://github.com/GoodKitties/Fair")
+        val sourceCodeItem = AboutItemBuilder.generateLinkItem(ctx, "https://gitlab.com/dybr-ru/Fair")
                 .setTitle(R.string.source_code)
-                .setSubtitle(R.string.fork_on_github)
+                .setSubtitle(R.string.fork_on_gitlab)
                 .setIcon(R.drawable.github)
 
-        val issueItem = AboutItemBuilder.generateLinkItem(ctx, "https://github.com/GoodKitties/Fair/issues/new/choose")
+        val issueItem = AboutItemBuilder.generateLinkItem(ctx, "https://gitlab.com/dybr-ru/Fair/issues/new")
                 .setTitle(R.string.report_bug)
-                .setSubtitle(R.string.github_issue_tracker)
+                .setSubtitle(R.string.gitlab_issue_tracker)
                 .setIcon(R.drawable.bug)
 
         val aboutAppCard = AboutCard.Builder(context)
@@ -70,7 +70,7 @@ class AboutFragment: EasyAboutFragment() {
                 .setIcon(R.drawable.heart)
                 .setOnClickListener { donateHelper.donate() }
 
-        val emailDescItem = AboutItemBuilder.generateEmailItem(ctx, "kanedias@xaker.ru")
+        val emailDescItem = AboutItemBuilder.generateEmailItem(ctx, "kanedias@gmx.net")
                 .setTitle(R.string.send_email)
                 .setIcon(R.drawable.email)
 

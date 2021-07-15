@@ -216,9 +216,9 @@ Bitte schreibe zur Bestätigung den Profilnamen (%s) in das Eingabefeld.</string
     <string name="send_email">E-Mail senden</string>
     <string name="about">Über</string>
     <string name="source_code">Quellcode</string>
-    <string name="fork_on_github">Fork in Github</string>
+    <string name="fork_on_gitlab">Fork in GitLab</string>
     <string name="report_bug">Fehler melden</string>
-    <string name="github_issue_tracker">Github Issue-Tracker</string>
+    <string name="gitlab_issue_tracker">GitLab Issue-Tracker</string>
     <string name="reply">Antworten</string>
     <string name="email_not_activated_yet">Diese E-Mail-Adresse ist noch nicht aktiviert</string>
     <string name="email_not_found">E-Mail nicht gefunden</string>

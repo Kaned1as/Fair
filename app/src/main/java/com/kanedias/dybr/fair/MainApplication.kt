@@ -16,10 +16,9 @@ import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.service.UserPrefs
 import com.kanedias.dybr.fair.themes.*
 import org.acra.ACRA
-import org.acra.config.CoreConfigurationBuilder
-import org.acra.config.DialogConfigurationBuilder
-import org.acra.config.MailSenderConfigurationBuilder
+import org.acra.config.*
 import org.acra.data.StringFormat
+import org.acra.ktx.initAcra
 
 
 /**
@@ -39,25 +38,23 @@ class MainApplication : Application() {
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
 
-        // init crash reporting
-        val builder = CoreConfigurationBuilder(this)
-            .setBuildConfigClass(BuildConfig::class.java)
-            .setReportFormat(StringFormat.JSON)
-            .setAlsoReportToAndroidFramework(true)
-            .apply {
-                getPluginConfigurationBuilder(DialogConfigurationBuilder::class.java)
-                    .setResIcon(R.mipmap.ic_launcher)
-                    .setResText(R.string.app_crashed)
-                    .setResCommentPrompt(R.string.leave_crash_comment)
-                    .setResTheme(R.style.AppTheme)
+        initAcra {
+            buildConfigClass = BuildConfig::class.java
+            reportFormat = StringFormat.JSON
+
+            dialog {
+                resIcon = R.mipmap.ic_launcher
+                withResText(R.string.app_crashed)
+                withResCommentPrompt(R.string.leave_crash_comment)
+                withResTheme(R.style.AppTheme)
             }
-            .apply {
-                getPluginConfigurationBuilder(MailSenderConfigurationBuilder::class.java)
-                    .setMailTo("kanedias@gmx.net")
-                    .setSubject(getString(R.string.app_crash_report))
-                    .setReportFileName("crash-report.json")
+
+            mailSender {
+                mailTo = "kanedias@gmx.net"
+                reportFileName = "crash-report.json"
+                withResSubject(R.string.app_crash_report)
             }
-        ACRA.init(this, builder)
+        }
     }
 
     override fun onCreate() {

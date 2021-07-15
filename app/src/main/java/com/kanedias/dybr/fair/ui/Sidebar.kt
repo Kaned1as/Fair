@@ -22,6 +22,7 @@ import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
 import kotlinx.coroutines.*
 import moe.banana.jsonapi2.ArrayDocument
+import java.lang.RuntimeException
 
 /**
  * Sidebar views and controls.

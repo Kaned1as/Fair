@@ -228,9 +228,9 @@
     <string name="send_email">Отправить e-mail</string>
     <string name="about">О приложении</string>
     <string name="source_code">Исходный код</string>
-    <string name="fork_on_github">Fork on GitHub</string>
+    <string name="fork_on_gitlab">Fork on GitLab</string>
     <string name="report_bug">Отчёт об ошибке</string>
-    <string name="github_issue_tracker">Трекер задач GitHub</string>
+    <string name="gitlab_issue_tracker">Трекер задач GitLab</string>
     <string name="reply">Ответить</string>
     <string name="email_not_activated_yet">Этот e-mail ещё не активирован</string>
     <string name="email_not_found">Такой e-mail не найден</string>

@@ -223,9 +223,9 @@
     <string name="about">Про програму
 Детальніше</string>
     <string name="source_code">Висхідний код</string>
-    <string name="fork_on_github">Форк на Github</string>
+    <string name="fork_on_gitlab">Форк на GitLab</string>
     <string name="report_bug">Повідомити про помилку</string>
-    <string name="github_issue_tracker">Багтрекер на Github</string>
+    <string name="github_issue_tracker">Багтрекер на GitLab</string>
     <string name="reply">Відповісти</string>
     <string name="email_not_activated_yet">E-Mail не активовано</string>
     <string name="email_not_found">E-Mail не знайдено</string>

@@ -295,9 +295,9 @@
     <string name="send_email">Send e-mail</string>
     <string name="about">About</string>
     <string name="source_code">Source code</string>
-    <string name="fork_on_github">Fork on Github</string>
+    <string name="fork_on_gitlab">Fork on GitLab</string>
     <string name="report_bug">Report bug</string>
-    <string name="github_issue_tracker">Github issue tracker</string>
+    <string name="gitlab_issue_tracker">GitLab issue tracker</string>
     <string name="reply">Reply</string>
     <string name="email_not_activated_yet">This email is not yet activated</string>
     <string name="email_not_found">Email not found</string>

@@ -220,9 +220,9 @@
     <string name="send_email">Адправіць на E-Mail</string>
     <string name="about">Пра праграму</string>
     <string name="source_code">Зыходны код</string>
-    <string name="fork_on_github">Стварыць форк на гітхабе</string>
+    <string name="fork_on_gitlab">Стварыць форк на гітлабе</string>
     <string name="report_bug">Адправіць даклад пра баг</string>
-    <string name="github_issue_tracker">Трэкер багаў і пытанняў на Github</string>
+    <string name="gitlab_issue_tracker">Трэкер багаў і пытанняў на GitLab</string>
     <string name="reply">Адказаць</string>
     <string name="email_not_activated_yet">Гэты адрас электроннай пошты яшчэ не актываваны</string>
     <string name="email_not_found">Адрас электроннай пошты не знойдзены</string>
