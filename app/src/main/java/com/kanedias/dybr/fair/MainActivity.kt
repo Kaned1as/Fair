@@ -191,6 +191,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         setupTopSearch(menu)
+
+        if (!donateHelper.available()) {
+            // don't show donate button if user is not allowed to donate
+            // fuck google play policies
+            menu.removeItem(R.id.menu_donate)
+        }
+
         return super.onPrepareOptionsMenu(menu)
     }
 

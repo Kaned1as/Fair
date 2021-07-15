@@ -1,10 +1,10 @@
 package com.kanedias.dybr.fair
 
+import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
-import com.afollestad.materialdialogs.MaterialDialog
 import android.content.Intent
 import android.net.Uri
-import com.afollestad.materialdialogs.list.listItems
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
 /**
@@ -16,15 +16,19 @@ import com.afollestad.materialdialogs.list.listItems
  */
 class DonateHelper(private val activity: AppCompatActivity) {
 
+    fun available() = true
+
     fun donate() {
-        val options = listOf("Paypal", "Patreon", "Liberapay")
-        MaterialDialog(activity)
-                .title(R.string.donate)
-                .listItems(items = options, selection = {_, _, text -> when (text) {
-                    "Paypal" -> openLink("https://paypal.me/kaned1as")
-                    "Patreon" -> openLink("https://www.patreon.com/kanedias")
-                    "Liberapay" -> openLink("https://liberapay.com/Kanedias")
-                }}).show()
+        val options = arrayOf("Paypal", "Patreon", "Liberapay")
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.donate)
+            .setItems(options) { _: DialogInterface, pos: Int -> when(pos) {
+                0 -> openLink("https://https://paypal.me/kaned1as")
+                1 -> openLink("https://www.patreon.com/kanedias")
+                2 -> openLink("https://liberapay.com/Kanedias")
+                else -> {}
+            }}
+            .show()
     }
 
     private fun openLink(url: String) {

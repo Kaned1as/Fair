@@ -77,7 +77,7 @@ class AboutFragment: EasyAboutFragment() {
         val aboutAuthorCard = AboutCard.Builder(context)
                 .setTitle(R.string.author)
                 .addItem(authorDescItem)
-                .addItem(supportDescItem)
+                .apply { if (donateHelper.available()) addItem(supportDescItem) }
                 .addItem(emailDescItem)
                 .build()
 
