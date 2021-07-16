@@ -304,7 +304,8 @@ object Network {
 
             // if token is close to expiration then better get a new one
             val weekAfter = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 7) }.time
-            if (jwt.expiresAt!! > weekAfter && !profileChangeNeeded) {
+            val expirationTime = jwt.expiresAt ?: weekAfter
+            if (expirationTime >= weekAfter && !profileChangeNeeded) {
                 // token is fresh and we are already logged in, skip network exchange completely
                 Auth.updateCurrentUser(acc)
                 return

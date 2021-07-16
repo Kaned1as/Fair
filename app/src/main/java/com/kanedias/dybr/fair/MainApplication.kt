@@ -39,6 +39,7 @@ class MainApplication : Application() {
         super.attachBaseContext(base)
 
         initAcra {
+            alsoReportToAndroidFramework = true
             buildConfigClass = BuildConfig::class.java
             reportFormat = StringFormat.JSON
 
