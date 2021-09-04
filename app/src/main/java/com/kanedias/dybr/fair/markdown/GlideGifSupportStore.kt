@@ -48,16 +48,26 @@ class GlideGifSupportStore(ctx: Context): GlideImagesPlugin.GlideStore {
             val ID_BYTES = ID.toByteArray(Charset.forName("UTF-8"))
         }
 
-        private val density = ctx.resources.displayMetrics.density
+        private val density = ctx.resources.displayMetrics.density            // e.g. 1.5 or 2.0
+        private val screenWidth = ctx.resources.displayMetrics.widthPixels    // e.g. 1080
 
         override fun transform(pool: BitmapPool, toTransform: Bitmap, outWidth: Int, outHeight: Int): Bitmap {
-            if (outHeight > 100) {
-                return toTransform
+            if (outHeight <= 100) {
+                // too small bitmap (possibly smilie), scale it up
+                val scaledWidth = (toTransform.width * density).toInt()
+                val scaledHeight = (toTransform.height * density).toInt()
+                return Bitmap.createScaledBitmap(toTransform, scaledWidth, scaledHeight, true)
             }
 
-            val scaledWidth = (toTransform.width * density).toInt()
-            val scaledHeight = (toTransform.height * density).toInt()
-            return Bitmap.createScaledBitmap(toTransform, scaledWidth, scaledHeight, true)
+            if (outWidth > screenWidth) {
+                // too large bitmap, downscale the image
+                val downscaleRatio = screenWidth.toFloat() / outWidth // e.g. 0.5
+                val downscaledWidth = (toTransform.width * downscaleRatio).toInt() // 2160 * 0.5 = 1080
+                val downscaledHeight = (toTransform.height * downscaleRatio).toInt() // 3840 * 0.5 = 1920
+                return Bitmap.createScaledBitmap(toTransform, downscaledWidth, downscaledHeight, true)
+            }
+
+            return toTransform
         }
 
         override fun equals(other: Any?) = other is ScaleToDensity
