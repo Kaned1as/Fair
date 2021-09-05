@@ -39,25 +39,25 @@ data class ProfileSettings(
         val currentDesign: String? = null,
 
         @Json(name = "notifications")
-        var notifications: NotificationsSettings = NotificationsSettings(),
+        var notifications: NotificationsSettings? = null,
 
         @Json(name = "privacy")
-        var privacy: PrivacySettings = PrivacySettings(),
+        var privacy: PrivacySettings? = null,
 
         @Json(name = "anonymity") // TODO: rename on backend
-        var anonimity: AnonimitySettings = AnonimitySettings(),
+        var anonimity: AnonimitySettings? = null,
 
         @Json(name = "community")
-        var community: CommunitySettings = CommunitySettings(),
+        var community: CommunitySettings? = null,
 
         @Json(name = "permissions")
-        var permissions: RecordPermissions = RecordPermissions(),
+        var permissions: RecordPermissions? = null,
 
         @Json(name = "pinned-entries")
-        var pinnedEntries: MutableSet<String> = mutableSetOf(),
+        var pinnedEntries: MutableSet<String>? = null,
 
         @Json(name = "reactions")
-        var reactions: ReactionConfig = ReactionConfig()
+        var reactions: ReactionConfig? = null
 ) : Serializable
 
 /**
@@ -76,7 +76,7 @@ data class CommunitySettings(
          * "manual" means it's a pre-moderated community.
          */
         @Json(name = "join-request")
-        var joinRequest: String = "auto"
+        var joinRequest: String? = null
 ) : Serializable
 
 /**
@@ -91,8 +91,8 @@ data class CommunitySettings(
  * @see NotificationConfig
  */
 data class NotificationsSettings(
-        var comments: NotificationConfig = NotificationConfig(),
-        var entries: NotificationConfig = NotificationConfig()
+        var comments: NotificationConfig? = null,
+        var entries: NotificationConfig? = null
 ) : Serializable
 
 /**
@@ -105,8 +105,8 @@ data class NotificationsSettings(
  * ```
  */
 data class NotificationConfig (
-        val enable: Boolean = true,
-        val regularity: String = "timely"
+        val enable: Boolean? = null,
+        val regularity: String? = null
 ) : Serializable
 
 /**
@@ -121,13 +121,13 @@ data class NotificationConfig (
  */
 data class ReactionConfig(
         @Json(name = "hide")
-        var disable: Boolean = false,
+        var disable: Boolean? = null,
 
         @Json(name = "use-images")
-        var useImages: Boolean = false,
+        var useImages: Boolean? = null,
 
         @Json(name = "disable-in-blog")
-        var disableInBlog: Boolean = false
+        var disableInBlog: Boolean? = null
 ) : Serializable
 
 /**
@@ -160,10 +160,10 @@ data class PaginationSettings(
  */
 data class PrivacySettings(
         @Json(name = "dybrfeed")
-        val dybrfeed: Boolean = true,
+        val dybrfeed: Boolean? = null,
 
         @Json(name = "hide-content-from-search-engines")
-        val hideContent: Boolean = false
+        val hideContent: Boolean? = null
 ) : Serializable
 
 /**

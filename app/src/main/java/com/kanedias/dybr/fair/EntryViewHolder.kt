@@ -454,7 +454,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
             // disabled globally by current user
             Auth.profile?.settings?.reactions?.disable == true -> reactionButton.visibility = View.GONE
             // disabled in current blog by owner
-            profile.settings.reactions.disableInBlog -> reactionButton.visibility = View.GONE
+            profile.settings.reactions?.disableInBlog == true -> reactionButton.visibility = View.GONE
             // not authorized, can't add reactions
             Auth.profile == null -> reactionButton.visibility = View.GONE
             // enabled, show the button
@@ -518,7 +518,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         }
 
         // setup pin icon
-        val pinned = profile.settings.pinnedEntries.contains(entry.id)
+        val pinned = profile.settings.pinnedEntries?.contains(entry.id) ?: false
         if (pinned) {
             binding.entryPinIcon.visibility = View.VISIBLE
             binding.entryPinIcon.setOnClickListener { showToastAtView(binding.entryPinIcon, it.context.getString(R.string.pinned_entry)) }
@@ -564,7 +564,7 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
         binding.entryReactionsRow.removeAllViews()
 
         val reactionsDisabled = Auth.profile?.settings?.reactions?.disable == true
-        val reactionsDisabledInThisBlog = profile.settings.reactions.disableInBlog
+        val reactionsDisabledInThisBlog = profile.settings.reactions?.disableInBlog == true
 
         if (reactions.isEmpty() || reactionsDisabled || reactionsDisabledInThisBlog) {
             // no reactions for this entry or reactions disabled

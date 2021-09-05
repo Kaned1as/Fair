@@ -117,7 +117,9 @@ class AddProfileFragment: Fragment() {
         if (profReq.isCommunity) {
             // community settings are essential, for now we need
             // them to be auto-joinable while we don't yet have handling of manual requests
-            profReq.settings = ProfileSettings().apply { community.joinRequest = "auto" }
+            profReq.settings = ProfileSettings(
+                community = CommunitySettings(joinRequest = "auto")
+            )
 
         }
 

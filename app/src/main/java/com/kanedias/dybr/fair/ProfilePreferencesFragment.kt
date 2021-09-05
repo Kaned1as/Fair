@@ -14,8 +14,7 @@ import com.ftinc.scoop.StyleLevel
 import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.databinding.FragmentProfilePreferencesBinding
-import com.kanedias.dybr.fair.dto.OwnProfile
-import com.kanedias.dybr.fair.dto.ProfileCreateRequest
+import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
 import com.kanedias.dybr.fair.ui.showToastAtView
@@ -26,7 +25,7 @@ import kotlinx.coroutines.*
  *
  * Created on 18.08.19
  */
-class ProfilePreferencesFragment: Fragment() {
+class ProfilePreferencesFragment : Fragment() {
 
     companion object {
         const val PROFILE = "profile"
@@ -52,16 +51,16 @@ class ProfilePreferencesFragment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentProfilePreferencesBinding.inflate(inflater, container, false)
         switches = listOf(
-                binding.newPostsInFavoritesSwitch,
-                binding.newCommentsInSubscribedSwitch,
-                binding.participateInFeedSwitch,
-                binding.reactionsGlobalSwitch,
-                binding.reactionsInBlogSwitch
+            binding.newPostsInFavoritesSwitch,
+            binding.newCommentsInSubscribedSwitch,
+            binding.participateInFeedSwitch,
+            binding.reactionsGlobalSwitch,
+            binding.reactionsInBlogSwitch
         )
         titles = listOf(
-                binding.notificationsScreenText,
-                binding.privacyScreenText,
-                binding.reactionsScreenText
+            binding.notificationsScreenText,
+            binding.privacyScreenText,
+            binding.reactionsScreenText
         )
 
 
@@ -103,35 +102,58 @@ class ProfilePreferencesFragment: Fragment() {
         binding.profilePreferencesToolbar.navigationIcon = DrawerArrowDrawable(activity).apply { progress = 1.0f }
         binding.profilePreferencesToolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 
-        binding.newPostsInFavoritesSwitch.isChecked = profile.settings.notifications.entries.enable
+        binding.newPostsInFavoritesSwitch.isChecked = profile.settings.notifications?.entries?.enable == true
         binding.newPostsInFavoritesSwitch.setOnCheckedChangeListener { view, isChecked ->
-            profile.settings.notifications.apply { entries = entries.copy(enable = isChecked) }
+            // copy preserving existing values
+            profile.settings.notifications = profile.settings.notifications?.copy(
+                entries = profile.settings.notifications?.entries?.copy(enable = isChecked)
+                    ?: NotificationConfig(enable = isChecked)
+            ) ?: NotificationsSettings(
+                entries = NotificationConfig(enable = isChecked)
+            )
+
             applySettings(view)
         }
 
-        binding.newCommentsInSubscribedSwitch.isChecked = profile.settings.notifications.comments.enable
+        binding.newCommentsInSubscribedSwitch.isChecked = profile.settings.notifications?.comments?.enable == true
         binding.newCommentsInSubscribedSwitch.setOnCheckedChangeListener { view, isChecked ->
-            profile.settings.notifications.apply { comments = comments.copy(enable = isChecked) }
+            // copy preserving existing values
+            profile.settings.notifications = profile.settings.notifications?.copy(
+                comments = profile.settings.notifications?.entries?.copy(enable = isChecked)
+                    ?: NotificationConfig(enable = isChecked)
+            ) ?: NotificationsSettings(
+                comments = NotificationConfig(enable = isChecked)
+            )
+
             applySettings(view)
         }
 
-        binding.participateInFeedSwitch.isChecked = profile.settings.privacy.dybrfeed
+        binding.participateInFeedSwitch.isChecked = profile.settings.privacy?.dybrfeed == true
         binding.participateInFeedSwitch.setOnCheckedChangeListener { view, isChecked ->
-            profile.settings.apply { privacy = privacy.copy(dybrfeed = isChecked) }
+            // copy preserving existing values
+            profile.settings.privacy = profile.settings.privacy?.copy(dybrfeed = isChecked)
+                ?: PrivacySettings(dybrfeed = isChecked)
+
             applySettings(view)
         }
 
-        binding.reactionsGlobalSwitch.isChecked = !profile.settings.reactions.disable
+        binding.reactionsGlobalSwitch.isChecked = profile.settings.reactions?.disable != true
         binding.reactionsGlobalSwitch.setOnCheckedChangeListener { view, isChecked ->
-            profile.settings.reactions.disable = !isChecked
+            // copy preserving existing values
+            profile.settings.reactions = profile.settings.reactions?.copy(disable = !isChecked)
+                ?: ReactionConfig(disable = !isChecked)
+
             binding.reactionsInBlogSwitch.isEnabled = isChecked
             applySettings(view)
         }
 
-        binding.reactionsInBlogSwitch.isChecked = !profile.settings.reactions.disableInBlog
+        binding.reactionsInBlogSwitch.isChecked = profile.settings.reactions?.disableInBlog != true
         binding.reactionsInBlogSwitch.isEnabled = binding.reactionsGlobalSwitch.isChecked
         binding.reactionsInBlogSwitch.setOnCheckedChangeListener { view, isChecked ->
-            profile.settings.reactions.disableInBlog = !isChecked
+            // copy preserving existing values
+            profile.settings.reactions = profile.settings.reactions?.copy(disableInBlog = !isChecked)
+                ?: ReactionConfig(disableInBlog = !isChecked)
+
             applySettings(view)
         }
     }

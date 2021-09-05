@@ -176,7 +176,7 @@ class CreateNewEntryFragment : EditorFragment() {
 
         binding.entryTitleText.setText(editEntryTitle)
         binding.entryDraftSwitch.isChecked = requireArguments().getString(EDIT_ENTRY_STATE) == "published"
-        binding.entryPinnedSwitch.isChecked = profSettings.pinnedEntries.contains(editEntryId)
+        binding.entryPinnedSwitch.isChecked = profSettings.pinnedEntries?.contains(editEntryId) ?: false
         // need to convert entry content (html) to Markdown somehow...
         val markdown = Html2Markdown().parseExtended(editEntryContentHtml)
         editor.setText(markdown)
@@ -311,7 +311,7 @@ class CreateNewEntryFragment : EditorFragment() {
 
                 // pin if needed
                 val settings = requireArguments().getSerializable(PARENT_BLOG_PROFILE_SETTINGS) as ProfileSettings
-                val pinnedAlready = settings.pinnedEntries
+                val pinnedAlready = settings.pinnedEntries ?: mutableSetOf()
                 when {
                     binding.entryPinnedSwitch.isChecked && !pinnedAlready.contains(entry.id) -> {
                         val req = ProfileCreateRequest().apply {
