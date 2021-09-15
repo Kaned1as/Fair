@@ -32,6 +32,7 @@ import com.ftinc.scoop.adapters.DefaultColorAdapter
 import com.ftinc.scoop.adapters.ImageViewColorAdapter
 import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.google.android.material.tabs.TabLayoutMediator
+import com.j256.ormlite.stmt.SelectArg
 import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.database.entities.SearchGotoInfo
@@ -295,7 +296,11 @@ class MainActivity : AppCompatActivity() {
             private fun persistSearchSuggestion(type: EntityType, name: String) {
                 // persist to saved searches if unique index does not object
                 val dao = DbProvider.helper.gotoDao
-                val unique = dao.queryBuilder().apply { where().eq("type", type).and().eq("name", name) }.query()
+                val unique = dao.queryBuilder().apply {
+                    where()
+                        .eq("type", type)
+                        .and()
+                        .eq("name", SelectArg(name)) }.query()
                 if (unique.isEmpty()) { // don't know how to make this check better, like "replace-on-conflict"
                     dao.createOrUpdate(SearchGotoInfo(type, name))
                 }
@@ -309,8 +314,9 @@ class MainActivity : AppCompatActivity() {
         val suitableFavs = favProfiles.filter { it.nickname.startsWith(prefix) }
 
         // second, collect suggestions that we already searched for
+        val anyPrefixed = SelectArg("$prefix%")
         val suitableSaved = DbProvider.helper.gotoDao.queryBuilder()
-                .where().like("name", "$prefix%").query()
+                .where().like("name", anyPrefixed).query()
 
         // we need a counter as MatrixCursor requires _id field unfortunately
         var counter = 0
@@ -443,7 +449,7 @@ class MainActivity : AppCompatActivity() {
                 val notification = cause.getSerializableExtra(EXTRA_NOTIFICATION) as? Notification
                 if (notification != null) {
                     // we have notification, can handle notification click
-                    lifecycleScope.launch {
+                    lifecycleScope.launchWhenResumed {
                         try {
                             // load entry
                             val entry = withContext(Dispatchers.IO) { Network.loadEntry(notification.entryId) }
