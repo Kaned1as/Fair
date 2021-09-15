@@ -10,6 +10,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import com.auth0.android.jwt.JWT
 import com.kanedias.dybr.fair.BuildConfig
+import com.kanedias.dybr.fair.COMMENT_PAGE_SIZE
 import com.kanedias.dybr.fair.PAGE_SIZE
 import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.database.entities.Account
@@ -730,7 +731,7 @@ object Network {
      * @param entry entry to retrieve comments from
      */
     @WorkerThread
-    fun loadComments(entry: Entry, pageNum: Int = 1, pageSize: Int = PAGE_SIZE): ArrayDocument<Comment> {
+    fun loadComments(entry: Entry, pageNum: Int = 1, pageSize: Int = COMMENT_PAGE_SIZE): ArrayDocument<Comment> {
         val builder = HttpUrl.parse("$ENTRIES_ENDPOINT/${entry.id}/comments")!!.newBuilder()
                 .addQueryParameter("page[number]", pageNum.toString())
                 .addQueryParameter("page[size]", pageSize.toString())

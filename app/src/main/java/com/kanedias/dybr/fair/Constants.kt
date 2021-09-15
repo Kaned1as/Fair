@@ -27,3 +27,4 @@ const val ACTION_NOTIF_OPEN = "com.kanedias.dybr.fair.action.notif.OPEN"
 
 // for paged network retrieval results
 const val PAGE_SIZE = 20
+const val COMMENT_PAGE_SIZE = 100
