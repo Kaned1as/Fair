@@ -29,11 +29,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/comment_avatar"
+            android:maxEms="20"
             android:padding="8dp"
-            android:textStyle="bold"
-            android:textSize="16sp"
             android:text="@string/placeholder_long"
-            android:maxEms="20"/>
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/comment_date"
@@ -42,17 +42,16 @@
             android:layout_alignBaseline="@id/comment_author"
             android:layout_alignParentEnd="true"
             android:padding="8dp"
-            android:textSize="16sp"
-            android:text="@string/placeholder_date"/>
+            android:text="@string/placeholder_date" />
 
         <com.kanedias.dybr.fair.misc.ClickPreventingTextView
             android:id="@+id/comment_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
             android:layout_below="@id/comment_avatar"
+            android:layout_alignParentStart="true"
             android:padding="5dp"
-            android:text="@string/placeholder_huge"/>
+            android:text="@string/placeholder_huge" />
 
         <LinearLayout
             android:id="@+id/comment_icon_area"
