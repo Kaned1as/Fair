@@ -21,6 +21,9 @@ import com.kanedias.dybr.fair.ui.showToastAtView
 import kotlinx.coroutines.*
 
 /**
+ * This is what you see when you click a cog at the sidebar, on the row with profile name.
+ * This is not application-level settings, but profile-level, and are saved and stored on dybr.ru itself.
+ *
  * @author Kanedias
  *
  * Created on 18.08.19
