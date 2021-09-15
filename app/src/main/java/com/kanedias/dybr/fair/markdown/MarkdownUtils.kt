@@ -120,6 +120,16 @@ class OfftopSpanHandler : SimpleTagHandler() {
 infix fun TextView.handleMarkdown(html: String) {
     setSpannableFactory(NoCopySpannableFactory())
 
+    this.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View) {
+            AsyncDrawableScheduler.schedule(v as TextView)
+        }
+
+        override fun onViewDetachedFromWindow(v: View) {
+            AsyncDrawableScheduler.unschedule(v as TextView)
+        }
+    })
+
     val renderer = mdRendererFrom(context)
     val converter = {
         val mdContent = Html2Markdown().parseExtended(html)
@@ -258,6 +268,11 @@ fun postProcessMore(spanned: SpannableStringBuilder, ctx: Context) {
 
                 val start = spanned.getSpanStart(this)
                 val end = spanned.getSpanEnd(this)
+
+                if (start == -1 || end == -1) {
+                    // double click on MORE?
+                    return
+                }
 
                 moreSpanned.getSpans(0, moreSpanned.length, Any::class.java).forEach { spanned.removeSpan(it) }
                 spanned.removeSpan(this)
