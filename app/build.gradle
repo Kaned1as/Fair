@@ -2,14 +2,14 @@ plugins {
     id 'com.android.application'
 
     id 'com.palantir.git-version' version '0.11.0'
-    id 'com.github.triplet.play' version '3.6.0-agp4.2'
+    id 'com.github.triplet.play' version '3.6.0'
 
     id 'kotlin-android'
     id 'kotlin-kapt'
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     ndkVersion "21.3.6528147"
 
     buildFeatures {
@@ -51,12 +51,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = JavaVersion.VERSION_11
     }
 
     flavorDimensions "purity"

@@ -76,8 +76,7 @@ fun openUrlExternally(ctx: Context, uri: Uri) {
 
     // detect default browser
     val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://"))
-    val defaultBrowser = pkgMgr.resolveActivity(browserIntent, PackageManager.MATCH_DEFAULT_ONLY)
-
+    val defaultBrowser = pkgMgr.resolveActivity(browserIntent, PackageManager.MATCH_DEFAULT_ONLY) ?: return
     // use default browser to open the url
     intent.component = with(defaultBrowser.activityInfo) { ComponentName(applicationInfo.packageName, name) }
     ctx.startActivity(intent)
