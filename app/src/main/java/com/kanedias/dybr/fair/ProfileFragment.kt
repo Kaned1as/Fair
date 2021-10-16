@@ -207,10 +207,10 @@ class ProfileFragment: DialogFragment() {
 
             override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
                 val prof = Network.loadProfile(filters.getValue("profileId"))
-                val readers = prof.readers.get(prof.document)
+                val favorites = prof.favorites.get(prof.document)
                 val from = (pageNum - 1) * 20
-                val to = minOf(pageNum * 20, readers.size)
-                ArrayDocument<OwnProfile>().apply { addAll(readers.subList(from, to)) }
+                val to = minOf(pageNum * 20, favorites.size)
+                ArrayDocument<OwnProfile>().apply { addAll(favorites.subList(from, to)) }
             }
         }
 
@@ -227,10 +227,10 @@ class ProfileFragment: DialogFragment() {
 
             override fun retrieveData(pageNum: Int, starter: Long): () -> ArrayDocument<OwnProfile> = {
                 val prof = Network.loadProfile(filters.getValue("profileId"))
-                val favs = prof.favorites.get(prof.document)
+                val readers = prof.readers.get(prof.document)
                 val from = (pageNum - 1) * 20
-                val to = minOf(pageNum * 20, favs.size)
-                ArrayDocument<OwnProfile>().apply { addAll(favs.subList(from, to)) }
+                val to = minOf(pageNum * 20, readers.size)
+                ArrayDocument<OwnProfile>().apply { addAll(readers.subList(from, to)) }
             }
         }
 
