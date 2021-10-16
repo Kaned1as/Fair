@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
 
     id 'com.palantir.git-version' version '0.11.0'
-    id 'com.github.triplet.play' version '2.1.0'
+    id 'com.github.triplet.play' version '3.6.0-agp4.2'
 
     id 'kotlin-android'
     id 'kotlin-kapt'
@@ -108,6 +108,7 @@ android {
 }
 
 play {
+    defaultToAppBundles.set(true)
     serviceAccountCredentials = file('misc/android-publisher-account.json')
     track = project.hasProperty('releaseType') ? project.property('releaseType') : 'alpha'
 }
