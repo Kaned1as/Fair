@@ -316,14 +316,14 @@ class CreateNewEntryFragment : EditorFragment() {
                     binding.entryPinnedSwitch.isChecked && !pinnedAlready.contains(entry.id) -> {
                         val req = ProfileCreateRequest().apply {
                             this.id = parentProfileId
-                            this.settings = settings.copy(pinnedEntries = pinnedAlready.apply { add(entry.id) })
+                            this.settings = ProfileSettings(pinnedEntries = pinnedAlready.apply { add(entry.id) })
                         }
                         withContext(Dispatchers.IO) { Network.updateProfile(req) }
                     }
                     !binding.entryPinnedSwitch.isChecked && pinnedAlready.contains(entry.id) -> {
                         val req = ProfileCreateRequest().apply {
                             this.id = parentProfileId
-                            this.settings = settings.copy(pinnedEntries = pinnedAlready.apply { remove(entry.id) })
+                            this.settings = ProfileSettings(pinnedEntries = pinnedAlready.apply { remove(entry.id) })
                         }
                         withContext(Dispatchers.IO) { Network.updateProfile(req) }
                     }
