@@ -46,12 +46,13 @@ stages:
 
 .configure_android_sdk: &configure_android_sdk
   # download android cmdline tools
-  - mkdir -pv android-sdk-linux
+  - mkdir -pv android-sdk-linux/cmdline-tools/
   - wget --quiet --output-document=android-cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
-  - unzip -q android-cmdline-tools.zip -d android-sdk-linux/cmdline-tools && rm -v android-cmdline-tools.zip
+  - unzip -q android-cmdline-tools.zip && rm -v android-cmdline-tools.zip
+  - mv -v cmdline-tools/ android-sdk-linux/cmdline-tools/latest/
   # set environment variables
   - export ANDROID_HOME="$PWD/android-sdk-linux"
-  - export PATH="$PATH:$ANDROID_HOME/cmdline-tools/tools/bin:$ANDROID_HOME/platform-tools"
+  - export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
   - export NDK_HOME=$ANDROID_HOME/ndk/$ANDROID_COMPILE_NDK
   # install required components
   - echo y | sdkmanager --install "platforms;android-${ANDROID_COMPILE_SDK}" > /dev/null
@@ -88,7 +89,7 @@ release-alpha:
     - *decrypt_publish_json
     - *install_rust_toolchain
     - *compile_html2md
-    - ./gradlew app:publishGoogleplayRelease
+    - ./gradlew app:publishGoogleplayReleaseApk
   after_script:
     - rm -f ${GOOGLE_PUBLISH_JSON}
   artifacts:
