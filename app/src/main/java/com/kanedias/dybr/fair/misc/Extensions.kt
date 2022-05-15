@@ -11,8 +11,10 @@ import com.ftinc.scoop.StyleLevel
 import com.kanedias.dybr.fair.MainActivity
 import com.kanedias.dybr.fair.R
 import com.kanedias.dybr.fair.UserContentListFragment
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.actor
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -86,21 +88,6 @@ val View.styleLevel : StyleLevel?
         // second, try to find fragment with style on top of backstack
         return styleLevelFromActivity(activity)
     }
-
-/**
- * Only allow one instance of on-click to be processed at each given moment
- */
-@Suppress("EXPERIMENTAL_API_USAGE")
-fun View.onClickSingleOnly(action: suspend (View) -> Unit) {
-    // launch one actor
-    val eventActor = GlobalScope.actor<View>(Dispatchers.Main) {
-        for (event in channel) action(event)
-    }
-    // install a listener to activate this actor
-    setOnClickListener {
-        eventActor.offer(it)
-    }
-}
 
 /**
  * Resolve attribute effectively

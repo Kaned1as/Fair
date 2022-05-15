@@ -16,7 +16,6 @@ import com.kanedias.dybr.fair.database.DbProvider
 import com.kanedias.dybr.fair.dto.Auth
 import com.kanedias.dybr.fair.database.entities.Account
 import com.kanedias.dybr.fair.dto.OwnProfile
-import com.kanedias.dybr.fair.misc.onClickSingleOnly
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.showThemed
@@ -337,7 +336,7 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
 
         // handle click on profile change button
         // we need to ignore subsequent clicks if profiles are already loading
-        binding.switchProfile.onClickSingleOnly {
+        binding.switchProfile.setOnClickListener {
             val swapAnim = ValueAnimator.ofFloat(1f, -1f, 1f)
             swapAnim.interpolator = FastOutSlowInInterpolator()
             swapAnim.addUpdateListener { binding.addProfile.scaleX = swapAnim.animatedValue as Float }
@@ -345,15 +344,17 @@ class Sidebar(private val drawer: DrawerLayout, private val activity: MainActivi
             swapAnim.repeatCount = ValueAnimator.INFINITE
             swapAnim.start()
 
-            try {
-                // force profile selection even if we only have one
-                activity.startProfileSelector(true)
-                drawer.closeDrawers()
-            } catch (ex: Exception) {
-                Network.reportErrors(activity, ex)
-            }
+            activity.lifecycleScope.launch {
+                try {
+                    // force profile selection even if we only have one
+                    activity.startProfileSelector(true)
+                    drawer.closeDrawers()
+                } catch (ex: Exception) {
+                    Network.reportErrors(activity, ex)
+                }
 
-            swapAnim.repeatCount = 0 // stop gracefully
+                swapAnim.repeatCount = 0 // stop gracefully
+            }
         }
 
         binding.setupProfile.setOnClickListener {

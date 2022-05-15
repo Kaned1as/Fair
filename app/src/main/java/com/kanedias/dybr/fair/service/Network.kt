@@ -29,12 +29,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import moe.banana.jsonapi2.*
 import okhttp3.*
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType.Companion.toMediaType
 import okio.BufferedSource
 import java.util.concurrent.TimeUnit
 import java.io.IOException
 import java.util.*
 import java.net.HttpURLConnection.*
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.http.HttpMethod
 import org.json.JSONObject
 import kotlin.random.Random
@@ -111,7 +114,7 @@ object Network {
     private lateinit var ACTION_LISTS_ENDPOINT: String
     private lateinit var COMMUNITY_JOIN_REQ_ENDPOINT: String
 
-    private val MIME_JSON_API = MediaType.parse("application/vnd.api+json")
+    private val MIME_JSON_API = "application/vnd.api+json".toMediaType()
 
     private val jsonApiAdapter = ResourceAdapterFactory.builder()
             .add(LoginRequest::class.java)
@@ -152,7 +155,7 @@ object Network {
      */
     private val authorizer = Interceptor { chain ->
         val origRequest = chain.request()
-        val alreadyHasAuth = origRequest.headers().names().contains("Authorization")
+        val alreadyHasAuth = origRequest.headers.names().contains("Authorization")
 
         // skip if we already have auth header in request
         if (Auth.user.accessToken == null || alreadyHasAuth)
@@ -167,15 +170,15 @@ object Network {
 
     private val nonceHandler = Interceptor { chain ->
         val origRequest = chain.request()
-        val alreadyHasNonce = origRequest.url().queryParameterNames().contains("nonce")
+        val alreadyHasNonce = origRequest.url.queryParameterNames.contains("nonce")
 
         // skip if we already have auth header in request
-        if (alreadyHasNonce || !HttpMethod.requiresRequestBody(origRequest.method()))
+        if (alreadyHasNonce || !HttpMethod.requiresRequestBody(origRequest.method))
             return@Interceptor chain.proceed(origRequest)
 
         val nonce = Random.nextInt(0, Int.MAX_VALUE).toString()
         val enrichedReq  = origRequest.newBuilder()
-                .url(origRequest.url().newBuilder().addQueryParameter("nonce", nonce).build())
+                .url(origRequest.url.newBuilder().addQueryParameter("nonce", nonce).build())
                 .build()
 
         return@Interceptor chain.proceed(enrichedReq)
@@ -219,15 +222,15 @@ object Network {
         val endpoint = UserPrefs.homeServerUrl
 
         // endpoint itself must be valid url
-        val valid = HttpUrl.parse(endpoint)
+        val valid = endpoint.toHttpUrlOrNull()
         if (valid == null || !endpoint.endsWith("/")) {
             // url is invalid
             Toast.makeText(ctx, R.string.invalid_dybr_endpoint, Toast.LENGTH_SHORT).show()
-            MAIN_DYBR_API_ENDPOINT = HttpUrl.parse(DEFAULT_DYBR_API_ENDPOINT)!!
+            MAIN_DYBR_API_ENDPOINT = DEFAULT_DYBR_API_ENDPOINT.toHttpUrl()
             UserPrefs.homeServerUrl = DEFAULT_DYBR_API_ENDPOINT
         } else {
             // url is valid, proceed
-            MAIN_DYBR_API_ENDPOINT = HttpUrl.parse(endpoint)!!
+            MAIN_DYBR_API_ENDPOINT = valid
         }
 
         IMG_UPLOAD_ENDPOINT = resolve("image-upload")!!.toString()
@@ -265,7 +268,7 @@ object Network {
      */
     @WorkerThread
     fun createAccount(regInfo: RegisterRequest): RegisterResponse {
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(regInfo))
+        val reqBody = toWrappedJson(regInfo).toRequestBody(MIME_JSON_API)
 
         // we need empty auth in order to create users
         val req = Request.Builder().post(reqBody).url(USERS_ENDPOINT).header("Authorization", "").build()
@@ -275,7 +278,7 @@ object Network {
         }
 
         // response is successful, should have register response in answer
-        return fromWrappedJson(resp.body()!!.source(), RegisterResponse::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), RegisterResponse::class.java)!!
     }
 
     /**
@@ -321,7 +324,7 @@ object Network {
             loginRequest.profile = profileId
         }
 
-        val body = RequestBody.create(MIME_JSON_API, toWrappedJson(loginRequest))
+        val body = toWrappedJson(loginRequest).toRequestBody(MIME_JSON_API)
         val req = Request.Builder().post(body).url(SESSIONS_ENDPOINT).build()
         val resp = httpClient.newCall(req).execute()
 
@@ -331,7 +334,7 @@ object Network {
         }
 
         // if response is successful we should have login response in body
-        val response = fromWrappedJson(resp.body()!!.source(), LoginResponse::class.java)!!
+        val response = fromWrappedJson(resp.body!!.source(), LoginResponse::class.java)!!
 
         // login successful
         // memorize the access token and use it in next requests
@@ -341,8 +344,8 @@ object Network {
         // save user info
         val reqUser = Request.Builder().url(USERS_ENDPOINT).build()
         val respUser = httpClient.newCall(reqUser).execute() // returns array with only one element
-        val user = fromWrappedJson(respUser.body()!!.source(), User::class.java)
-                ?: return
+        val user = fromWrappedJson(respUser.body!!.source(), User::class.java)
+            ?: return
 
         // memorize account info
         acc.apply {
@@ -407,7 +410,7 @@ object Network {
             throw extractErrors(resp, "Can't load user profiles")
 
         // there's an edge-case when user is deleted on server but we still have Auth.user.serverId set
-        val user = fromWrappedJson(resp.body()!!.source(), User::class.java)
+        val user = fromWrappedJson(resp.body!!.source(), User::class.java)
                 ?: return emptyList()
         return user.profiles.get(user.document)
     }
@@ -425,7 +428,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedJson(resp.body()!!.source(), OwnProfile::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), OwnProfile::class.java)!!
     }
 
     /**
@@ -442,7 +445,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), OwnProfile::class.java)
+        return fromWrappedListJson(resp.body!!.source(), OwnProfile::class.java)
     }
 
     /**
@@ -460,7 +463,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), OwnProfile::class.java)
+        return fromWrappedListJson(resp.body!!.source(), OwnProfile::class.java)
     }
 
     /**
@@ -477,7 +480,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), EntryTag::class.java)
+        return fromWrappedListJson(resp.body!!.source(), EntryTag::class.java)
     }
 
     /**
@@ -493,7 +496,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        val filtered = fromWrappedListJson(resp.body()!!.source(), OwnProfile::class.java)
+        val filtered = fromWrappedListJson(resp.body!!.source(), OwnProfile::class.java)
         if (filtered.isEmpty())
             throw HttpException(404, "", "")
 
@@ -512,7 +515,7 @@ object Network {
     fun searchProfiles(filters: Map<String, String>,
                        pageNum: Int = 1,
                        pageSize: Int = PAGE_SIZE): ArrayDocument<OwnProfile> {
-        val builder = HttpUrl.parse(PROFILES_ENDPOINT)!!.newBuilder()
+        val builder = PROFILES_ENDPOINT.toHttpUrl().newBuilder()
         builder.addQueryParameter("page[number]", pageNum.toString())
                 .addQueryParameter("page[size]", pageSize.toString())
                 .addQueryParameter("sort", "-created-at")
@@ -528,7 +531,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), OwnProfile::class.java)
+        return fromWrappedListJson(resp.body!!.source(), OwnProfile::class.java)
     }
 
     /**
@@ -540,7 +543,7 @@ object Network {
      */
     @WorkerThread
     fun removeProfile(prof: OwnProfile, keepComments: Boolean = false) {
-        val queryBuilder = HttpUrl.parse("$PROFILES_ENDPOINT/${prof.id}")!!.newBuilder()
+        val queryBuilder = "$PROFILES_ENDPOINT/${prof.id}".toHttpUrl().newBuilder()
         if (keepComments) {
             queryBuilder.addQueryParameter("comments", "keep")
         }
@@ -568,11 +571,11 @@ object Network {
      */
     @WorkerThread
     fun addFavorite(prof: OwnProfile) {
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedListJson(ResourceIdentifier(prof)))
+        val reqBody = toWrappedListJson(ResourceIdentifier(prof)).toRequestBody(MIME_JSON_API)
         val req = Request.Builder()
-                .url("$PROFILES_ENDPOINT/${Auth.profile!!.id}/relationships/favorites")
-                .post(reqBody)
-                .build()
+            .url("$PROFILES_ENDPOINT/${Auth.profile!!.id}/relationships/favorites")
+            .post(reqBody)
+            .build()
 
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
@@ -585,11 +588,11 @@ object Network {
      */
     @WorkerThread
     fun removeFavorite(prof: OwnProfile) {
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedListJson(ResourceIdentifier(prof)))
+        val reqBody = toWrappedListJson(ResourceIdentifier(prof)).toRequestBody(MIME_JSON_API)
         val req = Request.Builder()
-                .url("$PROFILES_ENDPOINT/${Auth.profile!!.id}/relationships/favorites")
-                .delete(reqBody)
-                .build()
+            .url("$PROFILES_ENDPOINT/${Auth.profile!!.id}/relationships/favorites")
+            .delete(reqBody)
+            .build()
 
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
@@ -603,14 +606,14 @@ object Network {
      */
     @WorkerThread
     fun updateProfile(profReq: ProfileCreateRequest): OwnProfile {
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(profReq))
+        val reqBody = toWrappedJson(profReq).toRequestBody(MIME_JSON_API)
         val req = Request.Builder().url("$PROFILES_ENDPOINT/${profReq.id}").patch(reqBody).build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
             throw extractErrors(resp, "Can't update profile")
 
         // response is returned after execute call, body is not null
-        return fromWrappedJson(resp.body()!!.source(), OwnProfile::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), OwnProfile::class.java)!!
     }
 
     /**
@@ -634,7 +637,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedJson(resp.body()!!.source(), Design::class.java)
+        return fromWrappedJson(resp.body!!.source(), Design::class.java)
     }
 
     /**
@@ -650,7 +653,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        val filtered = fromWrappedListJson(resp.body()!!.source(), OwnProfile::class.java)
+        val filtered = fromWrappedListJson(resp.body!!.source(), OwnProfile::class.java)
         if (filtered.isEmpty())
             throw HttpException(404, "", "No such profile found: $slug")
 
@@ -673,17 +676,17 @@ object Network {
         // handle special case when we selected tab with favorites
         val builder = when (prof) {
             Auth.favoritesMarker ->
-                HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/favorites/entries")!!
+                "$PROFILES_ENDPOINT/${Auth.profile?.id}/favorites/entries".toHttpUrl()
                     .newBuilder()
             Auth.communitiesMarker ->
-                HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/communities/entries")!!
+                "$PROFILES_ENDPOINT/${Auth.profile?.id}/communities/entries".toHttpUrl()
                     .newBuilder()
             Auth.worldMarker ->
-                HttpUrl.parse(ENTRIES_ENDPOINT)!!
+                ENTRIES_ENDPOINT.toHttpUrl()
                     .newBuilder()
                     .addQueryParameter("filters[feed]", "1")
-            null -> HttpUrl.parse(ENTRIES_ENDPOINT)!!.newBuilder()
-            else -> HttpUrl.parse("$BLOGS_ENDPOINT/${prof.id}/entries")!!.newBuilder()
+            null -> ENTRIES_ENDPOINT.toHttpUrl().newBuilder()
+            else -> "$BLOGS_ENDPOINT/${prof.id}/entries".toHttpUrl().newBuilder()
         }
 
         builder.addQueryParameter("page[number]", pageNum.toString())
@@ -703,7 +706,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        val entryDoc = fromWrappedListJson(resp.body()!!.source(), Entry::class.java)
+        val entryDoc = fromWrappedListJson(resp.body!!.source(), Entry::class.java)
         entryDoc.map { it.content }.forEach { preloadMarkdown(it) }
 
         return entryDoc
@@ -722,7 +725,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedJson(resp.body()!!.source(), Entry::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), Entry::class.java)!!
     }
 
     /**
@@ -732,7 +735,7 @@ object Network {
      */
     @WorkerThread
     fun loadComments(entry: Entry, pageNum: Int = 1, pageSize: Int = COMMENT_PAGE_SIZE): ArrayDocument<Comment> {
-        val builder = HttpUrl.parse("$ENTRIES_ENDPOINT/${entry.id}/comments")!!.newBuilder()
+        val builder = "$ENTRIES_ENDPOINT/${entry.id}/comments".toHttpUrl().newBuilder()
                 .addQueryParameter("page[number]", pageNum.toString())
                 .addQueryParameter("page[size]", pageSize.toString())
                 .addQueryParameter("include", "profiles,entries")
@@ -745,7 +748,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        val commentDoc = fromWrappedListJson(resp.body()!!.source(), Comment::class.java)
+        val commentDoc = fromWrappedListJson(resp.body!!.source(), Comment::class.java)
         commentDoc.map { it.content }.forEach { preloadMarkdown(it) }
         return commentDoc
     }
@@ -777,14 +780,14 @@ object Network {
      */
     @WorkerThread
     fun updateComment(comment: CreateCommentRequest): Comment {
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(comment))
+        val reqBody = toWrappedJson(comment).toRequestBody(MIME_JSON_API)
         val req = Request.Builder().url("$COMMENTS_ENDPOINT/${comment.id}").patch(reqBody).build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
             throw extractErrors(resp, "Can't update comment ${comment.id}")
 
         // response is returned after execute call, body is not null
-        return fromWrappedJson(resp.body()!!.source(), Comment::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), Comment::class.java)!!
     }
 
     /**
@@ -814,14 +817,14 @@ object Network {
      */
     @WorkerThread
     fun updateEntry(entry: EntryCreateRequest): Entry {
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(entry))
+        val reqBody = toWrappedJson(entry).toRequestBody(MIME_JSON_API)
         val req = Request.Builder().url("$ENTRIES_ENDPOINT/${entry.id}").patch(reqBody).build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
             throw extractErrors(resp, "Can't update entry ${entry.id}")
 
         // response is returned after execute call, body is not null
-        return fromWrappedJson(resp.body()!!.source(), Entry::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), Entry::class.java)!!
     }
 
     /**
@@ -848,7 +851,7 @@ object Network {
         if (Auth.profile == null)
             return ArrayDocument()
 
-        val builder = HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/notifications")!!.newBuilder()
+        val builder = "$PROFILES_ENDPOINT/${Auth.profile?.id}/notifications".toHttpUrl().newBuilder()
         builder.addQueryParameter("page[number]", pageNum.toString())
                 .addQueryParameter("page[size]", pageSize.toString())
                 .addQueryParameter("include", "comments,profiles")
@@ -865,7 +868,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), Notification::class.java)
+        return fromWrappedListJson(resp.body!!.source(), Notification::class.java)
     }
 
     /**
@@ -874,14 +877,14 @@ object Network {
      */
     @WorkerThread
     fun updateNotification(notification: NotificationRequest): Notification {
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(notification))
+        val reqBody = toWrappedJson(notification).toRequestBody(MIME_JSON_API)
         val req = Request.Builder().url("$NOTIFICATIONS_ENDPOINT/${notification.id}").patch(reqBody).build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
             throw extractErrors(resp, "Can't update notification ${notification.id}")
 
         // response is returned after execute call, body is not null
-        return fromWrappedJson(resp.body()!!.source(), Notification::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), Notification::class.java)!!
     }
 
 
@@ -899,7 +902,7 @@ object Network {
             return false
         }
 
-        val builder = HttpUrl.parse("$PROFILES_ENDPOINT/${Auth.profile?.id}/relationships/notifications")!!.newBuilder()
+        val builder = "$PROFILES_ENDPOINT/${Auth.profile?.id}/relationships/notifications".toHttpUrl().newBuilder()
         builder.addQueryParameter("filters[entry_id]", entry.id)
                 .addQueryParameter("filters[state]", "new")
                 .addQueryParameter("include", "comments,profiles")
@@ -910,7 +913,7 @@ object Network {
             throw extractErrors(resp, "Can't load notifications for profile ${Auth.profile?.nickname}")
         }
 
-        val unreadNotifications = fromWrappedListJson(resp.body()!!.source(), Notification::class.java)
+        val unreadNotifications = fromWrappedListJson(resp.body!!.source(), Notification::class.java)
         for (notif in unreadNotifications) {
             val update = NotificationRequest().apply {
                 id = notif.id
@@ -933,8 +936,9 @@ object Network {
             return
         }
 
-        val reqBody = RequestBody.create(MIME_JSON_API, "")
-        val req = Request.Builder().url("$PROFILES_ENDPOINT/${Auth.profile?.id}/relationships/notifications/read-all").post(reqBody).build()
+        val reqBody = "".toRequestBody(MIME_JSON_API)
+        val req = Request.Builder().url("$PROFILES_ENDPOINT/${Auth.profile?.id}/relationships/notifications/read-all")
+            .post(reqBody).build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
             throw extractErrors(resp, "Can't mark notifications read")
@@ -951,7 +955,7 @@ object Network {
             confirmToken = tokenFromMail
         }
 
-        val body = RequestBody.create(MIME_JSON_API, toWrappedJson(confirmation))
+        val body = toWrappedJson(confirmation).toRequestBody(MIME_JSON_API)
         val req = Request.Builder().post(body).url(SESSIONS_ENDPOINT).build()
         val resp = httpClient.newCall(req).execute()
 
@@ -961,7 +965,7 @@ object Network {
         }
 
         // if response is successful we should have login response in body
-        return fromWrappedJson(resp.body()!!.source(), LoginResponse::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), LoginResponse::class.java)!!
     }
 
 
@@ -980,9 +984,9 @@ object Network {
         val req = Request.Builder()
                 .apply {
                     if (subscribe) {
-                        this.post(RequestBody.create(MIME_JSON_API, toWrappedListJson(subscription)))
+                        this.post(toWrappedListJson(subscription).toRequestBody(MIME_JSON_API))
                     } else {
-                        this.patch(RequestBody.create(MIME_JSON_API, """{ "data": [] }"""))
+                        this.patch("""{ "data": [] }""".toRequestBody(MIME_JSON_API))
                     }
                 }
                 .url("$ENTRIES_ENDPOINT/${entry.id}/relationships/subscriptions")
@@ -1011,7 +1015,7 @@ object Network {
         val req = Request.Builder()
                 .apply {
                     if (bookmark) {
-                        this.post(RequestBody.create(MIME_JSON_API, toWrappedJson(bookmarkReq)))
+                        this.post(toWrappedJson(bookmarkReq).toRequestBody(MIME_JSON_API))
                             .url(BOOKMARKS_ENDPOINT)
                     } else {
                         this.delete()
@@ -1036,7 +1040,7 @@ object Network {
      */
     @WorkerThread
     fun loadBookmarks(pageNum: Int = 1, pageSize: Int = PAGE_SIZE): ArrayDocument<Bookmark> {
-        val builder = HttpUrl.parse(BOOKMARKS_ENDPOINT)!!.newBuilder()
+        val builder = BOOKMARKS_ENDPOINT.toHttpUrl().newBuilder()
                 .addQueryParameter("page[number]", pageNum.toString())
                 .addQueryParameter("page[size]", pageSize.toString())
                 .addQueryParameter("include", "entries,profiles")
@@ -1049,7 +1053,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), Bookmark::class.java)
+        return fromWrappedListJson(resp.body!!.source(), Bookmark::class.java)
     }
 
     /**
@@ -1064,7 +1068,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), ReactionSet::class.java)
+        return fromWrappedListJson(resp.body!!.source(), ReactionSet::class.java)
     }
 
     /**
@@ -1082,7 +1086,7 @@ object Network {
         }
 
         val req = Request.Builder()
-                .post(RequestBody.create(MIME_JSON_API, toWrappedJson(reactionReq)))
+                .post(toWrappedJson(reactionReq).toRequestBody(MIME_JSON_API))
                 .url(REACTIONS_ENDPOINT)
                 .build()
 
@@ -1095,7 +1099,7 @@ object Network {
 
         // we need to add reaction type as an include to this document
         // as type is not returned as response
-        return fromWrappedJson(resp.body()!!.source(), Reaction::class.java)!!.apply {
+        return fromWrappedJson(resp.body!!.source(), Reaction::class.java)!!.apply {
             document.addInclude(reactionType)
         }
     }
@@ -1115,7 +1119,7 @@ object Network {
         }
 
         val req = Request.Builder()
-                .post(RequestBody.create(MIME_JSON_API, toWrappedJson(joinReq)))
+                .post(toWrappedJson(joinReq).toRequestBody(MIME_JSON_API))
                 .url(COMMUNITY_JOIN_REQ_ENDPOINT)
                 .build()
 
@@ -1125,7 +1129,7 @@ object Network {
             throw extractErrors(resp, "Can't join community ${communityProf.nickname} with id ${communityProf.id}")
         }
 
-        return fromWrappedJson(resp.body()!!.source(), CommunityJoinResponse::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), CommunityJoinResponse::class.java)!!
     }
 
     /**
@@ -1139,7 +1143,7 @@ object Network {
         val docType = Types.newParameterizedType(Document::class.java, ResourceIdentifier::class.java)
         val req = Request.Builder()
                 .url("$PROFILES_ENDPOINT/${communityProf.id}/relationships/community-participants")
-                .delete(RequestBody.create(MIME_JSON_API, jsonConverter.adapter<Document>(docType).toJson(leaveReq)))
+                .delete(jsonConverter.adapter<Document>(docType).toJson(leaveReq).toRequestBody(MIME_JSON_API))
                 .build()
 
         val resp = httpClient.newCall(req).execute()
@@ -1162,7 +1166,7 @@ object Network {
      */
     @WorkerThread
     fun communityParticipants(communityProfId: String, pageNum: Int = 1, pageSize: Int = PAGE_SIZE): ArrayDocument<CommunityParticipant> {
-        val builder = HttpUrl.parse("$PROFILES_ENDPOINT/${communityProfId}/community-participants")!!.newBuilder()
+        val builder = "$PROFILES_ENDPOINT/${communityProfId}/community-participants".toHttpUrl().newBuilder()
             .addQueryParameter("page[number]", pageNum.toString())
             .addQueryParameter("page[size]", PAGE_SIZE.toString())
             .addQueryParameter("include", "entries,profiles")
@@ -1175,7 +1179,7 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), CommunityParticipant::class.java)
+        return fromWrappedListJson(resp.body!!.source(), CommunityParticipant::class.java)
     }
 
     /**
@@ -1219,18 +1223,21 @@ object Network {
         }
 
         // response is returned after execute call, body is not null
-        return fromWrappedListJson(resp.body()!!.source(), ActionList::class.java)
+        return fromWrappedListJson(resp.body!!.source(), ActionList::class.java)
     }
 
-    private inline fun <reified S: ResourceIdentifier, reified R: ResourceIdentifier> createEntity(endpoint: String, entity: S): R {
-        val reqBody = RequestBody.create(MIME_JSON_API, toWrappedJson(entity))
+    private inline fun <reified S : ResourceIdentifier, reified R : ResourceIdentifier> createEntity(
+        endpoint: String,
+        entity: S
+    ): R {
+        val reqBody = toWrappedJson(entity).toRequestBody(MIME_JSON_API)
         val req = Request.Builder().url(endpoint).post(reqBody).build()
         val resp = httpClient.newCall(req).execute()
         if (!resp.isSuccessful)
             throw extractErrors(resp, "Can't create ${entity.type}")
 
         // response is returned after execute call, body is not null
-        return fromWrappedJson(resp.body()!!.source(), R::class.java)!!
+        return fromWrappedJson(resp.body!!.source(), R::class.java)!!
     }
 
     /**
@@ -1244,7 +1251,7 @@ object Network {
     fun uploadImage(image: ByteArray, filename: String? = null): String {
         val name = filename ?: "unknown"
 
-        val uploadForm = RequestBody.create(MediaType.parse("image/*"), image)
+        val uploadForm = image.toRequestBody("image/*".toMediaType(), 0, image.size)
         val body = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("file", "android-$name", uploadForm)
@@ -1259,7 +1266,7 @@ object Network {
         }
 
         // if response is successful we should have login response in body
-        val respJson = JSONObject(resp.body()!!.string())
+        val respJson = JSONObject(resp.body!!.string())
         return respJson.get("link") as String
     }
 
@@ -1288,13 +1295,13 @@ object Network {
      * @return [HttpApiException] if specific errors were found or generic [HttpException] for this response
      */
     private fun extractErrors(resp: Response, message: String) : HttpException {
-        if (resp.code() in HTTP_BAD_REQUEST until HTTP_INTERNAL_ERROR) { // 400-499: client error
-            if (resp.body()?.contentType() != MIME_JSON_API) {
+        if (resp.code in HTTP_BAD_REQUEST until HTTP_INTERNAL_ERROR) { // 400-499: client error
+            if (resp.body?.contentType() != MIME_JSON_API) {
                 return HttpException(resp, message)
             }
 
             // try to get error info
-            val body = resp.body()!!.source()
+            val body = resp.body!!.source()
             if (body.exhausted()) // no content
                 return HttpException(resp, message)
 

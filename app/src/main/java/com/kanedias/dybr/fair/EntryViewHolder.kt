@@ -31,7 +31,6 @@ import com.ftinc.scoop.adapters.TextViewColorAdapter
 import com.kanedias.dybr.fair.databinding.FragmentEntryListItemBinding
 import com.kanedias.dybr.fair.dto.*
 import com.kanedias.dybr.fair.misc.idMatches
-import com.kanedias.dybr.fair.misc.onClickSingleOnly
 import com.kanedias.dybr.fair.misc.showFullscreenFragment
 import com.kanedias.dybr.fair.service.Network
 import com.kanedias.dybr.fair.themes.*
@@ -586,7 +585,9 @@ class EntryViewHolder(iv: View, parentFragment: UserContentListFragment, private
 
             val reactionView = LayoutInflater.from(itemView.context).inflate(R.layout.view_reaction, binding.entryReactionsRow, false)
 
-            reactionView.onClickSingleOnly { toggleReaction(it, reactionType) }
+            reactionView.setOnClickListener {
+                parentFragment.lifecycleScope.launch { toggleReaction(it, reactionType) }
+            }
             if (includingMe) {
                 reactionView.isSelected = true
             }

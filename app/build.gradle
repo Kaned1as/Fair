@@ -9,22 +9,18 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
-    ndkVersion "21.3.6528147"
+    compileSdkVersion 31
+    ndkVersion "22.1.7171670"
 
     buildFeatures {
         viewBinding true
     }
 
-    lintOptions {
-        disable 'MissingTranslation'
-        disable 'ExtraTranslation'
-    }
 
     defaultConfig {
         applicationId "com.kanedias.dybr.fair"
-        targetSdkVersion 29 // device you test on
-        minSdkVersion 21    // device you allow your users to be on :)
+        targetSdkVersion 31 // device you test on
+        minSdkVersion 24    // device you allow your users to be on :)
         versionCode 120
         versionName "1.27.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -78,6 +74,10 @@ android {
             universalApk false
         }
     }
+    lint {
+        disable 'MissingTranslation', 'ExtraTranslation'
+    }
+    namespace 'com.kanedias.dybr.fair'
 
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -116,19 +116,20 @@ play {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"     // Kotlin language support
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"         // Kotlin reflection support
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"     // Kotlin UI context
-    implementation 'com.google.android.material:material:1.4.0'                 // Material design support lib
-    implementation 'androidx.appcompat:appcompat:1.3.0-rc01'                    // basic toolbars etc.
-    implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'            // android lifecycle callbacks
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'             // coroutines lifecycle scopes
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0"     // Kotlin UI context
+    implementation 'com.google.android.material:material:1.5.0'                 // Material design support lib
+    implementation 'androidx.appcompat:appcompat:1.6.0-alpha01'                 // basic toolbars etc.
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.5.0-beta01'     // android lifecycle callbacks
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-beta01'    // coroutines lifecycle scopes
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-beta01'      // coroutines lifecycle scopes
     implementation 'androidx.cardview:cardview:1.0.0'                           // snappy cardview for lists
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'       // swipe-to-refresh layout
-    implementation 'androidx.preference:preference-ktx:1.1.1'                   // preference fragment compatibility
+    implementation 'androidx.preference:preference-ktx:1.2.0'                   // preference fragment compatibility
     implementation "ch.acra:acra-mail:$acraVersion"                             // crash handler
     implementation "ch.acra:acra-dialog:$acraVersion"
-    implementation "android.arch.work:work-runtime-ktx:1.0.1"                   // job scheduler
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'                        // job scheduler
     implementation 'com.j256.ormlite:ormlite-android:5.1'                       // ORM for local storage
-    implementation 'com.squareup.okhttp3:okhttp:3.14.2'                         // android http client
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'                          // android http client
     implementation 'com.afollestad.material-dialogs:core:3.3.0'                 // material design for dialogs
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
     implementation 'com.afollestad.material-dialogs:datetime:3.3.0'
@@ -152,19 +153,19 @@ dependencies {
     implementation 'com.github.anderscheow:validator:2.2.1'                     // input text validators
 
     // Core library
-    androidTestImplementation 'androidx.test:core:1.3.0'
+    androidTestImplementation 'androidx.test:core:1.4.0'
 
     // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation 'androidx.test:runner:1.3.0'
-    androidTestImplementation 'androidx.test:rules:1.3.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test:rules:1.4.0'
 
     // Assertions
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.ext:truth:1.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.ext:truth:1.4.0'
     androidTestImplementation 'com.google.truth:truth:1.0'
     androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
 
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation 'org.awaitility:awaitility:3.0.0'                        // useful wait-for-condition
     androidTestImplementation 'org.apache.commons:commons-text:1.7'                    // random string generator
 }

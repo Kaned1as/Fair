@@ -1,6 +1,6 @@
 package com.kanedias.dybr.fair.markdown
 
-import android.Manifest
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.text.Html
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
@@ -30,7 +29,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.text.HtmlCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -56,12 +54,7 @@ import io.noties.markwon.utils.NoCopySpannableFactory
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.internal.util.Escaping
-import org.commonmark.node.HtmlBlock
-import org.commonmark.node.Node
 import org.commonmark.parser.Parser
-import org.commonmark.renderer.NodeRenderer
-import org.commonmark.renderer.html.AttributeProvider
-import org.commonmark.renderer.html.HtmlNodeRendererFactory
 import org.commonmark.renderer.html.HtmlRenderer
 import java.io.File
 import java.io.IOException
@@ -354,8 +347,8 @@ class ImageShowOverlay(ctx: Context,
             val activity = context as? Activity ?: return@setOnClickListener
 
             // request SD write permissions if we don't have it already
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+            if (ContextCompat.checkSelfPermission(context, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, arrayOf(WRITE_EXTERNAL_STORAGE), 0)
                 return@setOnClickListener
             }
 
@@ -364,7 +357,7 @@ class ImageShowOverlay(ctx: Context,
 
                 override fun onResourceReady(resource: File, transition: Transition<in File>?) {
                     val downloadDir = Environment.DIRECTORY_DOWNLOADS
-                    val filename = resolved.pathSegments().last()
+                    val filename = resolved.pathSegments.last()
 
                     // on API >= 29 we must use media store API, direct access to SD-card is no longer available
                     val ostream = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -382,7 +375,7 @@ class ImageShowOverlay(ctx: Context,
                         File(downloads, filename).outputStream()
                     }
 
-                    ostream.write(resource.readBytes())
+                    ostream.use { os -> os.write(resource.readBytes()) }
 
                     val report = context.getString(R.string.image_saved_as) + " $downloadDir/$filename"
                     Toast.makeText(context, report, Toast.LENGTH_SHORT).show()

@@ -185,7 +185,7 @@ class MainActivity : AppCompatActivity() {
         styleLevel.bind(ACCENT_TEXT, binding.floatingButton, FabIconAdapter())
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_action_bar_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
